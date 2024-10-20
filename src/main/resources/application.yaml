@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: attack-defence-platform
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        ddl-auto: validate
+  datasource:
+    url: jdbc:postgresql://localhost:5430/wallet
+    username: wallet
+    password: wallet
+  flyway:
+    enabled: true
+    locations:
+      - migration
+springdoc:
+  swagger-ui:
+    enabled: true
+
+jwt:
+  secret: r1Wq3Y7Ql8ivrpC4A6vEgBg1kllCKCrFkwhbZUNZ6Y8=
+  access:
+    lifetime: 30m
+  refresh:
+    lifetime: 1d

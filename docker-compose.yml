@@ -1,0 +1,27 @@
+version: '3.9'
+services:
+  postgres:
+    container_name: postgres1
+    image: postgres:16
+    hostname: database
+    volumes:
+      - ./postgres:/docker-entrypoint-initdb.d
+    environment:
+      - POSTGRES_DB=wallet
+      - POSTGRES_USER=wallet
+      - POSTGRES_PASSWORD=wallet
+    ports:
+      - "5430:5432"
+  webapi:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    hostname: webapi
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/wallet
+      - POSTGRES_USER=wallet
+      - POSTGRES_PASSWORD=wallet
