@@ -7,9 +7,9 @@ services:
     volumes:
       - ./postgres:/docker-entrypoint-initdb.d
     environment:
-      - POSTGRES_DB=wallet
-      - POSTGRES_USER=wallet
-      - POSTGRES_PASSWORD=wallet
+      - POSTGRES_DB=attackdefencedb
+      - POSTGRES_USER=attackdefencedb
+      - POSTGRES_PASSWORD=attackdefencedb
     ports:
       - "5430:5432"
   webapi:
@@ -22,6 +22,6 @@ services:
     depends_on:
       - postgres
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/wallet
-      - POSTGRES_USER=wallet
-      - POSTGRES_PASSWORD=wallet
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/attackdefencedb
+      - POSTGRES_USER=attackdefencedb
+      - POSTGRES_PASSWORD=attackdefencedb

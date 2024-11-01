@@ -8,9 +8,9 @@ spring:
         format_sql: true
         ddl-auto: validate
   datasource:
-    url: jdbc:postgresql://localhost:5430/wallet
-    username: wallet
-    password: wallet
+    url: jdbc:postgresql://localhost:5430/attackdefencedb
+    username: attackdefencedb
+    password: attackdefencedb
   flyway:
     enabled: true
     locations:
