@@ -1,5 +1,7 @@
-package ru.hits.attackdefenceplatform.core.user.repository;
+package ru.hits.attackdefenceplatform.core.user.mapper;
 
+import ru.hits.attackdefenceplatform.core.user.repository.Role;
+import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
 import ru.hits.attackdefenceplatform.public_interface.user.CreateUserRequest;
 import ru.hits.attackdefenceplatform.public_interface.user.UserDto;
 

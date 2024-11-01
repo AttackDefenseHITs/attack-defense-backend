@@ -5,7 +5,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
-import ru.hits.attackdefenceplatform.core.user.repository.UserMapper;
+import ru.hits.attackdefenceplatform.core.user.mapper.UserMapper;
 import ru.hits.attackdefenceplatform.core.user.repository.UserRepository;
 import ru.hits.attackdefenceplatform.public_interface.token.TokenResponse;
 import ru.hits.attackdefenceplatform.public_interface.user.CreateUserRequest;

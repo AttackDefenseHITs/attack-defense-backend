@@ -16,7 +16,7 @@ import ru.hits.attackdefenceplatform.public_interface.user.LoginUserRequest;
 
 @RestController
 @RequestMapping("api/auth")
-@Tag(name = "Пользователь")
+@Tag(name = "Авторизация")
 @RequiredArgsConstructor
 public class AuthController {
     private final UserService userService;

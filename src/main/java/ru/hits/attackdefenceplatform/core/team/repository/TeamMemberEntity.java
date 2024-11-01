@@ -13,9 +13,9 @@ import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
 import java.util.UUID;
 
 @Entity
-@Table(name = "members")
+@Table(name = "team_members")
 @Data
-public class MemberEntity {
+public class TeamMemberEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
