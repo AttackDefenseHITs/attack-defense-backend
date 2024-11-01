@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.hits.attackdefenceplatform.core.user.UserService;
 import ru.hits.attackdefenceplatform.public_interface.token.TokenResponse;
-import ru.hits.attackdefenceplatform.public_interface.user.CreateUserDto;
-import ru.hits.attackdefenceplatform.public_interface.user.LoginUserDto;
+import ru.hits.attackdefenceplatform.public_interface.user.CreateUserRequest;
+import ru.hits.attackdefenceplatform.public_interface.user.LoginUserRequest;
 
 @RestController
 @RequestMapping("api/auth")
@@ -23,13 +23,13 @@ public class AuthController {
 
     @PostMapping("login")
     @Operation(summary = "Авторизация пользователя", description = "Позволяет пользователю войти в систему")
-    public ResponseEntity<TokenResponse> loginUser(@RequestBody LoginUserDto body){
+    public ResponseEntity<TokenResponse> loginUser(@RequestBody LoginUserRequest body){
         return ResponseEntity.ok(userService.loginUser(body));
     }
 
     @PostMapping("register")
     @Operation(summary = "Регистрация пользователя", description = "Регистрирует нового пользователя")
-    public ResponseEntity<TokenResponse> registerUser(@Valid @RequestBody CreateUserDto body) {
+    public ResponseEntity<TokenResponse> registerUser(@Valid @RequestBody CreateUserRequest body) {
         return ResponseEntity.ok(userService.registerUser(body));
     }
 }

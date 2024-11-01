@@ -1,6 +1,6 @@
 package ru.hits.attackdefenceplatform.core.user.repository;
 
-import ru.hits.attackdefenceplatform.public_interface.user.CreateUserDto;
+import ru.hits.attackdefenceplatform.public_interface.user.CreateUserRequest;
 import ru.hits.attackdefenceplatform.public_interface.user.UserDto;
 
 public class UserMapper {
@@ -8,7 +8,7 @@ public class UserMapper {
         return new UserDto(user.getId(), user.getLogin(), user.getName(), user.getRole());
     }
 
-    public static UserEntity mapCreateUserDtoToEntity(CreateUserDto dto){
+    public static UserEntity mapCreateUserDtoToEntity(CreateUserRequest dto){
         UserEntity user = new UserEntity();
         user.setName(dto.name());
         user.setLogin(dto.login());

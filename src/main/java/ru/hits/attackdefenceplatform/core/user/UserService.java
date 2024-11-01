@@ -8,8 +8,8 @@ import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
 import ru.hits.attackdefenceplatform.core.user.repository.UserMapper;
 import ru.hits.attackdefenceplatform.core.user.repository.UserRepository;
 import ru.hits.attackdefenceplatform.public_interface.token.TokenResponse;
-import ru.hits.attackdefenceplatform.public_interface.user.CreateUserDto;
-import ru.hits.attackdefenceplatform.public_interface.user.LoginUserDto;
+import ru.hits.attackdefenceplatform.public_interface.user.CreateUserRequest;
+import ru.hits.attackdefenceplatform.public_interface.user.LoginUserRequest;
 import ru.hits.attackdefenceplatform.util.JwtTokenUtils;
 
 import java.util.Optional;
@@ -22,7 +22,7 @@ public class UserService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Transactional
-    public TokenResponse registerUser(CreateUserDto dto){
+    public TokenResponse registerUser(CreateUserRequest dto){
         var userEntity = UserMapper.mapCreateUserDtoToEntity(dto);
         userEntity.setPassword(bCryptPasswordEncoder.encode(dto.password()));
         userRepository.save(userEntity);
@@ -35,7 +35,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public TokenResponse loginUser(LoginUserDto dto){
+    public TokenResponse loginUser(LoginUserRequest dto){
         Optional<UserEntity> user = userRepository.findByLogin(dto.login());
         if (!validateUser(user, dto.password())){
             throw new RuntimeException("Invalid login or password");

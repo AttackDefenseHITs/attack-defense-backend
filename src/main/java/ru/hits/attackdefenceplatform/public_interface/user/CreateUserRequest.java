@@ -1,6 +1,6 @@
 package ru.hits.attackdefenceplatform.public_interface.user;
 
-public record CreateUserDto(
+public record CreateUserRequest(
     String login,
     String name,
     String password,
