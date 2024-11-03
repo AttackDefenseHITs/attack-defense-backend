@@ -31,16 +31,19 @@ jobs:
           docker tag attackdefense/webapi:latest docker.io/${{ secrets.DOCKER_USERNAME }}/webapi:latest
           docker push docker.io/${{ secrets.DOCKER_USERNAME }}/webapi:latest
 
+      - name: Add VPS to known_hosts
+        run: |
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
       - name: Deploy to VPS
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
         run: |
-          ssh $VPS_USER@$VPS_HOST << 'EOF'
+          ssh -t $VPS_USER@$VPS_HOST << 'EOF'
             cd attack-defense-backend/
-
             git pull
-
             docker-compose down
             docker-compose up -d --build
           EOF
+      
