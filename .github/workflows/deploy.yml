@@ -52,6 +52,8 @@ jobs:
           
             docker pull docker.io/${{ secrets.DOCKER_USERNAME }}/webapi:latest
             
+            cat .env
+            
             docker-compose down
             docker-compose up -d
           EOF
