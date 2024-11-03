@@ -28,7 +28,7 @@ public class SpringSecurityConfiguration {
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/users/profile").authenticated()
+                        .requestMatchers("/api/team").authenticated()
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

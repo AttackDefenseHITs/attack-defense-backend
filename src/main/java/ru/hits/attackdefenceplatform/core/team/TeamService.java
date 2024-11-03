@@ -10,8 +10,14 @@ import ru.hits.attackdefenceplatform.core.team.repository.TeamRepository;
 import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
 import ru.hits.attackdefenceplatform.core.user.repository.UserRepository;
 import ru.hits.attackdefenceplatform.public_interface.team.CreateTeamRequest;
+import ru.hits.attackdefenceplatform.public_interface.team.TeamInfoDto;
+import ru.hits.attackdefenceplatform.public_interface.team.TeamListDto;
+import ru.hits.attackdefenceplatform.public_interface.user.UserDto;
 
+import java.util.List;
 import java.util.UUID;
+
+import static ru.hits.attackdefenceplatform.core.user.mapper.UserMapper.mapUserEntityToDto;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +45,11 @@ public class TeamService {
         var team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new RuntimeException("Команда с ID " + teamId + " не найдена"));
 
+        boolean isUserInAnyTeam = teamMemberRepository.existsByUser(user);
+        if (isUserInAnyTeam) {
+            throw new RuntimeException("Пользователь уже состоит в другой команде");
+        }
+
         long currentMembersCount = teamMemberRepository.countByTeam(team);
         if (currentMembersCount >= team.getMaxMembers()) {
             throw new RuntimeException("В команде с ID " + teamId + " нет места для нового участника");
@@ -60,5 +71,30 @@ public class TeamService {
                 .orElseThrow(() -> new RuntimeException("Пользователь не состоит в команде с ID " + teamId));
 
         teamMemberRepository.delete(teamMember);
+    }
+
+    @Transactional(readOnly = true)
+    public TeamInfoDto getTeamById(UUID teamId) {
+        var team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new RuntimeException("Команда с ID " + teamId + " не найдена"));
+
+        var userCount = teamMemberRepository.countByTeam(team);
+        var membersCount = team.getMaxMembers();
+
+        var memberList = teamMemberRepository.findByTeam(team).stream()
+                .map(member -> mapUserEntityToDto(member.getUser()))
+                .toList();
+
+        return new TeamInfoDto(team.getId(), team.getName(), userCount, membersCount, memberList);
+    }
+
+    @Transactional(readOnly = true)
+    public List<TeamListDto> getAllTeams() {
+        return teamRepository.findAll().stream().map(team -> {
+            var userCount = teamMemberRepository.countByTeam(team);
+            var membersCount = team.getMaxMembers();
+
+            return new TeamListDto(team.getId(), team.getName(), userCount, membersCount);
+        }).toList();
     }
 }

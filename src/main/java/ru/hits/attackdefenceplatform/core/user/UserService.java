@@ -10,8 +10,10 @@ import ru.hits.attackdefenceplatform.core.user.repository.UserRepository;
 import ru.hits.attackdefenceplatform.public_interface.token.TokenResponse;
 import ru.hits.attackdefenceplatform.public_interface.user.CreateUserRequest;
 import ru.hits.attackdefenceplatform.public_interface.user.LoginUserRequest;
+import ru.hits.attackdefenceplatform.public_interface.user.UserDto;
 import ru.hits.attackdefenceplatform.util.JwtTokenUtils;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -47,6 +49,13 @@ public class UserService {
                 jwtTokenUtils.generateRefreshToken(userDto)
         );
 
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserDto> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(UserMapper::mapUserEntityToDto)
+                .toList();
     }
 
     private boolean validateUser(Optional<UserEntity> user, String rawPassword) {

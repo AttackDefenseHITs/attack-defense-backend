@@ -19,5 +19,5 @@ public class TeamEntity {
 
     private String name;
 
-    private Integer maxMembers;
+    private Long maxMembers;
 }

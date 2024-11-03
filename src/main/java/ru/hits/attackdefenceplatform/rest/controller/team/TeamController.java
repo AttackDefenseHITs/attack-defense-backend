@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,7 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.hits.attackdefenceplatform.core.team.TeamService;
 import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
 import ru.hits.attackdefenceplatform.public_interface.team.CreateTeamRequest;
+import ru.hits.attackdefenceplatform.public_interface.team.TeamInfoDto;
+import ru.hits.attackdefenceplatform.public_interface.team.TeamListDto;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -28,29 +32,43 @@ public class TeamController {
     @PostMapping
     @Operation(summary = "Создать команду")
     public ResponseEntity<UUID> createTeam(@RequestBody CreateTeamRequest request) {
-        UUID teamId = teamService.createTeam(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(teamId);
+        var teamId = teamService.createTeam(request);
+        return ResponseEntity.ok(teamId);
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Удалить команду")
     public ResponseEntity<Void> deleteTeam(@PathVariable UUID id) {
         teamService.deleteTeam(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/{teamId}/join")
     @Operation(summary = "Присоединиться к команде")
     public ResponseEntity<Void> joinToTeam(@PathVariable UUID teamId, @AuthenticationPrincipal UserEntity user) {
         teamService.joinToTeam(user, teamId);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/{teamId}/leave")
+    @DeleteMapping("/{teamId}/leave")
     @Operation(summary = "Выйти из команды")
     public ResponseEntity<Void> leftFromTeam(@PathVariable UUID teamId, @AuthenticationPrincipal UserEntity user) {
         teamService.leftFromTeam(user, teamId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Получить информацию о команде")
+    public ResponseEntity<TeamInfoDto> getTeamById(@PathVariable UUID id) {
+        var teamInfo = teamService.getTeamById(id);
+        return ResponseEntity.ok(teamInfo);
+    }
+
+    @GetMapping
+    @Operation(summary = "Получить список всех команд")
+    public ResponseEntity<List<TeamListDto>> getAllTeams() {
+        var teams = teamService.getAllTeams();
+        return ResponseEntity.ok(teams);
     }
 }
 

@@ -5,6 +5,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,29 +32,14 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
+            @NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        String authHeader = request.getHeader("Authorization");
-        String jwt = null;
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            jwt = authHeader.substring(7);
+        var jwt = extractJwtFromRequest(request);
+        if (jwt != null) {
             try {
-                UUID userId = jwtTokenUtils.getUserIdFromToken(jwt);
-                if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    UserEntity user = userRepository.findById(userId)
-                            .orElse(null);
-                    if (user != null) {
-                        List<GrantedAuthority> authorities = Collections.singletonList(
-                                new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
-                        );
-                        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-                                user, jwt, authorities
-                        );
-                        SecurityContextHolder.getContext().setAuthentication(token);
-                    }
-                }
+                authenticateUser(jwt);
             } catch (ExpiredJwtException e) {
                 log.debug("Token is expired");
             } catch (Exception e) {
@@ -62,4 +48,30 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         }
         filterChain.doFilter(request, response);
     }
+
+    private String extractJwtFromRequest(HttpServletRequest request) {
+        var authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
+        }
+        return null;
+    }
+
+    private void authenticateUser(String jwt) {
+        var userId = jwtTokenUtils.getUserIdFromToken(jwt);
+        if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            userRepository.findById(userId).ifPresent(user -> setAuthentication(user, jwt));
+        }
+    }
+
+    private void setAuthentication(UserEntity user, String jwt) {
+        List<GrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
+        );
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+                user, jwt, authorities
+        );
+        SecurityContextHolder.getContext().setAuthentication(token);
+    }
 }
+
