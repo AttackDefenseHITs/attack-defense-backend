@@ -43,7 +43,7 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
-          ssh -t $VPS_USER@$VPS_HOST << 'EOF'
+          ssh -t $VPS_USER@$VPS_HOST << EOF
             cd attack-defense-backend/
           
             echo "POSTGRES_USER=${POSTGRES_USER}" > .env
