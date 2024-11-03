@@ -44,7 +44,11 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
           ssh -t $VPS_USER@$VPS_HOST << 'EOF'
-            docker pull docker.io/$DOCKER_USERNAME/webapi:latest
+            export POSTGRES_USER="${POSTGRES_USER}"
+            export POSTGRES_PASSWORD="${POSTGRES_PASSWORD}"
+            export DOCKER_USERNAME="${DOCKER_USERNAME}"
+          
+            docker pull docker.io/${{ secrets.DOCKER_USERNAME }}/webapi:latest
             cd attack-defense-backend/
             git pull
             docker-compose down
