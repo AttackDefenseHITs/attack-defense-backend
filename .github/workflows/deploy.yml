@@ -44,18 +44,15 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
           ssh -t $VPS_USER@$VPS_HOST << 'EOF'
-            export POSTGRES_USER="${POSTGRES_USER}"
-            export POSTGRES_PASSWORD="${POSTGRES_PASSWORD}"
-            export DOCKER_USERNAME="${DOCKER_USERNAME}"
+            cd attack-defense-backend/
           
             echo "POSTGRES_USER=${POSTGRES_USER}" > .env
             echo "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" >> .env
-            echo "DOCKER_USERNAME=${DOCKER_USERNAME}" >> .env
+            echo "DOCKER_USERNAME=${DOCKER_USERNAME}"
           
             docker pull docker.io/${{ secrets.DOCKER_USERNAME }}/webapi:latest
-            cd attack-defense-backend/
-            git pull
+            
             docker-compose down
-            docker-compose up -d --build
+            docker-compose up -d
           EOF
       
