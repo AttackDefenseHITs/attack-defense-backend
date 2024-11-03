@@ -56,6 +56,6 @@ jobs:
             cd attack-defense-backend/
             git pull
             docker-compose down
-            docker-compose up -d --build --env-file .env
+            docker-compose up -d --build
           EOF
       
