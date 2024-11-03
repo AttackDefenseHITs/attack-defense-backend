@@ -48,10 +48,14 @@ jobs:
             export POSTGRES_PASSWORD="${POSTGRES_PASSWORD}"
             export DOCKER_USERNAME="${DOCKER_USERNAME}"
           
+            echo "POSTGRES_USER=${POSTGRES_USER}" > .env
+            echo "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" >> .env
+            echo "DOCKER_USERNAME=${DOCKER_USERNAME}" >> .env
+          
             docker pull docker.io/${{ secrets.DOCKER_USERNAME }}/webapi:latest
             cd attack-defense-backend/
             git pull
             docker-compose down
-            docker-compose up -d --build
+            docker-compose up -d --build --env-file .env
           EOF
       
