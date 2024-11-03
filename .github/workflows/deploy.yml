@@ -39,15 +39,15 @@ jobs:
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
           VPS_USER: ${{ secrets.VPS_USER }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
           ssh -t $VPS_USER@$VPS_HOST << 'EOF'
-            docker pull docker.io/${{ secrets.DOCKER_USERNAME }}/webapi:latest
-            docker stop webapi || true
-            docker rm webapi || true
-            docker run -d --name webapi -p 8080:8080 \
-              -e SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/attackdefensedb \
-              -e POSTGRES_USER=${POSTGRES_USER} \
-              -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
-              docker.io/${{ secrets.DOCKER_USERNAME }}/webapi:latest
+            docker pull docker.io/$DOCKER_USERNAME/webapi:latest
+            cd attack-defense-backend/
+            git pull
+            docker-compose down
+            docker-compose up -d --build
           EOF
       

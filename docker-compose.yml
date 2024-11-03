@@ -14,9 +14,7 @@ services:
       - "5430:5432"
 
   webapi:
-    build:
-      dockerfile: Dockerfile
-      context: .
+    image: docker.io/${DOCKER_USERNAME}/webapi:latest
     hostname: webapi
     ports:
       - "8080:8080"
