@@ -5,13 +5,14 @@ services:
     image: postgres:16
     hostname: database
     volumes:
-      - ./postgres:/docker-entrypoint-initdb.d
+      - pgdata:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=attackdefencedb
-      - POSTGRES_USER=attackdefencedb
-      - POSTGRES_PASSWORD=attackdefencedb
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
       - "5430:5432"
+
   webapi:
     build:
       dockerfile: Dockerfile
@@ -23,5 +24,8 @@ services:
       - postgres
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/attackdefencedb
-      - POSTGRES_USER=attackdefencedb
-      - POSTGRES_PASSWORD=attackdefencedb
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+
+volumes:
+  pgdata:

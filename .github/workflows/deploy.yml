@@ -1,0 +1,46 @@
+name: Deploy Attack-Defense
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.VPS_KEY }}
+
+      - name: Build Docker image
+        run: |
+          docker build -t attackdefense/webapi:latest .
+
+      - name: Log in to Docker Hub
+        run: |
+          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+
+      - name: Push Docker image to registry
+        run: |
+          docker tag attackdefense/webapi:latest docker.io/${{ secrets.DOCKER_USERNAME }}/webapi:latest
+          docker push docker.io/${{ secrets.DOCKER_USERNAME }}/webapi:latest
+
+      - name: Deploy to VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          ssh $VPS_USER@$VPS_HOST << 'EOF'
+            cd attack-defense-backend/
+
+            git pull
+
+            docker-compose down
+            docker-compose up -d --build
+          EOF
