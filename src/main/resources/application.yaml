@@ -9,8 +9,8 @@ spring:
         ddl-auto: validate
   datasource:
     url: jdbc:postgresql://localhost:5430/attackdefencedb
-    username: attackdefencedb
-    password: attackdefencedb
+    username: ${POSTGRES_USER:attackdefencedb}
+    password: ${POSTGRES_PASSWORD:attackdefencedb}
   flyway:
     enabled: true
     locations:
@@ -20,7 +20,7 @@ springdoc:
     enabled: true
 
 jwt:
-  secret: r1Wq3Y7Ql8ivrpC4A6vEgBg1kllCKCrFkwhbZUNZ6Y8=
+  secret: ${JWT_SECRET:r1Wq3Y7Ql8ivrpC4A6vEgBg1kllCKCrFkwhbZUNZ6Y8=}
   access:
     lifetime: 30m
   refresh:

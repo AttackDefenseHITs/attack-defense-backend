@@ -12,7 +12,7 @@ public class OpenApiConfiguration {
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
-                .info(new Info().title("Attack-Defence API").version("v1"))
+                .info(new Info().title("Attack-Defense API").version("v1"))
                 .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
                 .components(new io.swagger.v3.oas.models.Components()
                         .addSecuritySchemes("bearerAuth", new SecurityScheme()

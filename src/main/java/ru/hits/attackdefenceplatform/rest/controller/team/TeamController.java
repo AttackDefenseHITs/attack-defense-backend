@@ -10,11 +10,13 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.hits.attackdefenceplatform.core.team.TeamService;
 import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
+import ru.hits.attackdefenceplatform.public_interface.team.CreateManyTeamsRequest;
 import ru.hits.attackdefenceplatform.public_interface.team.CreateTeamRequest;
 import ru.hits.attackdefenceplatform.public_interface.team.TeamInfoDto;
 import ru.hits.attackdefenceplatform.public_interface.team.TeamListDto;
@@ -69,6 +71,20 @@ public class TeamController {
     public ResponseEntity<List<TeamListDto>> getAllTeams() {
         var teams = teamService.getAllTeams();
         return ResponseEntity.ok(teams);
+    }
+
+    @PostMapping("/bulk")
+    @Operation(summary = "Создать несколько команд")
+    public ResponseEntity<List<UUID>> createManyTeams(@RequestBody CreateManyTeamsRequest request) {
+        var teamIds = teamService.createManyTeams(request);
+        return ResponseEntity.ok(teamIds);
+    }
+
+    @PutMapping("/{teamId}")
+    @Operation(summary = "Обновить данные команды")
+    public ResponseEntity<Void> updateTeam(@PathVariable UUID teamId, @RequestBody CreateTeamRequest request) {
+        teamService.updateTeam(teamId, request);
+        return ResponseEntity.ok().build();
     }
 }
 

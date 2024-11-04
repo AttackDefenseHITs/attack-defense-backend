@@ -9,12 +9,15 @@ import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberRepository;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamRepository;
 import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
 import ru.hits.attackdefenceplatform.core.user.repository.UserRepository;
+import ru.hits.attackdefenceplatform.public_interface.team.CreateManyTeamsRequest;
 import ru.hits.attackdefenceplatform.public_interface.team.CreateTeamRequest;
 import ru.hits.attackdefenceplatform.public_interface.team.TeamInfoDto;
 import ru.hits.attackdefenceplatform.public_interface.team.TeamListDto;
 import ru.hits.attackdefenceplatform.public_interface.user.UserDto;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static ru.hits.attackdefenceplatform.core.user.mapper.UserMapper.mapUserEntityToDto;
@@ -96,5 +99,36 @@ public class TeamService {
 
             return new TeamListDto(team.getId(), team.getName(), userCount, membersCount);
         }).toList();
+    }
+
+    @Transactional
+    public List<UUID> createManyTeams(CreateManyTeamsRequest request) {
+        List<UUID> teamIds = new ArrayList<>();
+        for (long i = 1; i <= request.teamsCount(); i++) {
+            String teamName = "Команда " + i;
+
+            var team = new TeamEntity();
+            team.setName(teamName);
+            team.setMaxMembers(request.maxMembers());
+
+            var newTeam = teamRepository.save(team);
+            teamIds.add(newTeam.getId());
+        }
+        return teamIds;
+    }
+
+    @Transactional
+    public void updateTeam(UUID teamId, CreateTeamRequest request) {
+        var team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new RuntimeException("Команда с ID " + teamId + " не найдена"));
+
+        Optional.ofNullable(request.name())
+                .filter(name -> !name.isBlank())
+                .ifPresent(team::setName);
+
+        Optional.ofNullable(request.maxMembers())
+                .ifPresent(team::setMaxMembers);
+
+        teamRepository.save(team);
     }
 }
