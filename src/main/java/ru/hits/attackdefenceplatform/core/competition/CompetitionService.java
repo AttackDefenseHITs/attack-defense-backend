@@ -3,6 +3,7 @@ package ru.hits.attackdefenceplatform.core.competition;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.hits.attackdefenceplatform.core.competition.mapper.CompetitionMapper;
 import ru.hits.attackdefenceplatform.core.competition.repository.Competition;
 import ru.hits.attackdefenceplatform.core.competition.repository.CompetitionRepository;
 import ru.hits.attackdefenceplatform.core.competition.repository.CompetitionStatus;
@@ -121,7 +122,7 @@ public class CompetitionService {
      * Метод для обновления настроек соревнования
      */
     @Transactional
-    public Competition updateCompetition(UpdateCompetitionRequest request) {
+    public CompetitionDto updateCompetition(UpdateCompetitionRequest request) {
         var competition = getCompetition();
 
         Optional.ofNullable(request.name())
@@ -141,7 +142,8 @@ public class CompetitionService {
                 .filter(rules -> !rules.isBlank())
                 .ifPresent(competition::setRules);
 
-        return competitionRepository.save(competition);
+        var newCompetition = competitionRepository.save(competition);
+        return CompetitionMapper.mapToCompetitionDto(newCompetition);
     }
 
     /**
