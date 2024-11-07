@@ -23,9 +23,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-@Component
-@RequiredArgsConstructor
 @Slf4j
+@RequiredArgsConstructor
 public class JwtRequestFilter extends OncePerRequestFilter {
     private final JwtTokenUtils jwtTokenUtils;
     private final UserRepository userRepository;
