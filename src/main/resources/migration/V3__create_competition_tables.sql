@@ -2,8 +2,8 @@ CREATE TABLE competitions (
         id BIGINT NOT NULL PRIMARY KEY,
         status VARCHAR(255) NOT NULL,
         name VARCHAR(255) NOT NULL,
-        start_date TIMESTAMP NOT NULL,
-        end_date TIMESTAMP NOT NULL,
+        start_date TIMESTAMP,
+        end_date TIMESTAMP,
         duration_minutes INT,
         rules TEXT
 );
