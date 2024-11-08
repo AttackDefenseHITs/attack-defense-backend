@@ -7,6 +7,7 @@ import ru.hits.attackdefenceplatform.core.competition.mapper.CompetitionMapper;
 import ru.hits.attackdefenceplatform.core.competition.repository.Competition;
 import ru.hits.attackdefenceplatform.core.competition.repository.CompetitionRepository;
 import ru.hits.attackdefenceplatform.core.competition.repository.CompetitionStatus;
+import ru.hits.attackdefenceplatform.core.competition.state.CompetitionState;
 import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionDto;
 import ru.hits.attackdefenceplatform.public_interface.competition.UpdateCompetitionRequest;
 
@@ -112,10 +113,8 @@ public class CompetitionService {
             throw new RuntimeException("Соревнование уже находится в состоянии NEW");
         }
 
-        competition.setStatus(CompetitionStatus.NEW);
-        competition.setStartDate(null);
-        competition.setEndDate(null);
-        competitionRepository.save(competition);
+        var newCompetition = CompetitionState.getDefaultCompetitionState();
+        competitionRepository.save(newCompetition);
     }
 
     /**
