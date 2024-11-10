@@ -38,6 +38,8 @@ public class SpringSecurityConfiguration {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/team").authenticated()
+                        .requestMatchers("/api/competition").authenticated()
+                        .requestMatchers("/api/users").authenticated()
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
