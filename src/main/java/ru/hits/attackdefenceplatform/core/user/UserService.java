@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.hits.attackdefenceplatform.common.exception.UserAlreadyExistsException;
 import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
 import ru.hits.attackdefenceplatform.core.user.mapper.UserMapper;
 import ru.hits.attackdefenceplatform.core.user.repository.UserRepository;
@@ -24,7 +25,11 @@ public class UserService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Transactional
-    public TokenResponse registerUser(CreateUserRequest dto){
+    public TokenResponse registerUser(CreateUserRequest dto) {
+        if (userRepository.findByLogin(dto.login()).isPresent()) {
+            throw new UserAlreadyExistsException("Пользователь с таким логином уже существует: " + dto.login());
+        }
+
         var userEntity = UserMapper.mapCreateUserDtoToEntity(dto);
         userEntity.setPassword(bCryptPasswordEncoder.encode(dto.password()));
         userRepository.save(userEntity);
@@ -36,11 +41,12 @@ public class UserService {
         );
     }
 
+
     @Transactional(readOnly = true)
     public TokenResponse loginUser(LoginUserRequest dto){
         Optional<UserEntity> user = userRepository.findByLogin(dto.login());
         if (!validateUser(user, dto.password())){
-            throw new RuntimeException("Invalid login or password");
+            throw new IllegalArgumentException("Неверный логин или пароль");
         }
 
         var userDto = UserMapper.mapUserEntityToDto(user.get());

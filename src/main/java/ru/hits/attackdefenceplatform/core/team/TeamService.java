@@ -3,6 +3,8 @@ package ru.hits.attackdefenceplatform.core.team;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.hits.attackdefenceplatform.common.exception.TeamNotFoundException;
+import ru.hits.attackdefenceplatform.common.exception.UserException;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberRepository;
@@ -46,7 +48,7 @@ public class TeamService {
     @Transactional
     public void joinToTeam(UserEntity user, UUID teamId) {
         var team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new RuntimeException("Команда с ID " + teamId + " не найдена"));
+                .orElseThrow(() -> new TeamNotFoundException("Команда с ID " + teamId + " не найдена"));
 
         boolean isUserInAnyTeam = teamMemberRepository.existsByUser(user);
         if (isUserInAnyTeam) {
@@ -68,10 +70,10 @@ public class TeamService {
     @Transactional
     public void leftFromTeam(UserEntity user, UUID teamId) {
         var team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new RuntimeException("Команда с ID " + teamId + " не найдена"));
+                .orElseThrow(() -> new TeamNotFoundException("Команда с ID " + teamId + " не найдена"));
 
         var teamMember = teamMemberRepository.findByUserAndTeam(user, team)
-                .orElseThrow(() -> new RuntimeException("Пользователь не состоит в команде с ID " + teamId));
+                .orElseThrow(() -> new UserException("Пользователь не состоит в команде с ID " + teamId));
 
         teamMemberRepository.delete(teamMember);
     }
@@ -79,7 +81,7 @@ public class TeamService {
     @Transactional(readOnly = true)
     public TeamInfoDto getTeamById(UUID teamId) {
         var team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new RuntimeException("Команда с ID " + teamId + " не найдена"));
+                .orElseThrow(() -> new TeamNotFoundException("Команда с ID " + teamId + " не найдена"));
 
         var userCount = teamMemberRepository.countByTeam(team);
         var membersCount = team.getMaxMembers();
@@ -120,7 +122,7 @@ public class TeamService {
     @Transactional
     public void updateTeam(UUID teamId, CreateTeamRequest request) {
         var team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new RuntimeException("Команда с ID " + teamId + " не найдена"));
+                .orElseThrow(() -> new TeamNotFoundException("Команда с ID " + teamId + " не найдена"));
 
         Optional.ofNullable(request.name())
                 .filter(name -> !name.isBlank())
