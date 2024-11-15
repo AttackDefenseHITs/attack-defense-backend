@@ -1,10 +1,13 @@
-package ru.hits.attackdefenceplatform.common.exception;
+package ru.hits.attackdefenceplatform.common.handler;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import ru.hits.attackdefenceplatform.common.exception.TeamException;
+import ru.hits.attackdefenceplatform.common.exception.TeamNotFoundException;
+import ru.hits.attackdefenceplatform.common.exception.UserException;
 
 @ControllerAdvice
 @Slf4j

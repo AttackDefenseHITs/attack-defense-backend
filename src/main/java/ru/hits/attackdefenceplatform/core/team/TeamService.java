@@ -3,6 +3,7 @@ package ru.hits.attackdefenceplatform.core.team;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.hits.attackdefenceplatform.common.exception.TeamException;
 import ru.hits.attackdefenceplatform.common.exception.TeamNotFoundException;
 import ru.hits.attackdefenceplatform.common.exception.UserException;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberEntity;
@@ -52,12 +53,12 @@ public class TeamService {
 
         boolean isUserInAnyTeam = teamMemberRepository.existsByUser(user);
         if (isUserInAnyTeam) {
-            throw new RuntimeException("Пользователь уже состоит в другой команде");
+            throw new UserException("Пользователь уже состоит в другой команде");
         }
 
         long currentMembersCount = teamMemberRepository.countByTeam(team);
         if (currentMembersCount >= team.getMaxMembers()) {
-            throw new RuntimeException("В команде с ID " + teamId + " нет места для нового участника");
+            throw new TeamException("В команде с ID " + teamId + " нет места для нового участника");
         }
 
         var teamMember = new TeamMemberEntity();
