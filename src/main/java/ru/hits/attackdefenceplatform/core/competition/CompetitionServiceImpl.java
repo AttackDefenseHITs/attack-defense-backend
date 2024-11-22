@@ -3,6 +3,7 @@ package ru.hits.attackdefenceplatform.core.competition;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.hits.attackdefenceplatform.common.exception.CompetitionException;
 import ru.hits.attackdefenceplatform.core.competition.mapper.CompetitionMapper;
 import ru.hits.attackdefenceplatform.core.competition.repository.Competition;
 import ru.hits.attackdefenceplatform.core.competition.repository.CompetitionRepository;
@@ -33,7 +34,7 @@ public class CompetitionServiceImpl implements CompetitionService {
         var competition = getCompetition();
 
         if (competition.getStatus() != CompetitionStatus.NEW) {
-            throw new RuntimeException("Соревнование может быть запущено только из состояния NEW");
+            throw new CompetitionException("Соревнование может быть запущено только из состояния NEW");
         }
 
         competition.setStatus(CompetitionStatus.IN_PROGRESS);
@@ -50,7 +51,7 @@ public class CompetitionServiceImpl implements CompetitionService {
         var competition = getCompetition();
 
         if (competition.getStatus() != CompetitionStatus.IN_PROGRESS) {
-            throw new RuntimeException("Соревнование может быть завершено только из состояния IN_PROGRESS");
+            throw new CompetitionException("Соревнование может быть завершено только из состояния IN_PROGRESS");
         }
 
         competition.setStatus(CompetitionStatus.COMPLETED);
@@ -68,7 +69,7 @@ public class CompetitionServiceImpl implements CompetitionService {
 
         if (competition.getStatus() == CompetitionStatus.COMPLETED ||
                 competition.getStatus() == CompetitionStatus.CANCELLED) {
-            throw new RuntimeException("Соревнование не может быть отменено, так как оно уже завершено или отменено");
+            throw new CompetitionException("Соревнование не может быть отменено, так как оно уже завершено или отменено");
         }
 
         competition.setStatus(CompetitionStatus.CANCELLED);
@@ -84,7 +85,7 @@ public class CompetitionServiceImpl implements CompetitionService {
         var competition = getCompetition();
 
         if (competition.getStatus() != CompetitionStatus.IN_PROGRESS) {
-            throw new RuntimeException("Соревнование может быть поставлено на паузу только из состояния IN_PROGRESS");
+            throw new CompetitionException("Соревнование может быть поставлено на паузу только из состояния IN_PROGRESS");
         }
 
         competition.setStatus(CompetitionStatus.PAUSED);
@@ -100,7 +101,7 @@ public class CompetitionServiceImpl implements CompetitionService {
         var competition = getCompetition();
 
         if (competition.getStatus() != CompetitionStatus.PAUSED) {
-            throw new RuntimeException("Соревнование может быть возобновлено только из состояния PAUSED");
+            throw new CompetitionException("Соревнование может быть возобновлено только из состояния PAUSED");
         }
 
         competition.setStatus(CompetitionStatus.IN_PROGRESS);
@@ -116,7 +117,7 @@ public class CompetitionServiceImpl implements CompetitionService {
         var competition = getCompetition();
 
         if (competition.getStatus() == CompetitionStatus.NEW) {
-            throw new RuntimeException("Соревнование уже находится в состоянии NEW");
+            throw new CompetitionException("Соревнование уже находится в состоянии NEW");
         }
 
         var newCompetition = CompetitionState.getDefaultCompetitionState();
@@ -170,6 +171,6 @@ public class CompetitionServiceImpl implements CompetitionService {
     public Competition getCompetition() {
         return competitionRepository.findAll().stream()
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Соревнование не найдено"));
+                .orElseThrow(() -> new CompetitionException("Соревнование не найдено"));
     }
 }

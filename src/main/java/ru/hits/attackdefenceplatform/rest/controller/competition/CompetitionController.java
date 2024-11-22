@@ -1,5 +1,6 @@
 package ru.hits.attackdefenceplatform.rest.controller.competition;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,48 +23,56 @@ public class CompetitionController {
     private final CompetitionService competitionService;
 
     @PostMapping("/start")
+    @Operation(summary = "Запустить соревнование")
     public ResponseEntity<String> startCompetition() {
         competitionService.startCompetition();
         return ResponseEntity.ok("Соревнование запущено");
     }
 
     @PostMapping("/complete")
+    @Operation(summary = "Завершить соревнование")
     public ResponseEntity<String> completeCompetition() {
         competitionService.completeCompetition();
         return ResponseEntity.ok("Соревнование завершено");
     }
 
     @PostMapping("/cancel")
+    @Operation(summary = "Отменить соревнование")
     public ResponseEntity<String> cancelCompetition() {
         competitionService.cancelCompetition();
         return ResponseEntity.ok("Соревнование отменено");
     }
 
     @PostMapping("/pause")
+    @Operation(summary = "Поставить соревнование на паузу")
     public ResponseEntity<String> pauseCompetition() {
         competitionService.pauseCompetition();
         return ResponseEntity.ok("Соревнование поставлено на паузу");
     }
 
     @PostMapping("/resume")
+    @Operation(summary = "Продолжить соревнование")
     public ResponseEntity<String> resumeCompetition() {
         competitionService.resumeCompetition();
         return ResponseEntity.ok("Соревнование возобновлено");
     }
 
     @PostMapping("/reset")
+    @Operation(summary = "Сбросить соревнование (чистка)")
     public ResponseEntity<String> resetCompetition() {
         competitionService.resetCompetition();
         return ResponseEntity.ok("Соревнование сброшено на NEW");
     }
 
     @PutMapping("/update")
+    @Operation(summary = "Изменить настройки соревнования")
     public ResponseEntity<CompetitionDto> updateCompetition(@RequestBody UpdateCompetitionRequest request) {
         var competition = competitionService.updateCompetition(request);
         return ResponseEntity.ok(competition);
     }
 
     @GetMapping
+    @Operation(summary = "Получить настройки соревнования")
     public ResponseEntity<CompetitionDto> getCompetition() {
         var competitionDto = competitionService.getCompetitionDto();
         return ResponseEntity.ok(competitionDto);
