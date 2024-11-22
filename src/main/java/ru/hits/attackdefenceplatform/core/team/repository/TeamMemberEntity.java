@@ -1,5 +1,6 @@
 package ru.hits.attackdefenceplatform.core.team.repository;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -27,4 +28,8 @@ public class TeamMemberEntity {
     @ManyToOne
     @JoinColumn(name = "team_id", nullable = false)
     private TeamEntity team;
+
+    @Column(nullable = false)
+    private Integer points = 0;
 }
+
