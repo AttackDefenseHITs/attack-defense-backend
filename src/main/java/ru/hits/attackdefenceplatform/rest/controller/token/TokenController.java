@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.hits.attackdefenceplatform.core.token.TokenService;
+import ru.hits.attackdefenceplatform.public_interface.token.RefreshTokenRequest;
 import ru.hits.attackdefenceplatform.public_interface.token.TokenResponse;
 
 @RequiredArgsConstructor
@@ -18,12 +19,12 @@ import ru.hits.attackdefenceplatform.public_interface.token.TokenResponse;
 public class TokenController {
     private final TokenService tokenService;
 
-//    @PostMapping("/refresh-token")
-//    @Operation(
-//            summary = "Обновление токена",
-//            description = "Позволяет обновить accessToken при помощи refreshToken"
-//    )
-//    public ResponseEntity<TokenResponse> refreshToken(@RequestBody TokenRefreshRequest request) {
-//        return ResponseEntity.ok(tokenService.refreshAccessToken(request.refreshToken()));
-//    }
+    @PostMapping("/refresh")
+    @Operation(
+            summary = "Обновление токена",
+            description = "Позволяет обновить accessToken при помощи refreshToken"
+    )
+    public ResponseEntity<TokenResponse> refreshToken(@RequestBody RefreshTokenRequest request) {
+        return ResponseEntity.ok(tokenService.updateToken(request.refreshToken()));
+    }
 }

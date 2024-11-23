@@ -5,6 +5,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.hits.attackdefenceplatform.common.exception.UserAlreadyExistsException;
+import ru.hits.attackdefenceplatform.core.token.TokenService;
 import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
 import ru.hits.attackdefenceplatform.core.user.mapper.UserMapper;
 import ru.hits.attackdefenceplatform.core.user.repository.UserRepository;
@@ -17,12 +18,14 @@ import ru.hits.attackdefenceplatform.util.JwtTokenUtils;
 import java.util.List;
 import java.util.Optional;
 
+import static ru.hits.attackdefenceplatform.common.constant.CommonConstants.TOKEN_TYPE;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final JwtTokenUtils jwtTokenUtils;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final TokenService tokenService;
 
     @Override
     @Transactional
@@ -36,14 +39,11 @@ public class UserServiceImpl implements UserService {
         userRepository.save(userEntity);
 
         var userDto = UserMapper.mapUserEntityToDto(userEntity);
-        return new TokenResponse(
-                jwtTokenUtils.generateAccessToken(userDto),
-                jwtTokenUtils.generateRefreshToken(userDto)
-        );
+        return tokenService.createTokenResponse(userDto);
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public TokenResponse loginUser(LoginUserRequest dto){
         Optional<UserEntity> user = userRepository.findByLogin(dto.login());
         if (!validateUser(user, dto.password())){
@@ -51,11 +51,7 @@ public class UserServiceImpl implements UserService {
         }
 
         var userDto = UserMapper.mapUserEntityToDto(user.get());
-        return new TokenResponse(
-                jwtTokenUtils.generateAccessToken(userDto),
-                jwtTokenUtils.generateRefreshToken(userDto)
-        );
-
+        return tokenService.createTokenResponse(userDto);
     }
 
     @Override
