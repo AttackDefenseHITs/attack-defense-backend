@@ -2,7 +2,7 @@ package ru.hits.attackdefenceplatform.core.flag.mapper;
 
 import ru.hits.attackdefenceplatform.core.flag.repository.FlagEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
-import ru.hits.attackdefenceplatform.core.vulnerable.VulnerableServiceEntity;
+import ru.hits.attackdefenceplatform.core.vulnerable.repository.VulnerableServiceEntity;
 import ru.hits.attackdefenceplatform.public_interface.flag.CreateFlagRequest;
 import ru.hits.attackdefenceplatform.public_interface.flag.FlagDto;
 import ru.hits.attackdefenceplatform.public_interface.flag.FlagListDto;

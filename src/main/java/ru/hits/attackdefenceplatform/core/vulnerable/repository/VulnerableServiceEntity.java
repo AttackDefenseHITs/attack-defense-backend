@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.core.vulnerable;
+package ru.hits.attackdefenceplatform.core.vulnerable.repository;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

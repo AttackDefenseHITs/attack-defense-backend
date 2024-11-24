@@ -11,7 +11,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
-import ru.hits.attackdefenceplatform.core.vulnerable.VulnerableServiceEntity;
+import ru.hits.attackdefenceplatform.core.vulnerable.repository.VulnerableServiceEntity;
 
 import java.util.UUID;
 
