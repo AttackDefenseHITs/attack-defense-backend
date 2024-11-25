@@ -1,115 +1,43 @@
 package ru.hits.attackdefenceplatform.core.flag;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.hits.attackdefenceplatform.common.exception.TeamNotFoundException;
-import ru.hits.attackdefenceplatform.core.flag.mapper.FlagMapper;
+import ru.hits.attackdefenceplatform.common.exception.TeamException;
 import ru.hits.attackdefenceplatform.core.flag.repository.FlagRepository;
-import ru.hits.attackdefenceplatform.core.team.repository.TeamRepository;
-import ru.hits.attackdefenceplatform.core.vulnerable.repository.VulnerableServiceRepository;
-import ru.hits.attackdefenceplatform.public_interface.flag.CreateFlagRequest;
-import ru.hits.attackdefenceplatform.public_interface.flag.FlagDto;
-import ru.hits.attackdefenceplatform.public_interface.flag.FlagListDto;
-
-import java.util.List;
-import java.util.UUID;
+import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberRepository;
+import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
 
 @Service
 @RequiredArgsConstructor
 public class FlagServiceImpl implements FlagService {
     private final FlagRepository flagRepository;
-    private final TeamRepository teamRepository;
-    private final VulnerableServiceRepository vulnerableServiceRepository;
+    private final TeamMemberRepository teamMemberRepository;
 
     @Override
     @Transactional
-    public FlagDto createFlag(CreateFlagRequest request) {
-        var team = teamRepository.findById(request.teamId())
-                .orElseThrow(() -> new TeamNotFoundException("Команда с ID " + request.teamId() + " не найдена"));
+    public void sendFlag(String flagValue, UserEntity user) {
+        var currentFlag = flagRepository.findByValue(flagValue)
+                .orElseThrow(() -> new IllegalArgumentException("Неправильное значение флага"));
 
-        var service = vulnerableServiceRepository.findById(request.serviceId())
-                .orElseThrow(() -> new EntityNotFoundException("Сервис с ID " + request.serviceId() + " не найден"));
-
-        if (flagRepository.existsByVulnerableServiceAndFlagNumber(service, request.flagNumberInService())) {
-            throw new IllegalArgumentException("Флаг с таким номером уже существует в указанном сервисе");
+        if (!currentFlag.getIsActive()) {
+            throw new IllegalStateException("Флаг больше не активен");
         }
 
-        var flag = FlagMapper.fromCreateFlagRequest(request, team, service);
+        var teamMember = teamMemberRepository.findByUser(user)
+                .orElseThrow(() -> new TeamException("Пользователь не является участником соревнований"));
+        var userTeam = teamMember.getTeam();
 
-        var savedFlag = flagRepository.save(flag);
-        return FlagMapper.mapToFlagDto(savedFlag);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<FlagListDto> getAllFlags() {
-        return flagRepository.findAll().stream()
-                .map(FlagMapper::mapToFlagListDto)
-                .toList();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public FlagDto getFlagById(UUID id) {
-        var flag = flagRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Флаг с ID " + id + " не найден"));
-        return FlagMapper.mapToFlagDto(flag);
-    }
-
-    @Override
-    @Transactional
-    public void deleteFlag(UUID id) {
-        if (!flagRepository.existsById(id)) {
-            throw new EntityNotFoundException("Флаг с ID " + id + " не найден");
-        }
-        flagRepository.deleteById(id);
-    }
-
-    @Override
-    @Transactional
-    public void updateFlag(UUID id, CreateFlagRequest request) {
-        var flag = flagRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Флаг с ID " + id + " не найден"));
-
-        var team = teamRepository.findById(request.teamId())
-                .orElseThrow(() -> new EntityNotFoundException("Команда с ID " + request.teamId() + " не найдена"));
-
-        var service = vulnerableServiceRepository.findById(request.serviceId())
-                .orElseThrow(() -> new EntityNotFoundException("Сервис с ID " + request.serviceId() + " не найден"));
-
-        if (!flag.getVulnerableService().equals(service) &&
-                flagRepository.existsByVulnerableServiceAndFlagNumber(service, request.flagNumberInService())) {
-            throw new IllegalArgumentException("Флаг с таким номером уже существует в указанном сервисе");
+        if (currentFlag.getFlagOwner().equals(userTeam)) {
+            throw new IllegalArgumentException("Вы не можете отправить флаг своей команды");
         }
 
-        flag.setPoint(request.points());
-        flag.setFlagOwner(team);
-        flag.setVulnerableService(service);
-        flag.setFlagNumber(request.flagNumberInService());
-        flagRepository.save(flag);
-    }
+        //флаг больше не активен
+        currentFlag.setIsActive(false);
+        //начисляем очки участнику
+        teamMember.setPoints(teamMember.getPoints() + currentFlag.getPoint());
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<FlagListDto> getFlagsByService(UUID serviceId) {
-        var service = vulnerableServiceRepository.findById(serviceId)
-                .orElseThrow(() -> new EntityNotFoundException("Сервис с ID " + serviceId + " не найден"));
-
-        return flagRepository.findByVulnerableService(service).stream()
-                .map(FlagMapper::mapToFlagListDto)
-                .toList();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<FlagListDto> getFlagsByTeam(UUID teamId) {
-        var team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new EntityNotFoundException("Команда с ID " + teamId + " не найдена"));
-
-        return flagRepository.findByFlagOwner(team).stream()
-                .map(FlagMapper::mapToFlagListDto)
-                .toList();
+        teamMemberRepository.save(teamMember);
+        flagRepository.save(currentFlag);
     }
 }

@@ -24,6 +24,9 @@ public class FlagEntity {
     private UUID id;
 
     @Column(nullable = false)
+    private String value;
+
+    @Column(nullable = false)
     private Integer point;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -5,6 +5,7 @@ import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
 import ru.hits.attackdefenceplatform.core.vulnerable.repository.VulnerableServiceEntity;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface FlagRepository extends JpaRepository<FlagEntity, UUID> {
@@ -13,4 +14,6 @@ public interface FlagRepository extends JpaRepository<FlagEntity, UUID> {
     List<FlagEntity> findByVulnerableService(VulnerableServiceEntity vulnerableService);
 
     List<FlagEntity> findByFlagOwner(TeamEntity flagOwner);
+
+    Optional<FlagEntity> findByValue(String value);
 }
