@@ -8,7 +8,7 @@ import ru.hits.attackdefenceplatform.common.exception.TeamNotFoundException;
 import ru.hits.attackdefenceplatform.core.flag.mapper.FlagMapper;
 import ru.hits.attackdefenceplatform.core.flag.repository.FlagRepository;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamRepository;
-import ru.hits.attackdefenceplatform.core.vulnerable.repository.VulnerableServiceRepository;
+import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.VulnerableServiceRepository;
 import ru.hits.attackdefenceplatform.public_interface.flag.CreateFlagRequest;
 import ru.hits.attackdefenceplatform.public_interface.flag.FlagDto;
 import ru.hits.attackdefenceplatform.public_interface.flag.FlagListDto;

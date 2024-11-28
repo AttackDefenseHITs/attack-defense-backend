@@ -2,7 +2,7 @@ package ru.hits.attackdefenceplatform.core.flag.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
-import ru.hits.attackdefenceplatform.core.vulnerable.repository.VulnerableServiceEntity;
+import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.VulnerableServiceEntity;
 
 import java.util.List;
 import java.util.Optional;
