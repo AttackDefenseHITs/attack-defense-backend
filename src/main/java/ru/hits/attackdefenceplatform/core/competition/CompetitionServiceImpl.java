@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.hits.attackdefenceplatform.common.exception.CompetitionException;
 import ru.hits.attackdefenceplatform.core.competition.mapper.CompetitionMapper;
 import ru.hits.attackdefenceplatform.core.competition.repository.Competition;
+import ru.hits.attackdefenceplatform.core.competition.repository.CompetitionAction;
 import ru.hits.attackdefenceplatform.core.competition.repository.CompetitionRepository;
 import ru.hits.attackdefenceplatform.core.competition.repository.CompetitionStatus;
 import ru.hits.attackdefenceplatform.core.competition.state.CompetitionState;
@@ -26,103 +27,53 @@ public class CompetitionServiceImpl implements CompetitionService {
     private final CompetitionRepository competitionRepository;
 
     /**
-     * Запустить соревнование, изменив статус на IN_PROGRESS.
+     * Метод для изменения статуса соревнования
      */
     @Override
     @Transactional
-    public void startCompetition() {
+    public void changeCompetitionStatus(CompetitionAction action) {
         var competition = getCompetition();
 
-        if (competition.getStatus() != CompetitionStatus.NEW) {
-            throw new CompetitionException("Соревнование может быть запущено только из состояния NEW");
+        switch (action) {
+            case START -> {
+                if (competition.getStatus() != CompetitionStatus.NEW) {
+                    throw new CompetitionException("Соревнование может быть запущено только из состояния NEW");
+                }
+                competition.setStatus(CompetitionStatus.IN_PROGRESS);
+                competition.setStartDate(LocalDateTime.now());
+            }
+            case COMPLETE -> {
+                if (competition.getStatus() != CompetitionStatus.IN_PROGRESS) {
+                    throw new CompetitionException("Соревнование может быть завершено только из состояния IN_PROGRESS");
+                }
+                competition.setStatus(CompetitionStatus.COMPLETED);
+                competition.setEndDate(LocalDateTime.now());
+            }
+            case CANCEL -> {
+                if (competition.getStatus() == CompetitionStatus.COMPLETED ||
+                        competition.getStatus() == CompetitionStatus.CANCELLED) {
+                    throw new CompetitionException("Соревнование не может быть отменено, так как оно уже завершено или отменено");
+                }
+                competition.setStatus(CompetitionStatus.CANCELLED);
+            }
+            case PAUSE -> {
+                if (competition.getStatus() != CompetitionStatus.IN_PROGRESS) {
+                    throw new CompetitionException("Соревнование может быть поставлено на паузу только из состояния IN_PROGRESS");
+                }
+                competition.setStatus(CompetitionStatus.PAUSED);
+            }
+            case RESUME -> {
+                if (competition.getStatus() != CompetitionStatus.PAUSED) {
+                    throw new CompetitionException("Соревнование может быть возобновлено только из состояния PAUSED");
+                }
+                competition.setStatus(CompetitionStatus.IN_PROGRESS);
+            }
+            default -> throw new CompetitionException("Неизвестное действие: " + action);
         }
 
-        competition.setStatus(CompetitionStatus.IN_PROGRESS);
-        competition.setStartDate(LocalDateTime.now());
         competitionRepository.save(competition);
     }
 
-    /**
-     * Завершить соревнование, изменив статус на COMPLETED.
-     */
-    @Override
-    @Transactional
-    public void completeCompetition() {
-        var competition = getCompetition();
-
-        if (competition.getStatus() != CompetitionStatus.IN_PROGRESS) {
-            throw new CompetitionException("Соревнование может быть завершено только из состояния IN_PROGRESS");
-        }
-
-        competition.setStatus(CompetitionStatus.COMPLETED);
-        competition.setEndDate(LocalDateTime.now());
-        competitionRepository.save(competition);
-    }
-
-    /**
-     * Отменить соревнование, изменив статус на CANCELLED.
-     */
-    @Override
-    @Transactional
-    public void cancelCompetition() {
-        var competition = getCompetition();
-
-        if (competition.getStatus() == CompetitionStatus.COMPLETED ||
-                competition.getStatus() == CompetitionStatus.CANCELLED) {
-            throw new CompetitionException("Соревнование не может быть отменено, так как оно уже завершено или отменено");
-        }
-
-        competition.setStatus(CompetitionStatus.CANCELLED);
-        competitionRepository.save(competition);
-    }
-
-    /**
-     * Поставить соревнование на паузу, изменив статус на PAUSED.
-     */
-    @Override
-    @Transactional
-    public void pauseCompetition() {
-        var competition = getCompetition();
-
-        if (competition.getStatus() != CompetitionStatus.IN_PROGRESS) {
-            throw new CompetitionException("Соревнование может быть поставлено на паузу только из состояния IN_PROGRESS");
-        }
-
-        competition.setStatus(CompetitionStatus.PAUSED);
-        competitionRepository.save(competition);
-    }
-
-    /**
-     * Возобновить соревнование, изменив статус обратно на IN_PROGRESS.
-     */
-    @Override
-    @Transactional
-    public void resumeCompetition() {
-        var competition = getCompetition();
-
-        if (competition.getStatus() != CompetitionStatus.PAUSED) {
-            throw new CompetitionException("Соревнование может быть возобновлено только из состояния PAUSED");
-        }
-
-        competition.setStatus(CompetitionStatus.IN_PROGRESS);
-        competitionRepository.save(competition);
-    }
-
-    /**
-     * Сбросить статус соревнования на NEW.
-     */
-    @Override
-    @Transactional
-    public void resetCompetition() {
-        var competition = getCompetition();
-
-        if (competition.getStatus() == CompetitionStatus.NEW) {
-            throw new CompetitionException("Соревнование уже находится в состоянии NEW");
-        }
-
-        var newCompetition = CompetitionState.getDefaultCompetitionState();
-        competitionRepository.save(newCompetition);
-    }
 
     /**
      * Метод для обновления настроек соревнования

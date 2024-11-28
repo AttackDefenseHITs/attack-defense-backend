@@ -31,22 +31,6 @@ import java.util.UUID;
 public class TeamController {
     private final TeamService teamService;
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping
-    @Operation(summary = "Создать команду")
-    public ResponseEntity<UUID> createTeam(@RequestBody CreateTeamRequest request) {
-        var teamId = teamService.createTeam(request);
-        return ResponseEntity.ok(teamId);
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Удалить команду")
-    public ResponseEntity<Void> deleteTeam(@PathVariable UUID id) {
-        teamService.deleteTeam(id);
-        return ResponseEntity.ok().build();
-    }
-
     @PostMapping("/{teamId}/join")
     @Operation(summary = "Присоединиться к команде")
     public ResponseEntity<Void> joinToTeam(@PathVariable UUID teamId, @AuthenticationPrincipal UserEntity user) {
@@ -73,6 +57,22 @@ public class TeamController {
     public ResponseEntity<List<TeamListDto>> getAllTeams() {
         var teams = teamService.getAllTeams();
         return ResponseEntity.ok(teams);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping
+    @Operation(summary = "Создать команду")
+    public ResponseEntity<UUID> createTeam(@RequestBody CreateTeamRequest request) {
+        var teamId = teamService.createTeam(request);
+        return ResponseEntity.ok(teamId);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Удалить команду")
+    public ResponseEntity<Void> deleteTeam(@PathVariable UUID id) {
+        teamService.deleteTeam(id);
+        return ResponseEntity.ok().build();
     }
 
     @PreAuthorize("hasRole('ADMIN')")

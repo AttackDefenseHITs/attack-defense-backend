@@ -6,6 +6,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.stereotype.Component;
 import ru.hits.attackdefenceplatform.core.competition.CompetitionService;
+import ru.hits.attackdefenceplatform.core.competition.repository.CompetitionAction;
 import ru.hits.attackdefenceplatform.core.competition.repository.CompetitionStatus;
 
 import java.time.LocalDateTime;
@@ -21,7 +22,7 @@ public class CompetitionCompletionJob implements Job {
 
         if (competition.getStatus() == CompetitionStatus.IN_PROGRESS &&
                 LocalDateTime.now().isAfter(competition.getEndDate())) {
-            competitionService.completeCompetition();
+            competitionService.changeCompetitionStatus(CompetitionAction.COMPLETE);
         }
     }
 }
