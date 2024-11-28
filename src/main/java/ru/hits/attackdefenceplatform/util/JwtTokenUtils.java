@@ -65,17 +65,16 @@ public class JwtTokenUtils {
         return UUID.fromString(userId);
     }
 
-    public long getRemainingTimeInMillis(String token) {
-        Date expirationDate = getExpirationDateFromToken(token);
-        long currentTimeInMillis = System.currentTimeMillis();
-        return expirationDate.getTime() - currentTimeInMillis;
+    public String getTokenId(String token){
+        var claims = getAllClaimsFromToken(token);
+        return claims.getId();
     }
 
     public Date getExpirationDateFromToken(String token) {
         return getAllClaimsFromToken(token).getExpiration();
     }
 
-    public SecretKey getSignKey() {
+    private SecretKey getSignKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secret);
         return Keys.hmacShaKeyFor(keyBytes);
     }

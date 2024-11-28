@@ -1,13 +1,10 @@
 package ru.hits.attackdefenceplatform.core.token;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import ru.hits.attackdefenceplatform.util.JwtTokenUtils;
+import ru.hits.attackdefenceplatform.public_interface.token.TokenResponse;
+import ru.hits.attackdefenceplatform.public_interface.user.UserDto;
 
-@Service
-@RequiredArgsConstructor
-public class TokenService {
-    private final JwtTokenUtils jwtTokenUtils;
+public interface TokenService {
+    TokenResponse updateToken(String refreshToken);
 
-
+    TokenResponse createTokenResponse(UserDto userDto);
 }

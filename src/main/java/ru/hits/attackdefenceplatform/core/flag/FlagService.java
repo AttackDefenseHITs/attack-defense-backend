@@ -1,4 +1,7 @@
 package ru.hits.attackdefenceplatform.core.flag;
 
-public class FlagService {
+import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
+
+public interface FlagService {
+    void sendFlag(String flag, UserEntity user);
 }

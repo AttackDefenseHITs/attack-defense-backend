@@ -1,0 +1,26 @@
+package ru.hits.attackdefenceplatform.rest.controller.flag;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import ru.hits.attackdefenceplatform.core.flag.FlagService;
+import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
+
+@RestController
+@RequestMapping("/api/flags")
+@Tag(name = "Управление флагами для участника")
+@RequiredArgsConstructor
+public class FlagController {
+    private final FlagService flagService;
+
+    @PostMapping("/send")
+    public ResponseEntity<String> sendFlag(@RequestParam String flag, @AuthenticationPrincipal UserEntity user){
+        flagService.sendFlag(flag, user);
+        return ResponseEntity.ok("Супер гуд");
+    }
+}
