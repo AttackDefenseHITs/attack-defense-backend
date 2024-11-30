@@ -1,5 +1,6 @@
 package ru.hits.attackdefenceplatform.rest.controller.flag;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ public class FlagController {
     private final FlagService flagService;
 
     @PostMapping("/send")
+    @Operation(summary = "Отправить флаг")
     public ResponseEntity<String> sendFlag(@RequestParam String flag, @AuthenticationPrincipal UserEntity user){
         flagService.sendFlag(flag, user);
         return ResponseEntity.ok("Супер гуд");
