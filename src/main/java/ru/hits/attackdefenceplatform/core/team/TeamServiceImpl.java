@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static ru.hits.attackdefenceplatform.core.user.mapper.UserMapper.mapUserEntityToDto;
+import static ru.hits.attackdefenceplatform.core.user.mapper.UserMapper.mapUserEntityToMemberDto;
 
 @Service
 @RequiredArgsConstructor
@@ -104,7 +104,7 @@ public class TeamServiceImpl implements TeamService{
         var membersCount = team.getMaxMembers();
 
         var memberList = teamMemberRepository.findByTeam(team).stream()
-                .map(member -> mapUserEntityToDto(member.getUser()))
+                .map(member -> mapUserEntityToMemberDto(member.getUser(), member.getPoints()))
                 .toList();
 
         var canJoin = canUserJoinTeam(user, team);

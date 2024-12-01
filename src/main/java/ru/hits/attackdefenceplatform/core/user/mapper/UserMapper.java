@@ -4,10 +4,15 @@ import ru.hits.attackdefenceplatform.core.user.repository.Role;
 import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
 import ru.hits.attackdefenceplatform.public_interface.user.CreateUserRequest;
 import ru.hits.attackdefenceplatform.public_interface.user.UserDto;
+import ru.hits.attackdefenceplatform.public_interface.user.UserTeamMemberDto;
 
 public class UserMapper {
     public static UserDto mapUserEntityToDto(UserEntity user){
         return new UserDto(user.getId(), user.getLogin(), user.getName(), user.getRole());
+    }
+
+    public static UserTeamMemberDto mapUserEntityToMemberDto(UserEntity user, Integer points){
+        return new UserTeamMemberDto(user.getId(), user.getLogin(), user.getName(), user.getRole(), points);
     }
 
     public static UserEntity mapCreateUserDtoToEntity(CreateUserRequest dto){
