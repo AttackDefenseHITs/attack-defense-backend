@@ -12,6 +12,7 @@ import ru.hits.attackdefenceplatform.core.user.repository.UserRepository;
 import ru.hits.attackdefenceplatform.public_interface.token.TokenResponse;
 import ru.hits.attackdefenceplatform.public_interface.user.CreateUserRequest;
 import ru.hits.attackdefenceplatform.public_interface.user.LoginUserRequest;
+import ru.hits.attackdefenceplatform.public_interface.user.UpdateUserRequest;
 import ru.hits.attackdefenceplatform.public_interface.user.UserDto;
 import ru.hits.attackdefenceplatform.util.JwtTokenUtils;
 
@@ -61,6 +62,29 @@ public class UserServiceImpl implements UserService {
                 .map(UserMapper::mapUserEntityToDto)
                 .toList();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserDto getUserProfile(UserEntity user) {
+        return UserMapper.mapUserEntityToDto(user);
+    }
+
+    @Override
+    @Transactional
+    public UserDto updateUserProfile(UserEntity user, UpdateUserRequest dto) {
+        if (dto.name() != null) {
+            user.setName(dto.name());
+        }
+        if (dto.login() != null) {
+            if (userRepository.findByLogin(dto.login()).isPresent()) {
+                throw new UserAlreadyExistsException("Пользователь с таким логином уже существует: " + dto.login());
+            }
+            user.setLogin(dto.login());
+        }
+        userRepository.save(user);
+        return UserMapper.mapUserEntityToDto(user);
+    }
+
 
     private boolean validateUser(Optional<UserEntity> user, String rawPassword) {
         return user.filter(userEntity -> bCryptPasswordEncoder.matches(rawPassword, userEntity.getPassword())).isPresent();
