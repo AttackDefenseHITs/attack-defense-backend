@@ -76,7 +76,7 @@ public class UserServiceImpl implements UserService {
             user.setName(dto.name());
         }
         if (dto.login() != null) {
-            if (userRepository.findByLogin(dto.login()).isPresent()) {
+            if (userRepository.findByLogin(dto.login()).isPresent() && !dto.login().equals(user.getLogin())) {
                 throw new UserAlreadyExistsException("Пользователь с таким логином уже существует: " + dto.login());
             }
             user.setLogin(dto.login());
