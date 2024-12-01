@@ -47,8 +47,8 @@ public class TeamController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Получить информацию о команде")
-    public ResponseEntity<TeamInfoDto> getTeamById(@PathVariable UUID id) {
-        var teamInfo = teamService.getTeamById(id);
+    public ResponseEntity<TeamInfoDto> getTeamById(@PathVariable UUID id, @AuthenticationPrincipal UserEntity user) {
+        var teamInfo = teamService.getTeamById(id, user);
         return ResponseEntity.ok(teamInfo);
     }
 
