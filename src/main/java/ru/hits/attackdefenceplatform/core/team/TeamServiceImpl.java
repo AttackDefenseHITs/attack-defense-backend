@@ -96,7 +96,7 @@ public class TeamServiceImpl implements TeamService{
 
     @Transactional(readOnly = true)
     @Override
-    public TeamInfoDto getTeamById(UUID teamId) {
+    public TeamInfoDto getTeamById(UUID teamId, UserEntity user) {
         var team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new TeamNotFoundException("Команда с ID " + teamId + " не найдена"));
 
@@ -107,7 +107,10 @@ public class TeamServiceImpl implements TeamService{
                 .map(member -> mapUserEntityToDto(member.getUser()))
                 .toList();
 
-        return new TeamInfoDto(team.getId(), team.getName(), userCount, membersCount, memberList);
+        var canJoin = canUserJoinTeam(user, team);
+        var isMyTeam = isUserInTeam(user, team);
+
+        return new TeamInfoDto(team.getId(), team.getName(), userCount, membersCount, canJoin, isMyTeam, memberList);
     }
 
     @Transactional(readOnly = true)
@@ -152,5 +155,15 @@ public class TeamServiceImpl implements TeamService{
                 .ifPresent(team::setMaxMembers);
 
         teamRepository.save(team);
+    }
+
+    private boolean canUserJoinTeam(UserEntity user, TeamEntity team) {
+        boolean isUserInTeam = teamMemberRepository.existsByUser(user);
+        long userCount = teamMemberRepository.countByTeam(team);
+        return !isUserInTeam && userCount < team.getMaxMembers();
+    }
+
+    private boolean isUserInTeam(UserEntity user, TeamEntity team) {
+        return teamMemberRepository.existsByUserAndTeam(user, team);
     }
 }

@@ -10,6 +10,8 @@ public record TeamInfoDto(
         String name,
         Long userCount,
         Long membersCount,
+        Boolean canJoin,
+        Boolean isMyTeam,
         List<UserDto> memberList
 ) {
 }
