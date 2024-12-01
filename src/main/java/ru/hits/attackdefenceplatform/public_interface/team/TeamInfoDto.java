@@ -10,6 +10,8 @@ public record TeamInfoDto(
         String name,
         Long userCount,
         Long membersCount,
+        Integer place,
+        Integer points,
         Boolean canJoin,
         Boolean isMyTeam,
         List<UserTeamMemberDto> memberList
