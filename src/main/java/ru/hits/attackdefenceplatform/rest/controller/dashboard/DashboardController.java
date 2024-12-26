@@ -1,5 +1,6 @@
 package ru.hits.attackdefenceplatform.rest.controller.dashboard;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +15,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/dashboard")
+@Tag(name = "Дашборд")
 public class DashboardController {
     private final DashboardService dashboardService;
 
