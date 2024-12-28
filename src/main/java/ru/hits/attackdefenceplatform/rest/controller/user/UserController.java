@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.hits.attackdefenceplatform.core.user.UserService;
 import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
+import ru.hits.attackdefenceplatform.public_interface.user.RoleDto;
 import ru.hits.attackdefenceplatform.public_interface.user.UpdateUserRequest;
 import ru.hits.attackdefenceplatform.public_interface.user.UserDto;
 
@@ -45,6 +46,15 @@ public class UserController {
             @AuthenticationPrincipal UserEntity user
     ){
         var dto = userService.updateUserProfile(user, request);
+        return ResponseEntity.ok(dto);
+    }
+
+    @GetMapping("/role")
+    @Operation(summary = "Получить роль пользователя")
+    public ResponseEntity<RoleDto> getUserRole(
+            @AuthenticationPrincipal UserEntity user
+    ){
+        var dto = new RoleDto(user.getRole());
         return ResponseEntity.ok(dto);
     }
 }
