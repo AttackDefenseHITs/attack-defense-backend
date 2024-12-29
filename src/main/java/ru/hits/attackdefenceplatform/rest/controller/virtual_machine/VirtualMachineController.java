@@ -31,7 +31,7 @@ public class VirtualMachineController {
 
     @PostMapping
     @Operation(summary = "Создать виртуальную машину")
-    public ResponseEntity<UUID> createVirtualMachine(@RequestBody @Valid CreateVirtualMachineRequest request) {
+    public ResponseEntity<VirtualMachineDto> createVirtualMachine(@RequestBody @Valid CreateVirtualMachineRequest request) {
         var vmId = virtualMachineService.createVirtualMachine(request);
         return ResponseEntity.ok(vmId);
     }

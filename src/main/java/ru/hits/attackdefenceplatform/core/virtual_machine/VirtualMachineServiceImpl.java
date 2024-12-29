@@ -25,7 +25,7 @@ public class VirtualMachineServiceImpl implements VirtualMachineService {
 
     @Override
     @Transactional
-    public UUID createVirtualMachine(CreateVirtualMachineRequest request) {
+    public VirtualMachineDto createVirtualMachine(CreateVirtualMachineRequest request) {
         var team = teamRepository.findById(request.teamId())
                 .orElseThrow(() -> new TeamNotFoundException("Команда с ID " + request.teamId() + " не найдена"));
 
@@ -36,7 +36,7 @@ public class VirtualMachineServiceImpl implements VirtualMachineService {
         vm.setTeam(team);
 
         var savedVm = virtualMachineRepository.save(vm);
-        return savedVm.getId();
+        return VirtualMachineMapper.toDto(savedVm);
     }
 
     @Override

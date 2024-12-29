@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface VirtualMachineService {
-    UUID createVirtualMachine(CreateVirtualMachineRequest request);
+    VirtualMachineDto createVirtualMachine(CreateVirtualMachineRequest request);
     VirtualMachineDto getVirtualMachineById(UUID id);
     List<VirtualMachineDto> getAllVirtualMachines();
     List<VirtualMachineDto> getVirtualMachinesByTeam(UUID teamId);
