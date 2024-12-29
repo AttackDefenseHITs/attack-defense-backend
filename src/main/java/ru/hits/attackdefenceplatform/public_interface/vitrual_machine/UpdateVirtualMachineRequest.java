@@ -1,9 +1,10 @@
 package ru.hits.attackdefenceplatform.public_interface.vitrual_machine;
 
-import jakarta.validation.constraints.NotBlank;
+import java.util.UUID;
 
 public record UpdateVirtualMachineRequest(
-        @NotBlank String ipAddress,
-        @NotBlank String username,
-        @NotBlank String password
+        String ipAddress,
+        String username,
+        String password,
+        UUID teamId
 ) {}

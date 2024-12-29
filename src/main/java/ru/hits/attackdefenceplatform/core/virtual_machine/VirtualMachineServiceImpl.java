@@ -14,6 +14,7 @@ import ru.hits.attackdefenceplatform.public_interface.vitrual_machine.UpdateVirt
 import ru.hits.attackdefenceplatform.public_interface.vitrual_machine.VirtualMachineDto;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -72,12 +73,19 @@ public class VirtualMachineServiceImpl implements VirtualMachineService {
         var vm = virtualMachineRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Виртуальная машина с ID " + id + " не найдена"));
 
-        vm.setIpAddress(request.ipAddress());
-        vm.setUsername(request.username());
-        vm.setPassword(request.password());
+        Optional.ofNullable(request.ipAddress()).ifPresent(vm::setIpAddress);
+        Optional.ofNullable(request.username()).ifPresent(vm::setUsername);
+        Optional.ofNullable(request.password()).ifPresent(vm::setPassword);
+
+        if (request.teamId() != null) {
+            var team = teamRepository.findById(request.teamId()).orElseThrow(() ->
+                    new EntityNotFoundException("Команда с ID " + request.teamId() + " не найдена"));
+            vm.setTeam(team);
+        }
 
         virtualMachineRepository.save(vm);
     }
+
 
     @Override
     @Transactional
