@@ -17,6 +17,8 @@ import ru.hits.attackdefenceplatform.core.competition.repository.CompetitionStat
 import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionDto;
 import ru.hits.attackdefenceplatform.public_interface.competition.UpdateCompetitionRequest;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("api/competition")
 @Tag(name = "Управление соревнованием")
@@ -26,9 +28,15 @@ public class CompetitionController {
 
     @PostMapping("/status")
     @Operation(summary = "Изменить статус соревнования")
-    public ResponseEntity<String> changeCompetitionStatus(@RequestParam CompetitionAction action) {
-        competitionService.changeCompetitionStatus(action);
-        return ResponseEntity.ok("Статус соревнования изменён на: " + action);
+    public ResponseEntity<CompetitionDto> changeCompetitionStatus(@RequestParam CompetitionAction action) {
+        var competition = competitionService.changeCompetitionStatus(action);
+        return ResponseEntity.ok(competition);
+    }
+
+    @GetMapping("/available")
+    @Operation(summary = "Получить доступные действия с соревнованием")
+    public ResponseEntity<List<CompetitionAction>> getAvailableCompetitionAction(){
+        return ResponseEntity.ok(competitionService.getAvailableActions());
     }
 
     @PutMapping("/update")

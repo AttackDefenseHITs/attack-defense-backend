@@ -14,6 +14,7 @@ import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionDto
 import ru.hits.attackdefenceplatform.public_interface.competition.UpdateCompetitionRequest;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static ru.hits.attackdefenceplatform.core.competition.mapper.CompetitionMapper.mapToCompetitionDto;
@@ -31,7 +32,7 @@ public class CompetitionServiceImpl implements CompetitionService {
      */
     @Override
     @Transactional
-    public void changeCompetitionStatus(CompetitionAction action) {
+    public CompetitionDto changeCompetitionStatus(CompetitionAction action) {
         var competition = getCompetition();
 
         switch (action) {
@@ -71,9 +72,26 @@ public class CompetitionServiceImpl implements CompetitionService {
             default -> throw new CompetitionException("Неизвестное действие: " + action);
         }
 
-        competitionRepository.save(competition);
+        var updateCompetition = competitionRepository.save(competition);
+        return CompetitionMapper.mapToCompetitionDto(updateCompetition);
     }
 
+    /**
+     * Получить возможные действия в зависимости от текущего статуса соревнования
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<CompetitionAction> getAvailableActions() {
+        var competition = getCompetition();
+        var currentStatus = competition.getStatus();
+
+        return switch (currentStatus) {
+            case NEW -> List.of(CompetitionAction.START, CompetitionAction.CANCEL);
+            case IN_PROGRESS -> List.of(CompetitionAction.COMPLETE, CompetitionAction.PAUSE, CompetitionAction.CANCEL);
+            case PAUSED -> List.of(CompetitionAction.RESUME, CompetitionAction.CANCEL);
+            case COMPLETED, CANCELLED -> List.of();
+        };
+    }
 
     /**
      * Метод для обновления настроек соревнования
