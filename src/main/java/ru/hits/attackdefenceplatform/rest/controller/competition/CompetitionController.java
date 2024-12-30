@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.hits.attackdefenceplatform.core.competition.CompetitionService;
 import ru.hits.attackdefenceplatform.core.competition.repository.CompetitionAction;
 import ru.hits.attackdefenceplatform.core.competition.repository.CompetitionStatus;
+import ru.hits.attackdefenceplatform.public_interface.competition.ChangeStatusRequest;
 import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionDto;
 import ru.hits.attackdefenceplatform.public_interface.competition.UpdateCompetitionRequest;
 
@@ -28,8 +29,8 @@ public class CompetitionController {
 
     @PostMapping("/status")
     @Operation(summary = "Изменить статус соревнования")
-    public ResponseEntity<CompetitionDto> changeCompetitionStatus(@RequestBody CompetitionAction action) {
-        var competition = competitionService.changeCompetitionStatus(action);
+    public ResponseEntity<CompetitionDto> changeCompetitionStatus(@RequestBody ChangeStatusRequest request) {
+        var competition = competitionService.changeCompetitionStatus(request.action());
         return ResponseEntity.ok(competition);
     }
 
