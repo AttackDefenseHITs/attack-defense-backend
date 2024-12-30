@@ -37,8 +37,9 @@ public class CompetitionServiceImpl implements CompetitionService {
 
         switch (action) {
             case START -> {
-                if (competition.getStatus() != CompetitionStatus.NEW) {
-                    throw new CompetitionException("Соревнование может быть запущено только из состояния NEW");
+                if (competition.getStatus() != CompetitionStatus.NEW &&
+                        competition.getStatus() != CompetitionStatus.CANCELLED) {
+                    throw new CompetitionException("Соревнование может быть запущено только из состояния NEW или CANCELLED");
                 }
                 competition.setStatus(CompetitionStatus.IN_PROGRESS);
                 competition.setStartDate(LocalDateTime.now());
@@ -51,6 +52,9 @@ public class CompetitionServiceImpl implements CompetitionService {
                 competition.setEndDate(LocalDateTime.now());
             }
             case CANCEL -> {
+                if (competition.getStatus() == CompetitionStatus.NEW) {
+                    throw new CompetitionException("Соревнование в статусе NEW не может быть отменено");
+                }
                 if (competition.getStatus() == CompetitionStatus.COMPLETED ||
                         competition.getStatus() == CompetitionStatus.CANCELLED) {
                     throw new CompetitionException("Соревнование не может быть отменено, так как оно уже завершено или отменено");
@@ -76,6 +80,7 @@ public class CompetitionServiceImpl implements CompetitionService {
         return CompetitionMapper.mapToCompetitionDto(updateCompetition);
     }
 
+
     /**
      * Получить возможные действия в зависимости от текущего статуса соревнования
      */
@@ -86,10 +91,10 @@ public class CompetitionServiceImpl implements CompetitionService {
         var currentStatus = competition.getStatus();
 
         return switch (currentStatus) {
-            case NEW -> List.of(CompetitionAction.START, CompetitionAction.CANCEL);
+            case NEW, CANCELLED -> List.of(CompetitionAction.START);
             case IN_PROGRESS -> List.of(CompetitionAction.COMPLETE, CompetitionAction.PAUSE, CompetitionAction.CANCEL);
             case PAUSED -> List.of(CompetitionAction.RESUME, CompetitionAction.CANCEL);
-            case COMPLETED, CANCELLED -> List.of();
+            case COMPLETED -> List.of();
         };
     }
 
