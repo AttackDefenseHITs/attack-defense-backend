@@ -21,12 +21,13 @@ public class VulnerableServiceImpl implements VulnerableService {
 
     @Override
     @Transactional
-    public UUID createService(CreateVulnerableServiceRequest request) {
+    public VulnerableServiceDto createService(CreateVulnerableServiceRequest request) {
         if (serviceRepository.findByName(request.name()).isPresent()) {
             throw new EntityNotFoundException("Сервис с таким именем уже существует");
         }
         var service = VulnerableServiceMapper.fromRequest(request);
-        return serviceRepository.save(service).getId();
+        var newService = serviceRepository.save(service);
+        return VulnerableServiceMapper.toDto(newService);
     }
 
     @Override

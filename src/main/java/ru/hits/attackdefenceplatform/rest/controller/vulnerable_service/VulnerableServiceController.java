@@ -30,9 +30,9 @@ public class VulnerableServiceController {
 
     @PostMapping
     @Operation(summary = "Создать уязвимый сервис")
-    public ResponseEntity<UUID> createService(@RequestBody CreateVulnerableServiceRequest request) {
-        var id = vulnerableService.createService(request);
-        return ResponseEntity.ok(id);
+    public ResponseEntity<VulnerableServiceDto> createService(@RequestBody CreateVulnerableServiceRequest request) {
+        var service = vulnerableService.createService(request);
+        return ResponseEntity.ok(service);
     }
 
     @GetMapping("/{id}")

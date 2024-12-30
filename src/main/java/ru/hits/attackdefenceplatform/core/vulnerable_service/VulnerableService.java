@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface VulnerableService {
-    UUID createService(CreateVulnerableServiceRequest request);
+    VulnerableServiceDto createService(CreateVulnerableServiceRequest request);
     VulnerableServiceDto getServiceById(UUID id);
     List<VulnerableServiceDto> getAllServices();
     void updateService(UUID id, UpdateVulnerableServiceRequest request);
