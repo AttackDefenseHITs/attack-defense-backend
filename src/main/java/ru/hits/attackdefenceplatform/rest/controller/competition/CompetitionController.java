@@ -28,7 +28,7 @@ public class CompetitionController {
 
     @PostMapping("/status")
     @Operation(summary = "Изменить статус соревнования")
-    public ResponseEntity<CompetitionDto> changeCompetitionStatus(@RequestParam CompetitionAction action) {
+    public ResponseEntity<CompetitionDto> changeCompetitionStatus(@RequestBody CompetitionAction action) {
         var competition = competitionService.changeCompetitionStatus(action);
         return ResponseEntity.ok(competition);
     }
