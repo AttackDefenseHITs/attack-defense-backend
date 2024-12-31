@@ -9,7 +9,6 @@ import ru.hits.attackdefenceplatform.core.competition.repository.Competition;
 import ru.hits.attackdefenceplatform.core.competition.repository.CompetitionAction;
 import ru.hits.attackdefenceplatform.core.competition.repository.CompetitionRepository;
 import ru.hits.attackdefenceplatform.core.competition.repository.CompetitionStatus;
-import ru.hits.attackdefenceplatform.core.competition.state.CompetitionState;
 import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionDto;
 import ru.hits.attackdefenceplatform.public_interface.competition.UpdateCompetitionRequest;
 
@@ -38,8 +37,9 @@ public class CompetitionServiceImpl implements CompetitionService {
         switch (action) {
             case START -> {
                 if (competition.getStatus() != CompetitionStatus.NEW &&
-                        competition.getStatus() != CompetitionStatus.CANCELLED) {
-                    throw new CompetitionException("Соревнование может быть запущено только из состояния NEW или CANCELLED");
+                        competition.getStatus() != CompetitionStatus.CANCELLED &&
+                        competition.getStatus() != CompetitionStatus.COMPLETED) {
+                    throw new CompetitionException("Соревнование может быть запущено только из состояния NEW, CANCELLED или COMPLETED");
                 }
                 competition.setStatus(CompetitionStatus.IN_PROGRESS);
                 competition.setStartDate(LocalDateTime.now());
@@ -76,10 +76,9 @@ public class CompetitionServiceImpl implements CompetitionService {
             default -> throw new CompetitionException("Неизвестное действие: " + action);
         }
 
-        var updateCompetition = competitionRepository.save(competition);
-        return CompetitionMapper.mapToCompetitionDto(updateCompetition);
+        var updatedCompetition = competitionRepository.save(competition);
+        return CompetitionMapper.mapToCompetitionDto(updatedCompetition);
     }
-
 
     /**
      * Получить возможные действия в зависимости от текущего статуса соревнования
@@ -91,10 +90,9 @@ public class CompetitionServiceImpl implements CompetitionService {
         var currentStatus = competition.getStatus();
 
         return switch (currentStatus) {
-            case NEW, CANCELLED -> List.of(CompetitionAction.START);
+            case NEW, CANCELLED, COMPLETED -> List.of(CompetitionAction.START);
             case IN_PROGRESS -> List.of(CompetitionAction.COMPLETE, CompetitionAction.PAUSE, CompetitionAction.CANCEL);
             case PAUSED -> List.of(CompetitionAction.RESUME, CompetitionAction.CANCEL);
-            case COMPLETED -> List.of();
         };
     }
 
@@ -123,8 +121,8 @@ public class CompetitionServiceImpl implements CompetitionService {
                 .filter(rules -> !rules.isBlank())
                 .ifPresent(competition::setRules);
 
-        var newCompetition = competitionRepository.save(competition);
-        return CompetitionMapper.mapToCompetitionDto(newCompetition);
+        var updatedCompetition = competitionRepository.save(competition);
+        return CompetitionMapper.mapToCompetitionDto(updatedCompetition);
     }
 
     /**
