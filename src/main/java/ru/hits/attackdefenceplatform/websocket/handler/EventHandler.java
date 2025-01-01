@@ -15,6 +15,7 @@ import ru.hits.attackdefenceplatform.websocket.storage.key.WebSocketHandlerType;
 import java.security.Principal;
 
 @RequiredArgsConstructor
+@Component
 public class EventHandler extends AbstractWebSocketHandler {
     private final WebSocketStorage webSocketStorage;
 
