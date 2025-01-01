@@ -14,7 +14,7 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
-import ru.hits.attackdefenceplatform.websocket.handler.EventHandler;
+import ru.hits.attackdefenceplatform.websocket.handler.CompetitionEventHandler;
 
 import java.util.List;
 
@@ -22,10 +22,10 @@ import java.util.List;
 @EnableWebSocket
 @EnableWebSocketMessageBroker
 public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer, WebSocketConfigurer {
-    private final EventHandler eventHandler;
+    private final CompetitionEventHandler competitionEventHandler;
 
-    public WebSocketConfiguration(@Lazy EventHandler eventHandler) {
-        this.eventHandler = eventHandler;
+    public WebSocketConfiguration(@Lazy CompetitionEventHandler competitionEventHandler) {
+        this.competitionEventHandler = competitionEventHandler;
     }
 
     @Override
@@ -56,7 +56,7 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer,
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(eventHandler, "ws/event")
+        registry.addHandler(competitionEventHandler, "ws/event")
                 .setAllowedOriginPatterns("*");
     }
 }
