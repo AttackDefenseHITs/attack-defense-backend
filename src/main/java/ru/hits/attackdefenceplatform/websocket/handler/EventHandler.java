@@ -22,7 +22,7 @@ public class EventHandler extends AbstractWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) {
         var userId = getUserId(session);
         SessionKey sessionKey = new SessionKey(userId, WebSocketHandlerType.EVENT);
-        webSocketStorage.add(sessionKey, session);ы1
+        webSocketStorage.add(sessionKey, session);
     }
 
     @Override
