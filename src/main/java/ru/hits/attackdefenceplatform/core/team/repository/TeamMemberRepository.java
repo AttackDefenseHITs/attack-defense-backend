@@ -1,6 +1,7 @@
 package ru.hits.attackdefenceplatform.core.team.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
 
 import java.util.List;
@@ -20,5 +21,7 @@ public interface TeamMemberRepository extends JpaRepository<TeamMemberEntity, UU
 
     boolean existsByUserAndTeam(UserEntity user, TeamEntity team);
 
+    @Query("SELECT t.user.id FROM TeamMemberEntity t")
     List<UUID> findAllUserIds();
 }
+
