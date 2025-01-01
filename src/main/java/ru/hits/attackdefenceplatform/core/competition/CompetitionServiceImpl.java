@@ -104,22 +104,11 @@ public class CompetitionServiceImpl implements CompetitionService {
     public CompetitionDto updateCompetition(UpdateCompetitionRequest request) {
         var competition = getCompetition();
 
-        Optional.ofNullable(request.name())
-                .filter(name -> !name.isBlank())
-                .ifPresent(competition::setName);
-
-        Optional.ofNullable(request.startDate())
-                .ifPresent(competition::setStartDate);
-
-        Optional.ofNullable(request.endDate())
-                .ifPresent(competition::setEndDate);
-
-        Optional.ofNullable(request.durationMinutes())
-                .ifPresent(competition::setDurationMinutes);
-
-        Optional.ofNullable(request.rules())
-                .filter(rules -> !rules.isBlank())
-                .ifPresent(competition::setRules);
+        competition.setName(request.name());
+        competition.setStartDate(request.startDate());
+        competition.setEndDate(request.endDate());
+        competition.setDurationMinutes(request.durationMinutes());
+        competition.setRules(request.rules());
 
         var updatedCompetition = competitionRepository.save(competition);
         return CompetitionMapper.mapToCompetitionDto(updatedCompetition);
