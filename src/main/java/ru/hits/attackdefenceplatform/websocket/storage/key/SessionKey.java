@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.core.websocket.storage.key;
+package ru.hits.attackdefenceplatform.websocket.storage.key;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

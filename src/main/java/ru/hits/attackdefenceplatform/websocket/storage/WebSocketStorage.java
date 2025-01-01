@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.core.websocket.storage;
+package ru.hits.attackdefenceplatform.websocket.storage;
 
 import com.google.gson.Gson;
 import jakarta.validation.constraints.NotNull;
@@ -8,7 +8,7 @@ import lombok.Setter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
-import ru.hits.attackdefenceplatform.core.websocket.storage.key.SessionKey;
+import ru.hits.attackdefenceplatform.websocket.storage.key.SessionKey;
 
 import java.io.IOException;
 import java.util.Map;
@@ -30,8 +30,8 @@ public class WebSocketStorage {
         WebSocketSession session = sessions.get(sessionKey);
         if (session != null && session.isOpen()) {
             try {
-                String jsonMessage = gson.toJson(message);
-                session.sendMessage(new TextMessage(jsonMessage));
+                //String jsonMessage = gson.toJson(message);
+                session.sendMessage(new TextMessage(message));
             } catch (IOException e) {
                 throw new RuntimeException("exp");
             }

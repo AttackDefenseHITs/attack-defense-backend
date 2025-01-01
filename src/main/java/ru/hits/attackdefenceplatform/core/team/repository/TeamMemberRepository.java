@@ -19,4 +19,6 @@ public interface TeamMemberRepository extends JpaRepository<TeamMemberEntity, UU
     Optional<TeamMemberEntity> findByUser(UserEntity user);
 
     boolean existsByUserAndTeam(UserEntity user, TeamEntity team);
+
+    List<UUID> findAllUserIds();
 }

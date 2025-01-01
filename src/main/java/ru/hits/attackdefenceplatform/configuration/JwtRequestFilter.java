@@ -12,7 +12,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
 import ru.hits.attackdefenceplatform.core.user.repository.UserRepository;
@@ -21,7 +20,6 @@ import ru.hits.attackdefenceplatform.util.JwtTokenUtils;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -67,7 +65,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         List<GrantedAuthority> authorities = Collections.singletonList(
                 new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
         );
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+        var token = new UsernamePasswordAuthenticationToken(
                 user, jwt, authorities
         );
         SecurityContextHolder.getContext().setAuthentication(token);
