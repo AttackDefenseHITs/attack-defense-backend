@@ -1,7 +1,7 @@
 package ru.hits.attackdefenceplatform.core.competition.state;
 
 import ru.hits.attackdefenceplatform.core.competition.repository.Competition;
-import ru.hits.attackdefenceplatform.core.competition.repository.CompetitionStatus;
+import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionStatus;
 
 public class CompetitionState {
     public static Competition getDefaultCompetitionState(){

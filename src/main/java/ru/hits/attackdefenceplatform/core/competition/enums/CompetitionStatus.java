@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.core.competition.repository;
+package ru.hits.attackdefenceplatform.core.competition.enums;
 
 public enum CompetitionStatus {
     NEW,

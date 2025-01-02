@@ -6,12 +6,12 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.hits.attackdefenceplatform.common.exception.CompetitionException;
 import ru.hits.attackdefenceplatform.core.competition.mapper.CompetitionMapper;
 import ru.hits.attackdefenceplatform.core.competition.repository.Competition;
-import ru.hits.attackdefenceplatform.core.competition.repository.CompetitionAction;
+import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionAction;
 import ru.hits.attackdefenceplatform.core.competition.repository.CompetitionRepository;
-import ru.hits.attackdefenceplatform.core.competition.repository.CompetitionStatus;
+import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionStatus;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberRepository;
-import ru.hits.attackdefenceplatform.core.user.repository.UserRepository;
 import ru.hits.attackdefenceplatform.websocket.client.NotificationWebSocketClient;
+import ru.hits.attackdefenceplatform.websocket.model.EventModel;
 import ru.hits.attackdefenceplatform.websocket.storage.key.WebSocketHandlerType;
 import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionDto;
 import ru.hits.attackdefenceplatform.public_interface.competition.UpdateCompetitionRequest;
@@ -29,8 +29,8 @@ import static ru.hits.attackdefenceplatform.core.competition.mapper.CompetitionM
 @RequiredArgsConstructor
 public class CompetitionServiceImpl implements CompetitionService {
     private final CompetitionRepository competitionRepository;
-    private final NotificationWebSocketClient notificationWebSocketClient;
     private final TeamMemberRepository teamMemberRepository;
+    private final NotificationWebSocketClient notificationWebSocketClient;
 
     /**
      * Метод для изменения статуса соревнования
@@ -63,9 +63,8 @@ public class CompetitionServiceImpl implements CompetitionService {
             throw new CompetitionException("Соревнование может быть запущено только из состояния NEW, CANCELLED или COMPLETED");
         }
         competition.setStatus(CompetitionStatus.IN_PROGRESS);
-        competition.setStartDate(LocalDateTime.now());
 
-        notifyParticipants(WebSocketHandlerType.EVENT.name(), "Соревнование началось! Удачи!");
+        notifyParticipants("Соревнование началось! Удачи!");
     }
 
     /**
@@ -76,9 +75,8 @@ public class CompetitionServiceImpl implements CompetitionService {
             throw new CompetitionException("Соревнование может быть завершено только из состояния IN_PROGRESS");
         }
         competition.setStatus(CompetitionStatus.COMPLETED);
-        competition.setEndDate(LocalDateTime.now());
 
-        notifyParticipants(WebSocketHandlerType.EVENT.name(), "Соревнование завершено! Всем спасибо за участие!");
+        notifyParticipants("Соревнование завершено! Всем спасибо за участие!");
     }
 
     /**
@@ -94,7 +92,7 @@ public class CompetitionServiceImpl implements CompetitionService {
         }
         competition.setStatus(CompetitionStatus.CANCELLED);
 
-        notifyParticipants(WebSocketHandlerType.EVENT.name(), "Соревнование было отменено!");
+        notifyParticipants("Соревнование было отменено!");
     }
 
     /**
@@ -106,7 +104,7 @@ public class CompetitionServiceImpl implements CompetitionService {
         }
         competition.setStatus(CompetitionStatus.PAUSED);
 
-        notifyParticipants(WebSocketHandlerType.EVENT.name(), "Соревнование было приостановлено!");
+        notifyParticipants("Соревнование было приостановлено!");
     }
 
     /**
@@ -118,7 +116,7 @@ public class CompetitionServiceImpl implements CompetitionService {
         }
         competition.setStatus(CompetitionStatus.IN_PROGRESS);
 
-        notifyParticipants(WebSocketHandlerType.EVENT.name(), "Соревнование возобновлено!");
+        notifyParticipants("Соревнование возобновлено!");
     }
 
     /**
@@ -179,9 +177,10 @@ public class CompetitionServiceImpl implements CompetitionService {
     /**
      * Уведомление участников о начале соревнования
      */
-    private void notifyParticipants(String event, String message) {
+    private void notifyParticipants(String message) {
         var participantIds = getAllParticipantIds();
-        notificationWebSocketClient.sendNotificationToParticipants(event, message, participantIds);
+        var eventMessage = new EventModel(WebSocketHandlerType.EVENT, message);
+        notificationWebSocketClient.sendNotificationToParticipants(eventMessage, participantIds);
     }
 
     /**

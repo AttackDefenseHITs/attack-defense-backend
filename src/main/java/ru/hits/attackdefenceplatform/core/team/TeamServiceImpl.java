@@ -7,7 +7,7 @@ import ru.hits.attackdefenceplatform.common.exception.TeamException;
 import ru.hits.attackdefenceplatform.common.exception.TeamNotFoundException;
 import ru.hits.attackdefenceplatform.common.exception.UserException;
 import ru.hits.attackdefenceplatform.core.competition.CompetitionService;
-import ru.hits.attackdefenceplatform.core.competition.repository.CompetitionStatus;
+import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionStatus;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberRepository;

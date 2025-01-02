@@ -1,6 +1,6 @@
 package ru.hits.attackdefenceplatform.public_interface.competition;
 
-import ru.hits.attackdefenceplatform.core.competition.repository.CompetitionStatus;
+import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionStatus;
 
 import java.time.LocalDateTime;
 

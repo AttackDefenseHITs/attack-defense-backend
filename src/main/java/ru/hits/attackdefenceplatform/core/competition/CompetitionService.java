@@ -1,8 +1,7 @@
 package ru.hits.attackdefenceplatform.core.competition;
 
 import ru.hits.attackdefenceplatform.core.competition.repository.Competition;
-import ru.hits.attackdefenceplatform.core.competition.repository.CompetitionAction;
-import ru.hits.attackdefenceplatform.core.competition.repository.CompetitionStatus;
+import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionAction;
 import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionDto;
 import ru.hits.attackdefenceplatform.public_interface.competition.UpdateCompetitionRequest;
 

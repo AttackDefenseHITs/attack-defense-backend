@@ -1,6 +1,5 @@
 package ru.hits.attackdefenceplatform.websocket.storage;
 
-import com.google.gson.Gson;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +22,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class WebSocketStorage {
     private static final Map<SessionKey, WebSocketSession> sessions = new ConcurrentHashMap<>();
-    private final Gson gson = new Gson();
 
     public void add(final SessionKey sessionKey, final WebSocketSession session) {
         sessions.put(sessionKey, session);
@@ -35,7 +33,6 @@ public class WebSocketStorage {
         if (session != null && session.isOpen()) {
             try {
                 log.info(session.getId());
-                //String jsonMessage = gson.toJson(message);
                 session.sendMessage(new TextMessage(message));
             } catch (IOException e) {
                 throw new RuntimeException("exp");
