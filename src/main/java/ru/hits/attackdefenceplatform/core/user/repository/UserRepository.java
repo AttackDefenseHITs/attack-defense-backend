@@ -8,4 +8,6 @@ import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<UserEntity, UUID> {
     Optional<UserEntity> findByLogin(String login);
+
+    List<UserEntity> findAllByRole(Role role);
 }

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.hits.attackdefenceplatform.core.user.UserService;
+import ru.hits.attackdefenceplatform.core.user.client.UserService;
 import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
 import ru.hits.attackdefenceplatform.public_interface.user.RoleDto;
 import ru.hits.attackdefenceplatform.public_interface.user.UpdateUserRequest;

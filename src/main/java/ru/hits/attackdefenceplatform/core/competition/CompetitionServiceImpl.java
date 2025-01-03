@@ -10,13 +10,12 @@ import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionAction;
 import ru.hits.attackdefenceplatform.core.competition.repository.CompetitionRepository;
 import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionStatus;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberRepository;
-import ru.hits.attackdefenceplatform.websocket.client.NotificationWebSocketClient;
-import ru.hits.attackdefenceplatform.websocket.model.EventModel;
+import ru.hits.attackdefenceplatform.websocket.client.WebSocketClient;
+import ru.hits.attackdefenceplatform.websocket.model.NotificationEventModel;
 import ru.hits.attackdefenceplatform.websocket.storage.key.WebSocketHandlerType;
 import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionDto;
 import ru.hits.attackdefenceplatform.public_interface.competition.UpdateCompetitionRequest;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,7 +29,7 @@ import static ru.hits.attackdefenceplatform.core.competition.mapper.CompetitionM
 public class CompetitionServiceImpl implements CompetitionService {
     private final CompetitionRepository competitionRepository;
     private final TeamMemberRepository teamMemberRepository;
-    private final NotificationWebSocketClient notificationWebSocketClient;
+    private final WebSocketClient<NotificationEventModel> notificationWebSocketClient;
 
     /**
      * Метод для изменения статуса соревнования
@@ -179,8 +178,8 @@ public class CompetitionServiceImpl implements CompetitionService {
      */
     private void notifyParticipants(String message) {
         var participantIds = getAllParticipantIds();
-        var eventMessage = new EventModel(WebSocketHandlerType.EVENT, message);
-        notificationWebSocketClient.sendNotificationToParticipants(eventMessage, participantIds);
+        var eventMessage = new NotificationEventModel(WebSocketHandlerType.EVENT, message);
+        notificationWebSocketClient.sendNotification(eventMessage, participantIds);
     }
 
     /**

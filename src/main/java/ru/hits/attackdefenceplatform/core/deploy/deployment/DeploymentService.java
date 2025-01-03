@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.core.deploy;
+package ru.hits.attackdefenceplatform.core.deploy.deployment;
 
 public interface DeploymentService {
     void deployAllServices();

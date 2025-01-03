@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.core.deploy;
+package ru.hits.attackdefenceplatform.core.deploy.deployment;
 
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.ChannelSftp;
@@ -7,6 +7,7 @@ import com.jcraft.jsch.Session;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.hits.attackdefenceplatform.core.deploy.deployment.DeploymentService;
 import ru.hits.attackdefenceplatform.core.virtual_machine.repository.VirtualMachineEntity;
 import ru.hits.attackdefenceplatform.core.virtual_machine.repository.VirtualMachineRepository;
 import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.VulnerableServiceEntity;

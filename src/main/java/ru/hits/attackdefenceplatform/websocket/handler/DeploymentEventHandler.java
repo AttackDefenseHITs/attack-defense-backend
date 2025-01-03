@@ -16,10 +16,10 @@ import java.util.Arrays;
 
 @Component
 @Slf4j
-public class CompetitionEventHandler extends AbstractEventHandler {
+public class DeploymentEventHandler extends AbstractEventHandler {
     private final WebSocketStorage webSocketStorage;
 
-    public CompetitionEventHandler(JwtTokenUtils jwtTokenUtils, WebSocketStorage webSocketStorage) {
+    public DeploymentEventHandler(JwtTokenUtils jwtTokenUtils, WebSocketStorage webSocketStorage) {
         super(jwtTokenUtils);
         this.webSocketStorage = webSocketStorage;
     }
@@ -27,7 +27,7 @@ public class CompetitionEventHandler extends AbstractEventHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
         var userId = getUserId(session);
-        SessionKey sessionKey = new SessionKey(userId, WebSocketHandlerType.COMPETITION);
+        SessionKey sessionKey = new SessionKey(userId, WebSocketHandlerType.DEPLOYMENT);
         webSocketStorage.add(sessionKey, session);
     }
 
@@ -41,5 +41,4 @@ public class CompetitionEventHandler extends AbstractEventHandler {
         webSocketStorage.remove(session);
     }
 }
-
 

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.hits.attackdefenceplatform.core.user.UserService;
+import ru.hits.attackdefenceplatform.core.user.client.UserService;
 import ru.hits.attackdefenceplatform.public_interface.token.TokenResponse;
 import ru.hits.attackdefenceplatform.public_interface.user.CreateUserRequest;
 import ru.hits.attackdefenceplatform.public_interface.user.LoginUserRequest;

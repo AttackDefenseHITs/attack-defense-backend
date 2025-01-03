@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.core.user;
+package ru.hits.attackdefenceplatform.core.user.client;
 
 import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
 import ru.hits.attackdefenceplatform.public_interface.token.TokenResponse;

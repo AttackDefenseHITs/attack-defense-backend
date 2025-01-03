@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.hits.attackdefenceplatform.core.deploy.DeploymentService;
+import ru.hits.attackdefenceplatform.core.deploy.deployment.DeploymentService;
 
 @RestController
 @RequestMapping("/api/admin/deploy")
