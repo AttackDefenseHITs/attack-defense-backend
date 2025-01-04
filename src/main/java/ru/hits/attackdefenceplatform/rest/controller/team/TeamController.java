@@ -62,9 +62,9 @@ public class TeamController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     @Operation(summary = "Создать команду")
-    public ResponseEntity<UUID> createTeam(@RequestBody CreateTeamRequest request) {
-        var teamId = teamService.createTeam(request);
-        return ResponseEntity.ok(teamId);
+    public ResponseEntity<TeamListDto> createTeam(@RequestBody CreateTeamRequest request) {
+        var team = teamService.createTeam(request);
+        return ResponseEntity.ok(team);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -78,9 +78,9 @@ public class TeamController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/bulk")
     @Operation(summary = "Создать несколько команд")
-    public ResponseEntity<List<UUID>> createManyTeams(@RequestBody CreateManyTeamsRequest request) {
-        var teamIds = teamService.createManyTeams(request);
-        return ResponseEntity.ok(teamIds);
+    public ResponseEntity<List<TeamListDto>> createManyTeams(@RequestBody CreateManyTeamsRequest request) {
+        var teams = teamService.createManyTeams(request);
+        return ResponseEntity.ok(teams);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -88,6 +88,16 @@ public class TeamController {
     @Operation(summary = "Обновить данные команды")
     public ResponseEntity<Void> updateTeam(@PathVariable UUID teamId, @RequestBody CreateTeamRequest request) {
         teamService.updateTeam(teamId, request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{teamId}/members/{userId}")
+    @Operation(summary = "Удалить участника из команды")
+    public ResponseEntity<Void> removeMemberFromTeam(
+            @PathVariable UUID teamId,
+            @PathVariable UUID userId) {
+        teamService.removeMemberFromTeam(teamId, userId);
         return ResponseEntity.ok().build();
     }
 }

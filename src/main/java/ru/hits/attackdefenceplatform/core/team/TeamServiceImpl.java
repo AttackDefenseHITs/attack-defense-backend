@@ -34,13 +34,13 @@ public class TeamServiceImpl implements TeamService {
 
     @Transactional
     @Override
-    public UUID createTeam(CreateTeamRequest request) {
+    public TeamListDto createTeam(CreateTeamRequest request) {
         var team = new TeamEntity();
         team.setName(request.name());
         team.setMaxMembers(request.maxMembers());
         var newTeam = teamRepository.save(team);
 
-        return newTeam.getId();
+        return mapTeamEntityToTeamListDto(newTeam);
     }
 
     @Transactional
@@ -121,21 +121,15 @@ public class TeamServiceImpl implements TeamService {
     @Transactional(readOnly = true)
     @Override
     public List<TeamListDto> getAllTeams() {
-        return teamRepository.findAll().stream().map(team -> {
-            var userCount = teamMemberRepository.countByTeam(team);
-            var membersCount = team.getMaxMembers();
-
-            Integer place = calculateTeamPlace(team);
-            Integer points = calculateTeamPoints(team);
-
-            return new TeamListDto(team.getId(), team.getName(), place, points, userCount, membersCount);
-        }).toList();
+        return teamRepository.findAll().stream()
+                .map(this::mapTeamEntityToTeamListDto)
+                .toList();
     }
 
     @Transactional
     @Override
-    public List<UUID> createManyTeams(CreateManyTeamsRequest request) {
-        List<UUID> teamIds = new ArrayList<>();
+    public List<TeamListDto> createManyTeams(CreateManyTeamsRequest request) {
+        List<TeamListDto> teamListDtos = new ArrayList<>();
         for (long i = 1; i <= request.teamsCount(); i++) {
             String teamName = "Команда " + i;
 
@@ -144,9 +138,9 @@ public class TeamServiceImpl implements TeamService {
             team.setMaxMembers(request.maxMembers());
 
             var newTeam = teamRepository.save(team);
-            teamIds.add(newTeam.getId());
+            teamListDtos.add(mapTeamEntityToTeamListDto(newTeam));
         }
-        return teamIds;
+        return teamListDtos;
     }
 
     @Transactional
@@ -163,6 +157,15 @@ public class TeamServiceImpl implements TeamService {
                 .ifPresent(team::setMaxMembers);
 
         teamRepository.save(team);
+    }
+
+    @Transactional
+    @Override
+    public void removeMemberFromTeam(UUID teamId, UUID userId) {
+        var teamMember = teamMemberRepository.findByUserIdAndTeamId(userId, teamId)
+                .orElseThrow(() -> new UserException("Участник с ID " + userId + " не найден в команде с ID " + teamId));
+
+        teamMemberRepository.delete(teamMember);
     }
 
     private boolean canUserJoinTeam(UserEntity user, TeamEntity team) {
@@ -186,5 +189,23 @@ public class TeamServiceImpl implements TeamService {
                 .mapToInt(member -> member.getPoints() != null ? member.getPoints() : 0)
                 .sum();
     }
+
+    private TeamListDto mapTeamEntityToTeamListDto(TeamEntity team) {
+        var userCount = teamMemberRepository.countByTeam(team);
+        var membersCount = team.getMaxMembers();
+
+        Integer place = calculateTeamPlace(team);
+        Integer points = calculateTeamPoints(team);
+
+        return new TeamListDto(
+                team.getId(),
+                team.getName(),
+                place,
+                points,
+                userCount,
+                membersCount
+        );
+    }
 }
+
 
