@@ -16,7 +16,7 @@ import java.util.List;
 @Slf4j
 public class DeploymentWebSocketClient implements WebSocketClient<DeploymentResult> {
     private final WebSocketStorage webSocketStorage;
-    private final Gson gson = new Gson();
+    private final Gson gson;
 
     @Override
     public void sendNotification(DeploymentResult data, List<String> userIds) {

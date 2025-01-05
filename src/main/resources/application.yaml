@@ -25,8 +25,3 @@ jwt:
     lifetime: 60m
   refresh:
     lifetime: 1d
-
-logging:
-  level:
-    org:
-      quartz: DEBUG

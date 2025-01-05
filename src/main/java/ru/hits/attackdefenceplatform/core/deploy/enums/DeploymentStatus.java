@@ -2,9 +2,9 @@ package ru.hits.attackdefenceplatform.core.deploy.enums;
 
 public enum DeploymentStatus {
     PENDING,
-    DEPLOYING,
+    IN_PROGRESS,
     SUCCESS,
-    FAILED,
+    FAILURE,
     CHECKING
 }
 

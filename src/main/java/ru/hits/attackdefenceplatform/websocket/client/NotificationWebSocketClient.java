@@ -16,7 +16,7 @@ import java.util.List;
 @Slf4j
 public class NotificationWebSocketClient implements WebSocketClient<NotificationEventModel> {
     private final WebSocketStorage webSocketStorage;
-    private final Gson gson = new Gson();
+    private final Gson gson;
 
     @Override
     public void sendNotification(NotificationEventModel data, List<String> userIds) {

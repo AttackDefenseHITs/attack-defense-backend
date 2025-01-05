@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.hits.attackdefenceplatform.common.exception.TeamNotFoundException;
+import ru.hits.attackdefenceplatform.core.deploy.status.mapper.DeploymentStatusInitializer;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamRepository;
 import ru.hits.attackdefenceplatform.core.virtual_machine.mapper.VirtualMachineMapper;
 import ru.hits.attackdefenceplatform.core.virtual_machine.repository.VirtualMachineEntity;
@@ -22,6 +23,7 @@ import java.util.UUID;
 public class VirtualMachineServiceImpl implements VirtualMachineService {
 
     private final VirtualMachineRepository virtualMachineRepository;
+    private final DeploymentStatusInitializer deploymentStatusInitializer;
     private final TeamRepository teamRepository;
 
     @Override
@@ -37,6 +39,8 @@ public class VirtualMachineServiceImpl implements VirtualMachineService {
         vm.setTeam(team);
 
         var savedVm = virtualMachineRepository.save(vm);
+        deploymentStatusInitializer.initializeStatusesForNewVirtualMachine(savedVm.getId());
+
         return VirtualMachineMapper.toDto(savedVm);
     }
 
@@ -93,6 +97,8 @@ public class VirtualMachineServiceImpl implements VirtualMachineService {
         if (!virtualMachineRepository.existsById(id)) {
             throw new EntityNotFoundException("Виртуальная машина с ID " + id + " не найдена");
         }
+
+        deploymentStatusInitializer.deleteStatusesForVirtualMachine(id);
         virtualMachineRepository.deleteById(id);
     }
 }

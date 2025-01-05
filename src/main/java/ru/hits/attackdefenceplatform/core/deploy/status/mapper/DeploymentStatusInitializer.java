@@ -71,6 +71,32 @@ public class DeploymentStatusInitializer {
     }
 
     /**
+     * Удаляет все записи для указанной виртуальной машины.
+     *
+     * @param virtualMachineId ID виртуальной машины
+     */
+    public void deleteStatusesForVirtualMachine(UUID virtualMachineId) {
+        if (!virtualMachineRepository.existsById(virtualMachineId)) {
+            throw new IllegalArgumentException("Virtual machine not found");
+        }
+
+        deploymentStatusRepository.deleteByVirtualMachineId(virtualMachineId);
+    }
+
+    /**
+     * Удаляет все записи для указанного сервиса.
+     *
+     * @param serviceId ID сервиса
+     */
+    public void deleteStatusesForService(UUID serviceId) {
+        if (!vulnerableServiceRepository.existsById(serviceId)) {
+            throw new IllegalArgumentException("Service not found");
+        }
+
+        deploymentStatusRepository.deleteByVulnerableServiceId(serviceId);
+    }
+
+    /**
      * Инициализирует статус деплоя для каждой пары виртуальная машина-сервис.
      */
     public void initializeStatusesForAllCombinations() {
@@ -82,5 +108,18 @@ public class DeploymentStatusInitializer {
                         mapAndSaveIfNotExists(vm.getId(), service.getId())
                 )
         );
+    }
+
+    /**
+     * Метод, который устанавливает статус PENDING для всех DeploymentStatusEntity.
+     */
+    public void setAllStatusesToPending() {
+        var deploymentStatuses = deploymentStatusRepository.findAll();
+
+        deploymentStatuses.forEach(status -> {
+            status.setDeploymentStatus(DeploymentStatus.PENDING);
+            status.setUpdatedAt(LocalDateTime.now());
+            deploymentStatusRepository.save(status);
+        });
     }
 }

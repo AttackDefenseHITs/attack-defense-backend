@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.hits.attackdefenceplatform.core.deploy.status.mapper.DeploymentStatusInitializer;
 import ru.hits.attackdefenceplatform.core.vulnerable_service.mapper.VulnerableServiceMapper;
 import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.VulnerableServiceRepository;
 import ru.hits.attackdefenceplatform.public_interface.vulnerable_service.CreateVulnerableServiceRequest;
@@ -18,6 +19,7 @@ import java.util.UUID;
 public class VulnerableServiceImpl implements VulnerableService {
 
     private final VulnerableServiceRepository serviceRepository;
+    private final DeploymentStatusInitializer deploymentStatusInitializer;
 
     @Override
     @Transactional
@@ -27,6 +29,9 @@ public class VulnerableServiceImpl implements VulnerableService {
         }
         var service = VulnerableServiceMapper.fromRequest(request);
         var newService = serviceRepository.save(service);
+
+        deploymentStatusInitializer.initializeStatusesForNewService(newService.getId());
+
         return VulnerableServiceMapper.toDto(newService);
     }
 
@@ -64,6 +69,8 @@ public class VulnerableServiceImpl implements VulnerableService {
         if (!serviceRepository.existsById(id)) {
             throw new EntityNotFoundException("Сервис с ID " + id + " не найден");
         }
+
+        deploymentStatusInitializer.deleteStatusesForService(id);
         serviceRepository.deleteById(id);
     }
 }

@@ -4,11 +4,18 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.hits.attackdefenceplatform.core.deploy.deployment.DeploymentService;
+import ru.hits.attackdefenceplatform.core.deploy.status.DeploymentStatusService;
+import ru.hits.attackdefenceplatform.public_interface.deployment.DeployPossibility;
+import ru.hits.attackdefenceplatform.public_interface.deployment.DeploymentResult;
+
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/admin/deploy")
@@ -17,23 +24,38 @@ import ru.hits.attackdefenceplatform.core.deploy.deployment.DeploymentService;
 public class DeploymentController {
 
     private final DeploymentService deploymentService;
+    private final DeploymentStatusService deploymentStatusService;
 
     @PostMapping("/all")
     @Operation(summary = "Деплой всех сервисов на все виртуальные машины")
     public ResponseEntity<String> deployAllServices() {
         deploymentService.deployAllServices();
-        return ResponseEntity.ok("Все сервисы успешно задеплоены на все виртуальные машины.");
+        return ResponseEntity.ok("Начало деплоя");
     }
 
     @PostMapping("")
     @Operation(summary = "Деплой конкретного сервиса на указанной виртуальной машине")
     public ResponseEntity<String> deployServiceOnVirtualMachine(
-            @RequestParam String serviceName,
-            @RequestParam String virtualMachineIp
+            @RequestParam UUID serviceId,
+            @RequestParam UUID virtualMachineId
     ) {
-        deploymentService.deployServiceOnVirtualMachine(serviceName, virtualMachineIp);
+        deploymentService.deployServiceOnVirtualMachine(serviceId, virtualMachineId);
         return ResponseEntity.ok(
-                String.format("Сервис '%s' успешно задеплоен на виртуальной машине '%s'.", serviceName, virtualMachineIp)
+                String.format("Начало деплоя")
         );
+    }
+
+    @GetMapping("/status")
+    @Operation(summary = "Получить таблицу результатов деплоя")
+    public ResponseEntity<List<DeploymentResult>> getAllDeploymentResults(){
+        var results = deploymentStatusService.getAllDeploymentResults();
+        return ResponseEntity.ok(results);
+    }
+
+    @GetMapping("/check")
+    @Operation(summary = "Определяет доступность деплоя")
+    public ResponseEntity<DeployPossibility> getDeployPossibility(){
+        var result = new DeployPossibility(!deploymentService.isDeploymentInProgress());
+        return ResponseEntity.ok(result);
     }
 }
