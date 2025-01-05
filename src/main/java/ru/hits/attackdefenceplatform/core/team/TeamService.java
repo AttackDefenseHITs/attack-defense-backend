@@ -15,7 +15,7 @@ public interface TeamService {
     void joinToTeam(UserEntity user, UUID teamId);
     void leftFromTeam(UserEntity user, UUID teamId);
     TeamInfoDto getTeamById(UUID teamId, UserEntity user);
-    List<TeamListDto> getAllTeams();
+    List<TeamListDto> getAllTeams(UserEntity user);
     List<TeamListDto> createManyTeams(CreateManyTeamsRequest request);
     void updateTeam(UUID teamId, CreateTeamRequest request);
     void removeMemberFromTeam(UUID teamId, UUID userId);

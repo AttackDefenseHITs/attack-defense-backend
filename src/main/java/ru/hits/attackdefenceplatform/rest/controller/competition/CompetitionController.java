@@ -51,4 +51,11 @@ public class CompetitionController {
         var competitionDto = competitionService.getCompetitionDto();
         return ResponseEntity.ok(competitionDto);
     }
+
+    @PostMapping("/restart")
+    @Operation(summary = "Перезапустить соревнования")
+    public ResponseEntity<CompetitionDto> restartCompetition(){
+        var competitionDto = competitionService.restartCompetition();
+        return ResponseEntity.ok(competitionDto);
+    }
 }

@@ -172,6 +172,18 @@ public class CompetitionServiceImpl implements CompetitionService {
                 .findFirst()
                 .orElseThrow(() -> new CompetitionException("Соревнование не найдено"));
     }
+    /**
+     * Обновить соревнование
+     */
+    @Override
+    public CompetitionDto restartCompetition() {
+        var competition = getCompetition();
+        competition.setStatus(CompetitionStatus.NEW);
+        competition.setStartDate(null);
+        competition.setEndDate(null);
+        competitionRepository.save(competition);
+        return CompetitionMapper.mapToCompetitionDto(competition);
+    }
 
     /**
      * Уведомление участников о начале соревнования

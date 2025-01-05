@@ -8,6 +8,7 @@ public record TeamListDto(
         Integer place,
         Integer points,
         Long userCount,
-        Long membersCount
+        Long membersCount,
+        Boolean isMyTeam
 ) {
 }

@@ -54,8 +54,8 @@ public class TeamController {
 
     @GetMapping
     @Operation(summary = "Получить список всех команд")
-    public ResponseEntity<List<TeamListDto>> getAllTeams() {
-        var teams = teamService.getAllTeams();
+    public ResponseEntity<List<TeamListDto>> getAllTeams(@AuthenticationPrincipal UserEntity user) {
+        var teams = teamService.getAllTeams(user);
         return ResponseEntity.ok(teams);
     }
 
@@ -96,7 +96,8 @@ public class TeamController {
     @Operation(summary = "Удалить участника из команды")
     public ResponseEntity<Void> removeMemberFromTeam(
             @PathVariable UUID teamId,
-            @PathVariable UUID userId) {
+            @PathVariable UUID userId
+    ) {
         teamService.removeMemberFromTeam(teamId, userId);
         return ResponseEntity.ok().build();
     }

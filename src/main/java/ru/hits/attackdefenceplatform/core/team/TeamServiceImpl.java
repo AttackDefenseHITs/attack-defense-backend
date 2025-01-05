@@ -40,7 +40,7 @@ public class TeamServiceImpl implements TeamService {
         team.setMaxMembers(request.maxMembers());
         var newTeam = teamRepository.save(team);
 
-        return mapTeamEntityToTeamListDto(newTeam);
+        return mapTeamEntityToTeamListDto(newTeam, null);
     }
 
     @Transactional
@@ -109,20 +109,30 @@ public class TeamServiceImpl implements TeamService {
 
         var canJoin = canUserJoinTeam(user, team);
         var isMyTeam = isUserInTeam(user, team);
+        var canLeave = canLeaveFromTeam(user, team);
 
         Integer place = calculateTeamPlace(team);
         Integer points = calculateTeamPoints(team);
 
         return new TeamInfoDto(
-                team.getId(), team.getName(), userCount, membersCount, place, points, canJoin, isMyTeam, memberList
+                team.getId(),
+                team.getName(),
+                userCount,
+                membersCount,
+                place,
+                points,
+                canJoin,
+                isMyTeam,
+                canLeave,
+                memberList
         );
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<TeamListDto> getAllTeams() {
+    public List<TeamListDto> getAllTeams(UserEntity user) {
         return teamRepository.findAll().stream()
-                .map(this::mapTeamEntityToTeamListDto)
+                .map(team -> mapTeamEntityToTeamListDto(team, user))
                 .toList();
     }
 
@@ -138,7 +148,7 @@ public class TeamServiceImpl implements TeamService {
             team.setMaxMembers(request.maxMembers());
 
             var newTeam = teamRepository.save(team);
-            teamListDtos.add(mapTeamEntityToTeamListDto(newTeam));
+            teamListDtos.add(mapTeamEntityToTeamListDto(newTeam, null));
         }
         return teamListDtos;
     }
@@ -171,11 +181,23 @@ public class TeamServiceImpl implements TeamService {
     private boolean canUserJoinTeam(UserEntity user, TeamEntity team) {
         boolean isUserInTeam = teamMemberRepository.existsByUser(user);
         long userCount = teamMemberRepository.countByTeam(team);
-        return !isUserInTeam && userCount < team.getMaxMembers();
+        var competition = competitionService.getCompetition();
+        boolean competitionNotStarted = competition.getStatus().equals(CompetitionStatus.NEW);
+
+        return !isUserInTeam && userCount < team.getMaxMembers() && competitionNotStarted;
     }
 
     private boolean isUserInTeam(UserEntity user, TeamEntity team) {
         return teamMemberRepository.existsByUserAndTeam(user, team);
+    }
+
+    private boolean canLeaveFromTeam(UserEntity user, TeamEntity team){
+        var competition = competitionService.getCompetition();
+
+        var userInThisTeam = isUserInTeam(user, team);
+        var competitionNotStarted = competition.getStatus().equals(CompetitionStatus.NEW);
+
+        return userInThisTeam && competitionNotStarted;
     }
 
     private Integer calculateTeamPlace(TeamEntity team) {
@@ -190,9 +212,13 @@ public class TeamServiceImpl implements TeamService {
                 .sum();
     }
 
-    private TeamListDto mapTeamEntityToTeamListDto(TeamEntity team) {
+    private TeamListDto mapTeamEntityToTeamListDto(TeamEntity team, UserEntity user) {
         var userCount = teamMemberRepository.countByTeam(team);
         var membersCount = team.getMaxMembers();
+
+        var isMyTeam = Optional.ofNullable(user)
+                .map(u -> isUserInTeam(u, team))
+                .orElse(false);
 
         Integer place = calculateTeamPlace(team);
         Integer points = calculateTeamPoints(team);
@@ -203,7 +229,8 @@ public class TeamServiceImpl implements TeamService {
                 place,
                 points,
                 userCount,
-                membersCount
+                membersCount,
+                isMyTeam
         );
     }
 }

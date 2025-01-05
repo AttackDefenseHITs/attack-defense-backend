@@ -13,4 +13,5 @@ public interface CompetitionService {
     CompetitionDto updateCompetition(UpdateCompetitionRequest request);
     CompetitionDto getCompetitionDto();
     Competition getCompetition();
+    CompetitionDto restartCompetition();
 }

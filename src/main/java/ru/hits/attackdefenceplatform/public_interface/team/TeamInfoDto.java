@@ -14,6 +14,7 @@ public record TeamInfoDto(
         Integer points,
         Boolean canJoin,
         Boolean isMyTeam,
+        Boolean canLeave,
         List<UserTeamMemberDto> memberList
 ) {
 }
