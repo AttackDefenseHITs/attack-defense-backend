@@ -27,7 +27,7 @@ public class DeploymentEventHandler extends AbstractEventHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
         var userId = getUserId(session);
-        SessionKey sessionKey = new SessionKey(userId, WebSocketHandlerType.DEPLOYMENT);
+        SessionKey sessionKey = new SessionKey(userId, WebSocketHandlerType.DEPLOYMENT_UPDATE);
         webSocketStorage.add(sessionKey, session);
     }
 

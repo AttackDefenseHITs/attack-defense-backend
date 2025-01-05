@@ -47,7 +47,7 @@ public class DeploymentController {
 
     @GetMapping("/status")
     @Operation(summary = "Получить таблицу результатов деплоя")
-    public ResponseEntity<List<DeploymentResult>> getAllDeploymentResults(){
+    public ResponseEntity<DeploymentResult> getAllDeploymentResults(){
         var results = deploymentStatusService.getAllDeploymentResults();
         return ResponseEntity.ok(results);
     }

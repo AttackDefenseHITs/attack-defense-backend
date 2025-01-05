@@ -15,6 +15,7 @@ import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import ru.hits.attackdefenceplatform.websocket.handler.CompetitionEventHandler;
+import ru.hits.attackdefenceplatform.websocket.handler.DeploymentEventHandler;
 
 import java.util.List;
 
@@ -23,9 +24,14 @@ import java.util.List;
 @EnableWebSocketMessageBroker
 public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer, WebSocketConfigurer {
     private final CompetitionEventHandler competitionEventHandler;
+    private final DeploymentEventHandler deploymentEventHandler;
 
-    public WebSocketConfiguration(@Lazy CompetitionEventHandler competitionEventHandler) {
+    public WebSocketConfiguration(
+            @Lazy CompetitionEventHandler competitionEventHandler,
+            @Lazy DeploymentEventHandler deploymentEventHandler
+    ) {
         this.competitionEventHandler = competitionEventHandler;
+        this.deploymentEventHandler = deploymentEventHandler;
     }
 
     @Override
@@ -57,6 +63,8 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer,
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry.addHandler(competitionEventHandler, "ws/event")
+                .setAllowedOriginPatterns("*");
+        registry.addHandler(deploymentEventHandler, "ws/deploy")
                 .setAllowedOriginPatterns("*");
     }
 }

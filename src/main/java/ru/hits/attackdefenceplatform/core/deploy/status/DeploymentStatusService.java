@@ -11,6 +11,7 @@ import ru.hits.attackdefenceplatform.core.user.repository.Role;
 import ru.hits.attackdefenceplatform.core.user.repository.UserRepository;
 import ru.hits.attackdefenceplatform.core.virtual_machine.mapper.VirtualMachineMapper;
 import ru.hits.attackdefenceplatform.core.vulnerable_service.mapper.VulnerableServiceMapper;
+import ru.hits.attackdefenceplatform.public_interface.deployment.DeploymentDataDto;
 import ru.hits.attackdefenceplatform.public_interface.deployment.DeploymentResult;
 import ru.hits.attackdefenceplatform.public_interface.deployment.DeploymentStatusDto;
 import ru.hits.attackdefenceplatform.websocket.client.WebSocketClient;
@@ -36,25 +37,28 @@ public class DeploymentStatusService {
     }
 
     /**
-     * Обновляет все статусы перед массовым деплоем.
+     * Обновляет все статусы перед массовым деплоем
      */
     public void updateAllStatusesBeforeAllDeployment(){
         deploymentStatusInitializer.setAllStatusesToPending();
+        deploymentWebSocketClient.sendNotification(getAllDeploymentResults(), getAdminsIds());
     }
 
     /**
-     * Возвращает список всех DeploymentResult.
+     * Возвращает список всех DeploymentResult
      */
-    public List<DeploymentResult> getAllDeploymentResults() {
+    public DeploymentResult getAllDeploymentResults() {
         var statuses = deploymentStatusRepository.findAll();
 
-        return statuses.stream()
-                .map(this::mapToDeploymentResult)
+        var statusesDto = statuses.stream()
+                .map(this::mapToDeploymentData)
                 .toList();
+
+        return new DeploymentResult(statusesDto);
     }
 
     /**
-     * Обновляет данные в базе и отправляет обновление через WebSocket.
+     * Обновляет данные в базе и отправляет обновление через WebSocket
      *
      * @param deploymentStatusDto входящая моделька с данными для обновления
      */
@@ -66,7 +70,7 @@ public class DeploymentStatusService {
                 );
 
         if (entityOptional.isEmpty()) {
-            throw new IllegalArgumentException("Статус деплоя для данной комбинации не найден.");
+            throw new IllegalArgumentException("Статус деплоя для данной комбинации не найден");
         }
 
         var entity = entityOptional.get();
@@ -76,7 +80,7 @@ public class DeploymentStatusService {
 
         var newEntity = deploymentStatusRepository.save(entity);
 
-        var deploymentResult = new DeploymentResult(
+        var deploymentData = new DeploymentDataDto(
                 VirtualMachineMapper.toDto(newEntity.getVirtualMachine()),
                 VulnerableServiceMapper.toDto(newEntity.getVulnerableService()),
                 newEntity.getDeploymentStatus(),
@@ -85,17 +89,17 @@ public class DeploymentStatusService {
         );
 
         var adminIds = getAdminsIds();
-        deploymentWebSocketClient.sendNotification(deploymentResult, adminIds);
+        deploymentWebSocketClient.sendNotification(getDeploymentResultFromDto(deploymentData), adminIds);
 
-        log.info("Статус деплоя обновлен и отправлен по WebSocket.");
+        log.info("Статус деплоя обновлен и отправлен по WebSocket");
     }
 
 
     /**
-     * Преобразует DeploymentStatusEntity в DeploymentResult.
+     * Преобразует DeploymentStatusEntity в DeploymentDataDto
      */
-    private DeploymentResult mapToDeploymentResult(DeploymentStatusEntity entity) {
-        return new DeploymentResult(
+    private DeploymentDataDto mapToDeploymentData(DeploymentStatusEntity entity) {
+        return new DeploymentDataDto(
                 VirtualMachineMapper.toDto(entity.getVirtualMachine()),
                 VulnerableServiceMapper.toDto(entity.getVulnerableService()),
                 entity.getDeploymentStatus(),
@@ -113,5 +117,9 @@ public class DeploymentStatusService {
         return admins.stream()
                 .map(admin -> admin.getId().toString())
                 .toList();
+    }
+
+    private DeploymentResult getDeploymentResultFromDto(DeploymentDataDto data){
+        return new DeploymentResult(List.of(data));
     }
 }

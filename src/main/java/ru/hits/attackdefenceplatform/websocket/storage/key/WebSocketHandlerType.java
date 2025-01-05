@@ -4,5 +4,5 @@ public enum WebSocketHandlerType {
     COMPETITION,
     NEW_DATA,
     EVENT,
-    DEPLOYMENT
+    DEPLOYMENT_UPDATE
 }
