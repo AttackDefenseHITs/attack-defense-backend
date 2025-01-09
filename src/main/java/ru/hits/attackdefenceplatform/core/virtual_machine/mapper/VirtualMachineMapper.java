@@ -11,6 +11,7 @@ public class VirtualMachineMapper {
                 vm.getId(),
                 vm.getIpAddress(),
                 vm.getUsername(),
+                vm.getPassword(),
                 vm.getTeam().getId(),
                 vm.getTeam().getName()
         );

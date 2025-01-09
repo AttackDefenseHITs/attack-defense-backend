@@ -6,6 +6,7 @@ public record VirtualMachineDto(
         UUID id,
         String ipAddress,
         String username,
+        String password,
         UUID teamId,
         String teamName
 ) {}

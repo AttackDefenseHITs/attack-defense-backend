@@ -13,10 +13,12 @@ import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberRepository;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamRepository;
 import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
+import ru.hits.attackdefenceplatform.core.virtual_machine.VirtualMachineService;
 import ru.hits.attackdefenceplatform.public_interface.team.CreateManyTeamsRequest;
 import ru.hits.attackdefenceplatform.public_interface.team.CreateTeamRequest;
 import ru.hits.attackdefenceplatform.public_interface.team.TeamInfoDto;
 import ru.hits.attackdefenceplatform.public_interface.team.TeamListDto;
+import ru.hits.attackdefenceplatform.public_interface.vitrual_machine.VirtualMachineDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +33,7 @@ public class TeamServiceImpl implements TeamService {
     private final TeamRepository teamRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final CompetitionService competitionService;
+    private final VirtualMachineService virtualMachineService;
 
     @Transactional
     @Override
@@ -114,6 +117,8 @@ public class TeamServiceImpl implements TeamService {
         Integer place = calculateTeamPlace(team);
         Integer points = calculateTeamPoints(team);
 
+        var virtualMachine = getTeamVirtualMachine(teamId, isMyTeam);
+
         return new TeamInfoDto(
                 team.getId(),
                 team.getName(),
@@ -124,7 +129,8 @@ public class TeamServiceImpl implements TeamService {
                 canJoin,
                 isMyTeam,
                 canLeave,
-                memberList
+                memberList,
+                virtualMachine
         );
     }
 
@@ -210,6 +216,20 @@ public class TeamServiceImpl implements TeamService {
         return teamMemberRepository.findByTeam(team).stream()
                 .mapToInt(member -> member.getPoints() != null ? member.getPoints() : 0)
                 .sum();
+    }
+
+    private VirtualMachineDto getTeamVirtualMachine(UUID teamId, boolean isMyTeam){
+        var competition = competitionService.getCompetition();
+        boolean competitionStarted = !competition.getStatus().equals(CompetitionStatus.NEW);
+
+        if (competitionStarted && isMyTeam){
+            return virtualMachineService.getVirtualMachinesByTeam(teamId)
+                    .stream()
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        return null;
     }
 
     private TeamListDto mapTeamEntityToTeamListDto(TeamEntity team, UserEntity user) {
