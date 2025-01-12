@@ -223,7 +223,10 @@ public class TeamServiceImpl implements TeamService {
         boolean competitionStarted = !competition.getStatus().equals(CompetitionStatus.NEW);
 
         if (competitionStarted && isMyTeam){
-            return getTeamVirtualMachineInfo(teamId);
+            return virtualMachineService.getVirtualMachinesByTeam(teamId)
+                    .stream()
+                    .findFirst()
+                    .orElse(null);
         }
 
         return null;
