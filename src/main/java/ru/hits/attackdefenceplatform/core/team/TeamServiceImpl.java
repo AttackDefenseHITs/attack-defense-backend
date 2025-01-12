@@ -229,13 +229,6 @@ public class TeamServiceImpl implements TeamService {
         return null;
     }
 
-    private VirtualMachineDto getTeamVirtualMachineInfo(UUID teamId){
-        return virtualMachineService.getVirtualMachinesByTeam(teamId)
-                .stream()
-                .findFirst()
-                .orElse(null);
-    }
-
     private TeamListDto mapTeamEntityToTeamListDto(TeamEntity team, UserEntity user) {
         var userCount = teamMemberRepository.countByTeam(team);
         var membersCount = team.getMaxMembers();
@@ -247,7 +240,7 @@ public class TeamServiceImpl implements TeamService {
         Integer place = calculateTeamPlace(team);
         Integer points = calculateTeamPoints(team);
 
-        var virtualMachineIp = Optional.ofNullable(getTeamVirtualMachineInfo(team.getId()))
+        var virtualMachineIp = Optional.ofNullable(getFullTeamVirtualMachineInfo(team.getId(), true))
                 .map(VirtualMachineDto::ipAddress)
                 .orElse(null);
 
