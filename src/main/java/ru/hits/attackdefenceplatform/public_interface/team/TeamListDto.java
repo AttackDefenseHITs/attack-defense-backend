@@ -9,6 +9,7 @@ public record TeamListDto(
         Integer points,
         Long userCount,
         Long membersCount,
-        Boolean isMyTeam
+        Boolean isMyTeam,
+        String ipAddress
 ) {
 }
