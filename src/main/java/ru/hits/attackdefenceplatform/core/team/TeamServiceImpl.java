@@ -117,7 +117,7 @@ public class TeamServiceImpl implements TeamService {
         Integer place = calculateTeamPlace(team);
         Integer points = calculateTeamPoints(team);
 
-        var virtualMachine = getTeamVirtualMachine(teamId, isMyTeam);
+        var virtualMachine = getFullTeamVirtualMachineInfo(teamId, isMyTeam);
 
         return new TeamInfoDto(
                 team.getId(),
@@ -218,18 +218,22 @@ public class TeamServiceImpl implements TeamService {
                 .sum();
     }
 
-    private VirtualMachineDto getTeamVirtualMachine(UUID teamId, boolean isMyTeam){
+    private VirtualMachineDto getFullTeamVirtualMachineInfo(UUID teamId, boolean isMyTeam){
         var competition = competitionService.getCompetition();
         boolean competitionStarted = !competition.getStatus().equals(CompetitionStatus.NEW);
 
         if (competitionStarted && isMyTeam){
-            return virtualMachineService.getVirtualMachinesByTeam(teamId)
-                    .stream()
-                    .findFirst()
-                    .orElse(null);
+            return getTeamVirtualMachineInfo(teamId);
         }
 
         return null;
+    }
+
+    private VirtualMachineDto getTeamVirtualMachineInfo(UUID teamId){
+        return virtualMachineService.getVirtualMachinesByTeam(teamId)
+                .stream()
+                .findFirst()
+                .orElse(null);
     }
 
     private TeamListDto mapTeamEntityToTeamListDto(TeamEntity team, UserEntity user) {
@@ -243,6 +247,10 @@ public class TeamServiceImpl implements TeamService {
         Integer place = calculateTeamPlace(team);
         Integer points = calculateTeamPoints(team);
 
+        var virtualMachineIp = Optional.ofNullable(getTeamVirtualMachineInfo(team.getId()))
+                .map(VirtualMachineDto::ipAddress)
+                .orElse(null);
+
         return new TeamListDto(
                 team.getId(),
                 team.getName(),
@@ -250,7 +258,8 @@ public class TeamServiceImpl implements TeamService {
                 points,
                 userCount,
                 membersCount,
-                isMyTeam
+                isMyTeam,
+                virtualMachineIp
         );
     }
 }
