@@ -9,8 +9,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface FlagRepository extends JpaRepository<FlagEntity, UUID> {
-    boolean existsByVulnerableServiceAndFlagNumber(VulnerableServiceEntity vulnerableService, Integer flagNumber);
-
     List<FlagEntity> findByVulnerableService(VulnerableServiceEntity vulnerableService);
 
     List<FlagEntity> findByFlagOwner(TeamEntity flagOwner);

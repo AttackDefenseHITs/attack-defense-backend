@@ -1,0 +1,3 @@
+ALTER TABLE flags
+DROP COLUMN IF EXISTS point,
+DROP COLUMN IF EXISTS flag_number;

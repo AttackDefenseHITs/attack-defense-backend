@@ -33,7 +33,7 @@ public class DashboardServiceImpl implements DashboardService{
         List<FlagSubmissionWithPointsDto> result = new ArrayList<>();
 
         for (FlagSubmissionEntity submission : submissions) {
-            int flagPoints = submission.getFlag() != null ? submission.getFlag().getPoint() : 0;
+            int flagPoints = submission.getFlag() != null ? 10 : 0;
             if (submission.getIsCorrect()) {
                 totalTeamPoints += flagPoints;
             }

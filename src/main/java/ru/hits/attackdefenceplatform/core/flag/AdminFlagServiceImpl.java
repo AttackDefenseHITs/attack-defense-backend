@@ -32,10 +32,6 @@ public class AdminFlagServiceImpl implements AdminFlagService {
         var service = vulnerableServiceRepository.findById(request.serviceId())
                 .orElseThrow(() -> new EntityNotFoundException("Сервис с ID " + request.serviceId() + " не найден"));
 
-        if (flagRepository.existsByVulnerableServiceAndFlagNumber(service, request.flagNumberInService())) {
-            throw new IllegalArgumentException("Флаг с таким номером уже существует в указанном сервисе");
-        }
-
         var flag = FlagMapper.fromCreateFlagRequest(request, team, service);
 
         var savedFlag = flagRepository.save(flag);
@@ -79,15 +75,8 @@ public class AdminFlagServiceImpl implements AdminFlagService {
         var service = vulnerableServiceRepository.findById(request.serviceId())
                 .orElseThrow(() -> new EntityNotFoundException("Сервис с ID " + request.serviceId() + " не найден"));
 
-        if (!flag.getVulnerableService().equals(service) &&
-                flagRepository.existsByVulnerableServiceAndFlagNumber(service, request.flagNumberInService())) {
-            throw new IllegalArgumentException("Флаг с таким номером уже существует в указанном сервисе");
-        }
-
-        flag.setPoint(request.points());
         flag.setFlagOwner(team);
         flag.setVulnerableService(service);
-        flag.setFlagNumber(request.flagNumberInService());
         flagRepository.save(flag);
     }
 

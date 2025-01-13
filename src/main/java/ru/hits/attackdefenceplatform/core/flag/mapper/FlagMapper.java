@@ -17,10 +17,9 @@ public class FlagMapper {
             VulnerableServiceEntity service
     ) {
         var flagEntity = new FlagEntity();
-        flagEntity.setPoint(request.points());
+        flagEntity.setValue(request.value());
         flagEntity.setFlagOwner(team);
         flagEntity.setVulnerableService(service);
-        flagEntity.setFlagNumber(request.flagNumberInService());
         flagEntity.setIsActive(true);
         return flagEntity;
     }
@@ -28,8 +27,6 @@ public class FlagMapper {
     public static FlagDto mapToFlagDto(FlagEntity flag) {
         return new FlagDto(
                 flag.getId(),
-                flag.getPoint(),
-                flag.getFlagNumber(),
                 flag.getFlagOwner().getId(),
                 flag.getFlagOwner().getName(),
                 flag.getVulnerableService().getId(),
@@ -41,7 +38,6 @@ public class FlagMapper {
     public static FlagListDto mapToFlagListDto(FlagEntity flag) {
         return new FlagListDto(
                 flag.getId(),
-                flag.getFlagNumber(),
                 flag.getFlagOwner().getName(),
                 flag.getVulnerableService().getName()
         );

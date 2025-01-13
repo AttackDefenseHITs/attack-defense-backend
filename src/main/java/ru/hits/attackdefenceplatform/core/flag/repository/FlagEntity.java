@@ -26,9 +26,6 @@ public class FlagEntity {
     @Column(nullable = false)
     private String value;
 
-    @Column(nullable = false)
-    private Integer point;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id", nullable = false)
     private TeamEntity flagOwner;
@@ -36,9 +33,6 @@ public class FlagEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vulnerable_service_id", nullable = false)
     private VulnerableServiceEntity vulnerableService;
-
-    @Column(nullable = false)
-    private Integer flagNumber; // Номер флага для понимания, в каком месте сервиса он находится
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;

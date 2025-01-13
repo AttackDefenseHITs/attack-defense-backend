@@ -66,7 +66,7 @@ public class QuartzCompetitionConfiguration {
                 .forJob(refreshTokenCleanupJobDetail())
                 .withIdentity("refreshTokenCleanupTrigger")
                 .withSchedule(scheduleBuilder)
-                .startAt(DateBuilder.tomorrowAt(2, 0, 0))
+                .startNow()
                 .build();
     }
 

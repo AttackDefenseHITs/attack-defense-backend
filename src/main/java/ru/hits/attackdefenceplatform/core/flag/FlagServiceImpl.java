@@ -42,7 +42,7 @@ public class FlagServiceImpl implements FlagService {
 
             currentFlag.setIsActive(false);
 
-            teamMember.setPoints(teamMember.getPoints() + currentFlag.getPoint());
+            teamMember.setPoints(teamMember.getPoints() + 10);
             saveFlagSubmission(teamMember, currentFlag, flagValue, true);
 
             teamMemberRepository.save(teamMember);
