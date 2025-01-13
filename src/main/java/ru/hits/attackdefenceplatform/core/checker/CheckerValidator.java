@@ -7,7 +7,7 @@ import java.util.List;
 
 @Component
 public class CheckerValidator {
-    private static final List<String> REQUIRED_FUNCTIONS = List.of("check", "put", "get");
+    private static final List<String> REQUIRED_FUNCTIONS = List.of("check", "put", "get", "get_flag");
 
     public boolean validateSyntax(File scriptFile) {
         try {

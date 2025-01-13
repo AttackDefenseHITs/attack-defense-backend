@@ -9,7 +9,8 @@ public enum CheckerResult {
     OK(101),
     CORRUPT(102),
     MUMBLE(103),
-    DOWN(104);
+    DOWN(104),
+    CHECK_FAILED(110);
 
     private final int code;
 }
