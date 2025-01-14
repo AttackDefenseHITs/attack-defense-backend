@@ -15,7 +15,7 @@ public class CheckerValidator {
 
     public boolean validateSyntax(File scriptFile) {
         try {
-            var process = new ProcessBuilder("python", "-m", "py_compile", scriptFile.getAbsolutePath())
+            var process = new ProcessBuilder("python3", "-m", "py_compile", scriptFile.getAbsolutePath())
                     .redirectErrorStream(true)
                     .start();
 
