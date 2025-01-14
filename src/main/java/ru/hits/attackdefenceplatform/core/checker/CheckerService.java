@@ -3,11 +3,14 @@ package ru.hits.attackdefenceplatform.core.checker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+import ru.hits.attackdefenceplatform.core.checker.repository.CheckerEntity;
+import ru.hits.attackdefenceplatform.core.checker.repository.CheckerRepository;
 import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.VulnerableServiceRepository;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.UUID;
 
 @Service
@@ -17,23 +20,46 @@ public class CheckerService {
     private final String checkersDirectory = "/var/lib/checkers/";
 
     private final VulnerableServiceRepository vulnerableServiceRepository;
+    private final CheckerRepository checkerRepository;
     private final CheckerValidator checkerValidator;
 
-    public void uploadChecker(MultipartFile file, UUID serviceId) throws IOException {
+    public void uploadChecker(String scriptText, UUID serviceId) throws IOException, InterruptedException {
         var service = vulnerableServiceRepository.findById(serviceId)
                 .orElseThrow(() -> new IllegalArgumentException("Service not found"));
 
-        var originalFilename = file.getOriginalFilename();
-        if (originalFilename == null || !originalFilename.endsWith(".py")) {
-            throw new IllegalArgumentException("Only .py files are allowed");
+        var existingChecker = checkerRepository.findByVulnerableServiceId(serviceId);
+
+        Path checkersDirPath = Paths.get(checkersDirectory);
+        if (!Files.exists(checkersDirPath)) {
+            Files.createDirectories(checkersDirPath);
+            log.info("Created directory for checkers: {}", checkersDirectory);
         }
 
-        var filePath = checkersDirectory + UUID.randomUUID() + "_" + originalFilename;
-        var scriptFile = new File(filePath);
-        file.transferTo(scriptFile);
+        // Генерация уникального имени файла для сохранения скрипта
+        var fileName = UUID.randomUUID() + "_checker.py";
+        var scriptPath = Paths.get(checkersDirectory, fileName);
 
-        if (!checkerValidator.validateSyntax(scriptFile) || !checkerValidator.validateFunctions(scriptFile)) {
+        // Сохраняем текст скрипта в файл
+        Files.writeString(scriptPath, scriptText);
+
+        // Валидация скрипта
+        if (!checkerValidator.validateSyntax(scriptPath.toFile())) {
             throw new IllegalArgumentException("Checker script is invalid");
         }
+
+        if (existingChecker != null) {
+            existingChecker.setScriptFilePath(scriptPath.toString());
+            checkerRepository.save(existingChecker);
+            log.info("Checker for service {} already exists. Path updated to {}", service.getName(), scriptPath);
+        } else {
+            CheckerEntity newChecker = new CheckerEntity();
+            newChecker.setVulnerableService(service);
+            newChecker.setScriptFilePath(scriptPath.toString());
+            checkerRepository.save(newChecker);
+            log.info("New checker script for service {} saved successfully at {}", service.getName(), scriptPath);
+        }
     }
+
 }
+
+

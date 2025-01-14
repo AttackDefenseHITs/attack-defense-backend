@@ -41,6 +41,7 @@ public class SpringSecurityConfiguration {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/checkers/**").hasRole("ADMIN")
                         .requestMatchers("/api/team/**").authenticated()
                         .requestMatchers("/api/competition").authenticated()
                         .requestMatchers("/api/competition/**").hasRole("ADMIN")
