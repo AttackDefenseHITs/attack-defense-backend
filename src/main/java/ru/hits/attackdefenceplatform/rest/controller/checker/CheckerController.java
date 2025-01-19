@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,5 +37,14 @@ public class CheckerController {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @GetMapping("/{serviceId}")
+    @Operation(summary = "Получить код чекера для определенного сервиса")
+    public ResponseEntity<String> getCheckerCode(
+            @PathVariable UUID serviceId
+    ) throws IOException {
+        var code = checkerService.getCheckerScriptByServiceId(serviceId);
+        return ResponseEntity.ok(code);
     }
 }
