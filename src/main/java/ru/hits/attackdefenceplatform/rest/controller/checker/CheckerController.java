@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.hits.attackdefenceplatform.core.checker.CheckerService;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -53,13 +54,9 @@ public class CheckerController {
     public ResponseEntity<String> runChecker(
             @PathVariable UUID serviceId,
             @PathVariable UUID teamId,
-            @RequestParam String command) {
-        try {
-            checkerService.runChecker(serviceId, teamId, command);
-            return ResponseEntity.ok("Checker executed successfully.");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to run checker: " + e.getMessage());
-        }
+            @RequestBody List<String> commands)
+    {
+        checkerService.runChecker(serviceId, teamId, commands);
+        return ResponseEntity.ok("Checker executed successfully.");
     }
 }

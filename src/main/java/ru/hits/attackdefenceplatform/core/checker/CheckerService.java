@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -27,6 +28,8 @@ import java.util.UUID;
 public class CheckerService {
     private final CheckerFileService checkerFileService;
     private final CheckerValidator checkerValidator;
+    private final CheckerResultHandler checkerResultHandler;
+    private final ScriptExecutor scriptExecutor;
 
     private final CheckerRepository checkerRepository;
     private final VulnerableServiceRepository vulnerableServiceRepository;
@@ -51,7 +54,7 @@ public class CheckerService {
         return checkerEntity == null ? "" : checkerFileService.readScriptFromFile(checkerEntity.getScriptFilePath());
     }
 
-    public void runChecker(UUID serviceId, UUID teamId, String command) {
+    public void runChecker(UUID serviceId, UUID teamId, List<String> commands) {
         try {
             var service = vulnerableServiceRepository.findById(serviceId)
                     .orElseThrow(() -> new IllegalArgumentException("Service not found"));
@@ -67,61 +70,16 @@ public class CheckerService {
             var targetIp = virtualMachine.ipAddress();
             int targetPort = service.getPort();
 
-            log.info("Running checker for service: {} team: {}", service.getName(), team.getName());
-            var result = executeCheckerScript(checkerEntity.getScriptFilePath(), command, targetIp, targetPort);
+            var command = String.join(" ", commands);
 
-            handleCheckerResult(serviceId, teamId, result);
+            log.info("Running checker for service: {} team: {}", service.getName(), team.getName());
+            var result = scriptExecutor.executeScript(checkerEntity.getScriptFilePath(), command, targetIp, targetPort);
+
+            checkerResultHandler.handleCheckerResult(serviceId, teamId, result);
         } catch (Exception e) {
             log.error("Error running checker: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to run checker", e);
         }
-    }
-
-    private CheckerResult executeCheckerScript(
-            String scriptPath,
-            String command,
-            String targetIp,
-            int targetPort
-    ) throws IOException, InterruptedException {
-        var processBuilder = new ProcessBuilder("python3", scriptPath, command, targetIp, String.valueOf(targetPort));
-        processBuilder.redirectErrorStream(true);
-
-        var process = processBuilder.start();
-
-        try (var reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-            reader.lines().forEach(log::info);
-        }
-
-        int exitCode = process.waitFor();
-        return CheckerResult.fromCode(exitCode);
-    }
-
-    private void handleCheckerResult(UUID serviceId, UUID teamId, CheckerResult result) {
-        switch (result) {
-            case OK -> {
-                log.info("Checker OK for service: {}, team: {}", serviceId, teamId);
-                createFlags(serviceId, teamId);
-                notifyClients(serviceId, teamId, "Checker passed");
-            }
-            case MUMBLE, CORRUPT, DOWN -> {
-                log.warn("Checker issue detected for service: {}, team: {}, result: {}", serviceId, teamId, result);
-                notifyClients(serviceId, teamId, "Checker reported an issue: " + result);
-            }
-            case CHECK_FAILED -> {
-                log.error("Checker failed for service: {}, team: {}", serviceId, teamId);
-                notifyClients(serviceId, teamId, "Checker execution failed");
-            }
-        }
-    }
-
-    private void createFlags(UUID serviceId, UUID teamId) {
-        // Логика создания флагов (будет позже)
-        log.info("Flags created for service: {}, team: {}", serviceId, teamId);
-    }
-
-    private void notifyClients(UUID serviceId, UUID teamId, String message) {
-        // Логика отправки уведомлений (будет позже)
-        log.info("Notification sent for service: {}, team: {}, message: {}", serviceId, teamId, message);
     }
 
     private VulnerableServiceEntity findServiceById(UUID serviceId) {
@@ -134,6 +92,7 @@ public class CheckerService {
                              Path scriptPath) {
         if (existingCheckerOptional.isPresent()) {
             var existingChecker = existingCheckerOptional.get();
+            checkerFileService.deleteScriptFile(existingChecker.getScriptFilePath());
             existingChecker.setScriptFilePath(scriptPath.toString());
             checkerRepository.save(existingChecker);
             log.info("Checker for service {} already exists. Path updated to {}", service.getName(), scriptPath);

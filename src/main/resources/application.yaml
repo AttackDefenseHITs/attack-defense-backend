@@ -19,6 +19,9 @@ springdoc:
   swagger-ui:
     enabled: true
 
+checkers:
+  directory: /var/lib/checkers/
+
 jwt:
   secret: ${JWT_SECRET:r1Wq3Y7Ql8ivrpC4A6vEgBg1kllCKCrFkwhbZUNZ6Y8=}
   access:
