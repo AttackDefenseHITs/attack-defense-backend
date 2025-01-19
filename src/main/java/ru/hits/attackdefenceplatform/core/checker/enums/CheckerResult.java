@@ -13,4 +13,18 @@ public enum CheckerResult {
     CHECK_FAILED(110);
 
     private final int code;
+
+    public int toCode() {
+        return this.code;
+    }
+
+    public static CheckerResult fromCode(int code) {
+        for (CheckerResult result : values()) {
+            if (result.code == code) {
+                return result;
+            }
+        }
+        return CHECK_FAILED;
+    }
 }
+
