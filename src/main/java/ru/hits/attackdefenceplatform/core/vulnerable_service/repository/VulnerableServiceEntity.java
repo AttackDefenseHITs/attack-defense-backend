@@ -27,4 +27,7 @@ public class VulnerableServiceEntity {
 
     @Column(nullable = false)
     private String gitRepositoryUrl;
+
+    @Column(nullable = false)
+    private Integer port;
 }

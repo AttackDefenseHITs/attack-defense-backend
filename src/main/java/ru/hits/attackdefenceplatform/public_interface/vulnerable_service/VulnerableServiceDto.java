@@ -5,5 +5,6 @@ import java.util.UUID;
 public record VulnerableServiceDto(
         UUID id,
         String name,
-        String gitRepositoryUrl
+        String gitRepositoryUrl,
+        Integer port
 ) {}

@@ -10,7 +10,8 @@ public class VulnerableServiceMapper {
         return new VulnerableServiceDto(
                 entity.getId(),
                 entity.getName(),
-                entity.getGitRepositoryUrl()
+                entity.getGitRepositoryUrl(),
+                entity.getPort()
         );
     }
 
@@ -18,6 +19,7 @@ public class VulnerableServiceMapper {
         var entity = new VulnerableServiceEntity();
         entity.setName(request.name());
         entity.setGitRepositoryUrl(request.gitRepositoryUrl());
+        entity.setPort(request.port());
         return entity;
     }
 }

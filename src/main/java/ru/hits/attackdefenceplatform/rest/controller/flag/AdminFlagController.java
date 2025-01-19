@@ -29,13 +29,6 @@ public class AdminFlagController {
 
     private final AdminFlagService adminFlagService;
 
-    @PostMapping
-    @Operation(summary = "Создать флаг")
-    public ResponseEntity<FlagDto> createFlag(@RequestBody CreateFlagRequest request) {
-        var flagDto = adminFlagService.createFlag(request);
-        return ResponseEntity.ok(flagDto);
-    }
-
     @GetMapping
     @Operation(summary = "Получить все флаги")
     public ResponseEntity<List<FlagListDto>> getAllFlags() {
@@ -48,20 +41,6 @@ public class AdminFlagController {
     public ResponseEntity<FlagDto> getFlagById(@PathVariable UUID id) {
         var flagDto = adminFlagService.getFlagById(id);
         return ResponseEntity.ok(flagDto);
-    }
-
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Удалить флаг")
-    public ResponseEntity<Void> deleteFlag(@PathVariable UUID id) {
-        adminFlagService.deleteFlag(id);
-        return ResponseEntity.ok().build();
-    }
-
-    @PutMapping("/{id}")
-    @Operation(summary = "Обновить данные о флаге")
-    public ResponseEntity<Void> updateFlag(@PathVariable UUID id, @RequestBody CreateFlagRequest request) {
-        adminFlagService.updateFlag(id, request);
-        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/service/{serviceId}")

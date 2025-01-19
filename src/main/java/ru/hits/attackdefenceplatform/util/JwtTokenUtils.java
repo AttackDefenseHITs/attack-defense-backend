@@ -28,9 +28,17 @@ public class JwtTokenUtils {
     @Value("${jwt.refresh.lifetime}")
     private Duration jwtRefreshLifetime;
 
-    public String generateAccessToken(UserDto user){
+    public String generateAccessToken(UserDto user) {
+        return generateToken(user, jwtAccessLifetime);
+    }
+
+    public String generateRefreshToken(UserDto user) {
+        return generateToken(user, jwtRefreshLifetime);
+    }
+
+    private String generateToken(UserDto user, Duration lifetime) {
         Date issuedDate = new Date();
-        Date expiredDate = new Date(issuedDate.getTime() + jwtAccessLifetime.toMillis());
+        Date expiredDate = new Date(issuedDate.getTime() + lifetime.toMillis());
         UUID tokenId = UUID.randomUUID();
 
         return Jwts.builder()
@@ -44,28 +52,12 @@ public class JwtTokenUtils {
                 .compact();
     }
 
-    public String generateRefreshToken(UserDto user){
-        Date issuedDate = new Date();
-        Date expiredDate = new Date(issuedDate.getTime() + jwtRefreshLifetime.toMillis());
-        UUID tokenId = UUID.randomUUID();
-
-        return Jwts.builder()
-                .setSubject(user.login())
-                .claim("userId", user.id().toString())
-                .claim("role", user.role())
-                .setId(tokenId.toString())
-                .setIssuedAt(issuedDate)
-                .setExpiration(expiredDate)
-                .signWith(getSignKey(), SignatureAlgorithm.HS256)
-                .compact();
-    }
-
-    public UUID getUserIdFromToken(String token){
+    public UUID getUserIdFromToken(String token) {
         String userId = getAllClaimsFromToken(token).get("userId", String.class);
         return UUID.fromString(userId);
     }
 
-    public String getTokenId(String token){
+    public String getTokenId(String token) {
         var claims = getAllClaimsFromToken(token);
         return claims.getId();
     }
