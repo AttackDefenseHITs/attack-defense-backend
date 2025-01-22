@@ -1,7 +1,6 @@
 package ru.hits.attackdefenceplatform.core.competition.configuration;
 
 import lombok.extern.slf4j.Slf4j;
-import org.quartz.DateBuilder;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
@@ -9,18 +8,14 @@ import org.quartz.SchedulerException;
 import org.quartz.SimpleScheduleBuilder;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
-import org.quartz.impl.matchers.GroupMatcher;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.scheduling.quartz.SpringBeanJobFactory;
-import ru.hits.attackdefenceplatform.core.competition.CompetitionService;
 import ru.hits.attackdefenceplatform.core.competition.job.CompetitionChangeStatusJob;
+import ru.hits.attackdefenceplatform.core.competition.job.CompetitionStartNextRoundJob;
 import ru.hits.attackdefenceplatform.core.token.job.RefreshTokenCleanupJob;
-
-import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 
 @Configuration
 @Slf4j
@@ -44,6 +39,28 @@ public class QuartzCompetitionConfiguration {
                                 .withIntervalInMinutes(1)
                                 .repeatForever()
                 )
+                .build();
+    }
+
+    @Bean
+    public JobDetail competitionStartNextRoundJobDetail() {
+        return JobBuilder.newJob(CompetitionStartNextRoundJob.class)
+                .withIdentity("competitionStartNextRoundJob")
+                .storeDurably()
+                .build();
+    }
+
+    @Bean
+    public Trigger competitionStartNextRoundJobTrigger(JobDetail competitionStartNextRoundJobDetail) {
+        return TriggerBuilder.newTrigger()
+                .forJob(competitionStartNextRoundJobDetail)
+                .withIdentity("competitionStartNextRoundJobTrigger")
+                .withSchedule(
+                        SimpleScheduleBuilder.simpleSchedule()
+                                .withIntervalInSeconds(30)
+                                .repeatForever()
+                )
+                .startNow()
                 .build();
     }
 
@@ -81,12 +98,14 @@ public class QuartzCompetitionConfiguration {
     public SchedulerFactoryBean schedulerFactoryBean(
             SpringBeanJobFactory jobFactory,
             JobDetail competitionJobDetail,
-            Trigger competitionJobTrigger
+            Trigger competitionJobTrigger,
+            JobDetail competitionStartNextRoundJobDetail,
+            Trigger competitionStartNextRoundJobTrigger
     ) {
         var factoryBean = new SchedulerFactoryBean();
         factoryBean.setJobFactory(jobFactory);
-        factoryBean.setJobDetails(competitionJobDetail);
-        factoryBean.setTriggers(competitionJobTrigger);
+        factoryBean.setJobDetails(competitionJobDetail, competitionStartNextRoundJobDetail);
+        factoryBean.setTriggers(competitionJobTrigger, competitionStartNextRoundJobTrigger);
         return factoryBean;
     }
 

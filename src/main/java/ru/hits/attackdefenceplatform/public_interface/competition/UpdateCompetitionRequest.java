@@ -6,7 +6,8 @@ public record UpdateCompetitionRequest(
         String name,
         LocalDateTime startDate,
         LocalDateTime endDate,
-        Integer durationMinutes,
+        Integer totalRounds,
+        Integer roundDurationMinutes,
         String rules
 ) {
 }

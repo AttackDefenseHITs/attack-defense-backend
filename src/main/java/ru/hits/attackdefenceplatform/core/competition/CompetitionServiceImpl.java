@@ -16,6 +16,8 @@ import ru.hits.attackdefenceplatform.websocket.storage.key.WebSocketHandlerType;
 import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionDto;
 import ru.hits.attackdefenceplatform.public_interface.competition.UpdateCompetitionRequest;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
@@ -61,8 +63,9 @@ public class CompetitionServiceImpl implements CompetitionService {
                 competition.getStatus() != CompetitionStatus.COMPLETED) {
             throw new CompetitionException("Соревнование может быть запущено только из состояния NEW, CANCELLED или COMPLETED");
         }
+        competition.setStartDate(LocalDateTime.now(ZoneOffset.UTC));
         competition.setStatus(CompetitionStatus.IN_PROGRESS);
-
+        competition.setCurrentRound(0);
         notifyParticipants("Соревнование началось! Удачи!");
     }
 
@@ -145,7 +148,8 @@ public class CompetitionServiceImpl implements CompetitionService {
         competition.setName(request.name());
         competition.setStartDate(request.startDate());
         competition.setEndDate(request.endDate());
-        competition.setDurationMinutes(request.durationMinutes());
+        competition.setTotalRounds(request.totalRounds());
+        competition.setRoundDurationMinutes(request.roundDurationMinutes());
         competition.setRules(request.rules());
 
         var updatedCompetition = competitionRepository.save(competition);
@@ -179,10 +183,44 @@ public class CompetitionServiceImpl implements CompetitionService {
     public CompetitionDto restartCompetition() {
         var competition = getCompetition();
         competition.setStatus(CompetitionStatus.NEW);
+        competition.setTotalRounds(5);
+        competition.setRoundDurationMinutes(20);
         competition.setStartDate(null);
         competition.setEndDate(null);
         competitionRepository.save(competition);
         return CompetitionMapper.mapToCompetitionDto(competition);
+    }
+
+    /**
+     * Начало следующего раунда.
+     */
+    @Transactional
+    public CompetitionDto startNextRound() {
+        var competition = getCompetition();
+
+        if (competition.getStatus() != CompetitionStatus.IN_PROGRESS) {
+            throw new CompetitionException("Нельзя начинать новый раунд, если соревнование не в состоянии IN_PROGRESS");
+        }
+
+        if (competition.getCurrentRound() >= competition.getTotalRounds()) {
+            throw new CompetitionException("Все раунды уже завершены");
+        }
+
+        competition.setCurrentRound(competition.getCurrentRound() + 1);
+
+        notifyParticipants("Начался раунд " + competition.getCurrentRound());
+
+        competitionRepository.save(competition);
+        return CompetitionMapper.mapToCompetitionDto(competition);
+    }
+
+    /**
+     * Получение информации о текущем раунде.
+     */
+    @Transactional(readOnly = true)
+    public Integer getCurrentRound() {
+        var competition = getCompetition();
+        return competition.getCurrentRound();
     }
 
     /**

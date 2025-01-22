@@ -10,7 +10,9 @@ public class CompetitionMapper {
                 competition.getStatus(),
                 competition.getStartDate(),
                 competition.getEndDate(),
-                competition.getDurationMinutes(),
+                competition.getTotalRounds(),
+                competition.getRoundDurationMinutes(),
+                competition.getCurrentRound(),
                 competition.getRules()
         );
     }

@@ -27,7 +27,11 @@ public class Competition {
 
     private LocalDateTime endDate;
 
-    private Integer durationMinutes;
+    private Integer totalRounds;
+
+    private Integer roundDurationMinutes;
+
+    private Integer currentRound;
 
     @Lob
     private String rules;

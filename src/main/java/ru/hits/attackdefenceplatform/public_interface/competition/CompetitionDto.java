@@ -9,6 +9,8 @@ public record CompetitionDto(
         CompetitionStatus status,
         LocalDateTime startDate,
         LocalDateTime endDate,
-        Integer durationMinutes,
+        Integer totalRounds,
+        Integer roundDurationMinutes,
+        Integer currentRound,
         String rules
 ) {}

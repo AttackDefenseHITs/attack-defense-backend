@@ -14,4 +14,6 @@ public interface CompetitionService {
     CompetitionDto getCompetitionDto();
     Competition getCompetition();
     CompetitionDto restartCompetition();
+    Integer getCurrentRound();
+    CompetitionDto startNextRound();
 }
