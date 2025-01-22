@@ -2,26 +2,19 @@ package ru.hits.attackdefenceplatform.core.checker.script;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import ru.hits.attackdefenceplatform.core.checker.data.ScriptExecutionResult;
 import ru.hits.attackdefenceplatform.core.checker.enums.CheckerResult;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 @Component
 @Slf4j
 public class ScriptExecutor {
 
-    /**
-     * Выполнение скрипта с переданными командами.
-     *
-     * @param scriptPath Путь к скрипту.
-     * @param commands Строка с командами.
-     * @param targetIp IP-адрес целевой машины.
-     * @param targetPort Порт целевой машины.
-     * @return Результат выполнения скрипта.
-     */
-    public CheckerResult executeScript(
+    public ScriptExecutionResult executeScript(
             String scriptPath,
             String commands,
             String targetIp,
@@ -38,12 +31,19 @@ public class ScriptExecutor {
 
         var process = processBuilder.start();
 
+        var outputLines = new ArrayList<String>();
         try (var reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-            reader.lines().forEach(log::info);
+            reader.lines().forEach(line -> {
+                outputLines.add(line);
+                log.info(line);
+            });
         }
 
         int exitCode = process.waitFor();
-        return CheckerResult.fromCode(exitCode);
+        var result = CheckerResult.fromCode(exitCode);
+
+        return new ScriptExecutionResult(result, outputLines);
     }
 }
+
 

@@ -1,6 +1,8 @@
 package ru.hits.attackdefenceplatform.core.flag.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
 import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.VulnerableServiceEntity;
 
@@ -14,4 +16,7 @@ public interface FlagRepository extends JpaRepository<FlagEntity, UUID> {
     List<FlagEntity> findByFlagOwner(TeamEntity flagOwner);
 
     Optional<FlagEntity> findByValue(String value);
+
+    @Query("SELECT f FROM FlagEntity f WHERE f.vulnerableService.id = :serviceId AND f.flagOwner.id = :teamId")
+    List<FlagEntity> findFlagsByServiceAndTeam(@Param("serviceId") UUID serviceId, @Param("teamId") UUID teamId);
 }

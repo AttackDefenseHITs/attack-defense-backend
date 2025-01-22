@@ -25,17 +25,17 @@ public class AdminFlagServiceImpl implements AdminFlagService {
 
     @Override
     @Transactional
-    public FlagDto createFlag(CreateFlagRequest request) {
+    public void createFlags(CreateFlagRequest request) {
         var team = teamRepository.findById(request.teamId())
                 .orElseThrow(() -> new TeamNotFoundException("Команда с ID " + request.teamId() + " не найдена"));
 
         var service = vulnerableServiceRepository.findById(request.serviceId())
                 .orElseThrow(() -> new EntityNotFoundException("Сервис с ID " + request.serviceId() + " не найден"));
 
-        var flag = FlagMapper.fromCreateFlagRequest(request, team, service);
-
-        var savedFlag = flagRepository.save(flag);
-        return FlagMapper.mapToFlagDto(savedFlag);
+        for (String value : request.values()) {
+            var flag = FlagMapper.fromCreateFlagRequest(value, team, service);
+            flagRepository.save(flag);
+        }
     }
 
     @Override
@@ -64,23 +64,6 @@ public class AdminFlagServiceImpl implements AdminFlagService {
     }
 
     @Override
-    @Transactional
-    public void updateFlag(UUID id, CreateFlagRequest request) {
-        var flag = flagRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Флаг с ID " + id + " не найден"));
-
-        var team = teamRepository.findById(request.teamId())
-                .orElseThrow(() -> new EntityNotFoundException("Команда с ID " + request.teamId() + " не найдена"));
-
-        var service = vulnerableServiceRepository.findById(request.serviceId())
-                .orElseThrow(() -> new EntityNotFoundException("Сервис с ID " + request.serviceId() + " не найден"));
-
-        flag.setFlagOwner(team);
-        flag.setVulnerableService(service);
-        flagRepository.save(flag);
-    }
-
-    @Override
     @Transactional(readOnly = true)
     public List<FlagListDto> getFlagsByService(UUID serviceId) {
         var service = vulnerableServiceRepository.findById(serviceId)
@@ -100,5 +83,14 @@ public class AdminFlagServiceImpl implements AdminFlagService {
         return flagRepository.findByFlagOwner(team).stream()
                 .map(FlagMapper::mapToFlagListDto)
                 .toList();
+    }
+
+    @Transactional
+    public void disableAllFlagsForTeam(UUID serviceId, UUID teamId){
+        var flags = flagRepository.findFlagsByServiceAndTeam(serviceId, teamId);
+
+        flags.forEach(flag -> flag.setIsActive(false));
+
+        flagRepository.saveAll(flags);
     }
 }

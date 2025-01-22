@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface AdminFlagService {
-    FlagDto createFlag(CreateFlagRequest request);
+    void createFlags(CreateFlagRequest request);
 
     List<FlagListDto> getAllFlags();
 
@@ -16,9 +16,9 @@ public interface AdminFlagService {
 
     void deleteFlag(UUID id);
 
-    void updateFlag(UUID id, CreateFlagRequest request);
-
     List<FlagListDto> getFlagsByService(UUID serviceId);
 
     List<FlagListDto> getFlagsByTeam(UUID teamId);
+
+    void disableAllFlagsForTeam(UUID serviceId, UUID teamId);
 }

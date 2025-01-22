@@ -12,12 +12,12 @@ public class FlagMapper {
     private FlagMapper() {}
 
     public static FlagEntity fromCreateFlagRequest(
-            CreateFlagRequest request,
+            String value,
             TeamEntity team,
             VulnerableServiceEntity service
     ) {
         var flagEntity = new FlagEntity();
-        flagEntity.setValue(request.value());
+        flagEntity.setValue(value);
         flagEntity.setFlagOwner(team);
         flagEntity.setVulnerableService(service);
         flagEntity.setIsActive(true);
