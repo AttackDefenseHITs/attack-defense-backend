@@ -20,6 +20,7 @@ public class DashboardServiceImpl implements DashboardService{
 
     private final FlagSubmissionRepository flagSubmissionRepository;
 
+    @Override
     public List<FlagSubmissionWithPointsDto> getFilteredSubmissions(Boolean isCorrect, UUID teamId) {
         Specification<FlagSubmissionEntity> spec = FlagSubmissionSpecifications.createSpecification(isCorrect, teamId);
 
@@ -33,7 +34,7 @@ public class DashboardServiceImpl implements DashboardService{
         List<FlagSubmissionWithPointsDto> result = new ArrayList<>();
 
         for (FlagSubmissionEntity submission : submissions) {
-            int flagPoints = submission.getFlag() != null ? 10 : 0;
+            int flagPoints = submission.getFlag() != null ? 100 : 0;
             if (submission.getIsCorrect()) {
                 totalTeamPoints += flagPoints;
             }

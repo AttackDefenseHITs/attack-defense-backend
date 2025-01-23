@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.hits.attackdefenceplatform.core.checker.CheckerServiceImpl;
+import ru.hits.attackdefenceplatform.core.checker.CheckerService;
+import ru.hits.attackdefenceplatform.core.service_status.ServiceStatusService;
+import ru.hits.attackdefenceplatform.public_interface.service_statuses.ServiceStatusInfo;
 
 import java.io.IOException;
 import java.util.List;
@@ -22,7 +24,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CheckerController {
 
-    private final CheckerServiceImpl checkerService;
+    private final CheckerService checkerService;
 
     @PostMapping("/{serviceId}/upload")
     @Operation(summary = "Загрузить чекер для уязвимого сервиса")
@@ -33,7 +35,7 @@ public class CheckerController {
         try {
             checkerService.uploadChecker(scriptText, serviceId);
             return ResponseEntity.ok("Checker uploaded successfully.");
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

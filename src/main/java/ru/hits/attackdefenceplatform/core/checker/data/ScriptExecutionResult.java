@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class ScriptExecutionResult {
-    private CheckerResult result;
+    private CheckerResult checkerResult;
     private List<String> outputLines;
 }
 

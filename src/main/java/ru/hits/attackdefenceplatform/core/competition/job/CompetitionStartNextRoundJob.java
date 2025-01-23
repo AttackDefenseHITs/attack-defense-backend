@@ -25,7 +25,6 @@ public class CompetitionStartNextRoundJob implements Job {
         try {
             var competition = competitionService.getCompetition();
             if (!isCompetitionInProgress(competition)) {
-                log.info("Соревнование не в статусе IN_PROGRESS, раунды не меняются.");
                 return;
             }
 
@@ -62,7 +61,9 @@ public class CompetitionStartNextRoundJob implements Job {
         int roundDurationMinutes = competition.getRoundDurationMinutes();
         int currentRound = competition.getCurrentRound();
 
-        var currentRoundEndTime = startDate.plusMinutes((long) roundDurationMinutes * currentRound + (long) roundDurationMinutes);
+        var currentRoundEndTime = startDate.plusMinutes(
+                (long) roundDurationMinutes * currentRound + (long) roundDurationMinutes
+        );
 
         return LocalDateTime.now(ZoneOffset.UTC).isAfter(currentRoundEndTime);
     }

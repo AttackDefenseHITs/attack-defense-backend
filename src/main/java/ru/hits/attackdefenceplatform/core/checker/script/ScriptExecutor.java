@@ -13,6 +13,7 @@ import java.util.ArrayList;
 @Component
 @Slf4j
 public class ScriptExecutor {
+    private final static String USED_LANGUAGE = "python3";
 
     public ScriptExecutionResult executeScript(
             String scriptPath,
@@ -21,11 +22,11 @@ public class ScriptExecutor {
             int targetPort
     ) throws IOException, InterruptedException {
         var processBuilder = new ProcessBuilder(
-                "python3",
+                USED_LANGUAGE,
                 scriptPath,
-                commands,
                 targetIp,
-                String.valueOf(targetPort)
+                String.valueOf(targetPort),
+                commands
         );
         processBuilder.redirectErrorStream(true);
 

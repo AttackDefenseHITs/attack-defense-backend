@@ -10,7 +10,8 @@ public enum CheckerResult {
     CORRUPT(102),
     MUMBLE(103),
     DOWN(104),
-    CHECK_FAILED(110);
+    CHECK_FAILED(110),
+    DEFAULT(0);
 
     private final int code;
 

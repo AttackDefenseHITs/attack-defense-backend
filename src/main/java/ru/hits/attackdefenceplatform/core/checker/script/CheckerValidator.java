@@ -13,7 +13,7 @@ import java.util.List;
 @Component
 @Slf4j
 public class CheckerValidator {
-    private static final List<String> REQUIRED_FUNCTIONS = List.of("check", "put", "get", "get_flag");
+    private static final List<String> REQUIRED_FUNCTIONS = List.of("check", "put", "get", "get_flags");
 
     /**
      * Общий метод для валидации скрипта.
