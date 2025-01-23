@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import ru.hits.attackdefenceplatform.core.checker.handler.CheckerResultHandler;
 import ru.hits.attackdefenceplatform.core.checker.repository.CheckerEntity;
@@ -21,6 +22,8 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +37,8 @@ public class CheckerServiceImpl implements CheckerService{
     private final CheckerRepository checkerRepository;
     private final VulnerableServiceRepository vulnerableServiceRepository;
     private final VirtualMachineService virtualMachineService;
+
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
 
     @Override
     public void uploadChecker(String scriptText, UUID serviceId) throws IOException {
@@ -56,6 +61,7 @@ public class CheckerServiceImpl implements CheckerService{
     }
 
     @Override
+    @Async("taskExecutor")
     public void runChecker(UUID serviceId, UUID teamId, List<String> commands) {
         var executionData = prepareCheckerExecution(serviceId, teamId, commands);
         executeChecker(
@@ -64,6 +70,43 @@ public class CheckerServiceImpl implements CheckerService{
                 executionData.getService(),
                 executionData.getCommand()
         );
+    }
+
+    @Override
+    @Async("taskExecutor")
+    public void runAllCheckers(List<String> commands) {
+        var allCheckers = checkerRepository.findAll();
+        var allVirtualMachines = virtualMachineService.getAllVirtualMachines();
+
+        if (allCheckers.isEmpty()) {
+            log.warn("No checkers found to run.");
+            return;
+        }
+
+        if (allVirtualMachines.isEmpty()) {
+            log.warn("No virtual machines found to run checkers on.");
+            return;
+        }
+
+        log.info("Starting execution of all checkers. Total checkers: {}, Total VMs: {}", allCheckers.size(), allVirtualMachines.size());
+
+        allCheckers.forEach(checker -> {
+            var service = checker.getVulnerableService();
+
+            executorService.submit(() -> {
+                try {
+                    for (var vm : allVirtualMachines) {
+                        var executionData = new ExecutionData(service, checker, vm, String.join(" ", commands));
+                        executeChecker(executionData.getVirtualMachine(), executionData.getCheckerEntity(),
+                                executionData.getService(), executionData.getCommand());
+                    }
+                } catch (Exception e) {
+                    log.error("Failed to execute checker for service ID {}: {}", checker.getVulnerableService().getId(), e.getMessage(), e);
+                }
+            });
+        });
+
+        log.info("All checkers have been submitted for execution on all virtual machines.");
     }
 
     private void executeChecker(

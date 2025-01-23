@@ -22,7 +22,7 @@ public class CheckerEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "vulnerable_service_id", nullable = false)
     private VulnerableServiceEntity vulnerableService;
 

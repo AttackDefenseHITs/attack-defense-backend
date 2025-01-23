@@ -8,4 +8,5 @@ public interface CheckerService {
     void uploadChecker(String scriptText, UUID serviceId) throws IOException;
     String getCheckerScriptByServiceId(UUID serviceId) throws IOException;
     void runChecker(UUID serviceId, UUID teamId, List<String> commands);
+    void runAllCheckers(List<String> commands);
 }

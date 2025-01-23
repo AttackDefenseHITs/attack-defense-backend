@@ -59,4 +59,11 @@ public class CheckerController {
         checkerService.runChecker(serviceId, teamId, commands);
         return ResponseEntity.ok("Checker executed successfully.");
     }
+
+    @PostMapping("/all")
+    @Operation(summary = "Запустить все чекеры на полную проверку")
+    public ResponseEntity<String> runAllCheckers(){
+        checkerService.runAllCheckers(List.of("check", "put", "get", "get_flags"));
+        return ResponseEntity.ok("Success");
+    }
 }

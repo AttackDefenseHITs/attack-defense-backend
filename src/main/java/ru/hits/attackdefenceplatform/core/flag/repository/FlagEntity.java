@@ -26,11 +26,11 @@ public class FlagEntity {
     @Column(nullable = false)
     private String value;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "team_id", nullable = false)
     private TeamEntity flagOwner;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "vulnerable_service_id", nullable = false)
     private VulnerableServiceEntity vulnerableService;
 
