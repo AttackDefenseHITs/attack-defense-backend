@@ -232,7 +232,8 @@ public class TeamServiceImpl implements TeamService {
         return null;
     }
 
-    private TeamListDto mapTeamEntityToTeamListDto(TeamEntity team, UserEntity user) {
+    @Override
+    public TeamListDto mapTeamEntityToTeamListDto(TeamEntity team, UserEntity user) {
         var userCount = teamMemberRepository.countByTeam(team);
         var membersCount = team.getMaxMembers();
 
