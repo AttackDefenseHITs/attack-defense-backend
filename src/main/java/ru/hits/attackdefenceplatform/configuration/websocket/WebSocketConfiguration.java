@@ -14,6 +14,7 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import ru.hits.attackdefenceplatform.websocket.handler.CheckerStatusEventHandler;
 import ru.hits.attackdefenceplatform.websocket.handler.CompetitionEventHandler;
 import ru.hits.attackdefenceplatform.websocket.handler.DeploymentEventHandler;
 
@@ -25,13 +26,16 @@ import java.util.List;
 public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer, WebSocketConfigurer {
     private final CompetitionEventHandler competitionEventHandler;
     private final DeploymentEventHandler deploymentEventHandler;
+    private final CheckerStatusEventHandler checkerStatusEventHandler;
 
     public WebSocketConfiguration(
             @Lazy CompetitionEventHandler competitionEventHandler,
-            @Lazy DeploymentEventHandler deploymentEventHandler
+            @Lazy DeploymentEventHandler deploymentEventHandler,
+            @Lazy CheckerStatusEventHandler checkerStatusEventHandler
     ) {
         this.competitionEventHandler = competitionEventHandler;
         this.deploymentEventHandler = deploymentEventHandler;
+        this.checkerStatusEventHandler = checkerStatusEventHandler;
     }
 
     @Override
@@ -65,6 +69,8 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer,
         registry.addHandler(competitionEventHandler, "ws/event")
                 .setAllowedOriginPatterns("*");
         registry.addHandler(deploymentEventHandler, "ws/deploy")
+                .setAllowedOriginPatterns("*");
+        registry.addHandler(checkerStatusEventHandler, "ws/checker")
                 .setAllowedOriginPatterns("*");
     }
 }

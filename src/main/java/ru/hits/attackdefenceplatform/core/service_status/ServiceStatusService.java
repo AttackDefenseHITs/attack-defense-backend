@@ -4,6 +4,7 @@ import ru.hits.attackdefenceplatform.core.checker.enums.CheckerResult;
 import ru.hits.attackdefenceplatform.core.service_status.repository.ServiceStatusEntity;
 import ru.hits.attackdefenceplatform.public_interface.service_statuses.ServiceStatusDto;
 import ru.hits.attackdefenceplatform.public_interface.service_statuses.ServiceStatusInfo;
+import ru.hits.attackdefenceplatform.public_interface.service_statuses.TeamServiceStatusDto;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -23,9 +24,8 @@ public interface ServiceStatusService {
      *
      * @param serviceId ID сервиса.
      * @param teamId    ID команды.
-     * @return Объект ServiceStatusEntity, если найден.
      */
-    ServiceStatusDto getServiceStatus(UUID serviceId, UUID teamId);
+    TeamServiceStatusDto getServiceStatus(UUID serviceId, UUID teamId);
 
     /**
      * Получает информацию о статусах всех сервисов
@@ -39,6 +39,6 @@ public interface ServiceStatusService {
      * @param teamId    ID команды.
      * @return Объект ServiceStatusEntity.
      */
-    ServiceStatusEntity createServiceStatus(UUID serviceId, UUID teamId);
+    ServiceStatusEntity createServiceStatus(UUID serviceId, UUID teamId, CheckerResult result);
 }
 
