@@ -7,18 +7,21 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.stereotype.Component;
 import ru.hits.attackdefenceplatform.common.exception.CompetitionException;
+import ru.hits.attackdefenceplatform.core.checker.CheckerService;
 import ru.hits.attackdefenceplatform.core.competition.CompetitionService;
 import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionStatus;
 import ru.hits.attackdefenceplatform.core.competition.repository.Competition;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class CompetitionStartNextRoundJob implements Job {
     private final CompetitionService competitionService;
+    private final CheckerService checkerService;
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
@@ -30,6 +33,9 @@ public class CompetitionStartNextRoundJob implements Job {
 
             if (isCurrentRoundFinished(competition)) {
                 competitionService.startNextRound();
+                if (!isZeroRound()){
+                    checkerService.runAllCheckers(List.of("check", "put", "get", "get_flags"));
+                }
             }
 
         } catch (CompetitionException e) {
@@ -66,5 +72,9 @@ public class CompetitionStartNextRoundJob implements Job {
         );
 
         return LocalDateTime.now(ZoneOffset.UTC).isAfter(currentRoundEndTime);
+    }
+
+    private boolean isZeroRound(){
+        return competitionService.getCurrentRound() == 0;
     }
 }

@@ -1,5 +1,6 @@
 package ru.hits.attackdefenceplatform.websocket.handler;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -9,6 +10,8 @@ import ru.hits.attackdefenceplatform.util.JwtTokenUtils;
 import ru.hits.attackdefenceplatform.websocket.storage.WebSocketStorage;
 import ru.hits.attackdefenceplatform.websocket.storage.key.SessionKey;
 import ru.hits.attackdefenceplatform.websocket.storage.key.WebSocketHandlerType;
+
+import java.io.IOException;
 
 @Component
 @Slf4j
@@ -22,9 +25,25 @@ public class CheckerStatusEventHandler extends AbstractEventHandler{
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
-        var userId = getUserId(session);
-        SessionKey sessionKey = new SessionKey(userId, WebSocketHandlerType.CHECKER);
-        webSocketStorage.add(sessionKey, session);
+        try {
+            var userId = getUserId(session);
+            SessionKey sessionKey = new SessionKey(userId, WebSocketHandlerType.CHECKER);
+            webSocketStorage.add(sessionKey, session);
+        } catch (ExpiredJwtException ex) {
+            log.error("JWT токен для WebSocket сессии истёк: {}", ex.getMessage(), ex);
+            try {
+                session.close();
+            } catch (IOException e) {
+                log.error("Ошибка при закрытии WebSocket сессии: {}", e.getMessage(), e);
+            }
+        } catch (Exception ex) {
+            log.error("Ошибка при установлении WebSocket соединения: {}", ex.getMessage(), ex);
+            try {
+                session.close();
+            } catch (IOException e) {
+                log.error("Ошибка при закрытии WebSocket сессии: {}", e.getMessage(), e);
+            }
+        }
     }
 
     @Override

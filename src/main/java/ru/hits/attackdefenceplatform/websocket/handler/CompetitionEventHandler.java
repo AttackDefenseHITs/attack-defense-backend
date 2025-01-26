@@ -1,5 +1,6 @@
 package ru.hits.attackdefenceplatform.websocket.handler;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import ru.hits.attackdefenceplatform.websocket.storage.WebSocketStorage;
 import ru.hits.attackdefenceplatform.websocket.storage.key.SessionKey;
 import ru.hits.attackdefenceplatform.websocket.storage.key.WebSocketHandlerType;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 @Component
@@ -26,10 +28,27 @@ public class CompetitionEventHandler extends AbstractEventHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
-        var userId = getUserId(session);
-        SessionKey sessionKey = new SessionKey(userId, WebSocketHandlerType.COMPETITION);
-        webSocketStorage.add(sessionKey, session);
+        try {
+            var userId = getUserId(session);
+            SessionKey sessionKey = new SessionKey(userId, WebSocketHandlerType.COMPETITION);
+            webSocketStorage.add(sessionKey, session);
+        } catch (ExpiredJwtException ex) {
+            log.error("JWT токен для WebSocket сессии истёк: {}", ex.getMessage(), ex);
+            try {
+                session.close();
+            } catch (IOException e) {
+                log.error("Ошибка при закрытии WebSocket сессии: {}", e.getMessage(), e);
+            }
+        } catch (Exception ex) {
+            log.error("Ошибка при установлении WebSocket соединения: {}", ex.getMessage(), ex);
+            try {
+                session.close();
+            } catch (IOException e) {
+                log.error("Ошибка при закрытии WebSocket сессии: {}", e.getMessage(), e);
+            }
+        }
     }
+
 
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) {
