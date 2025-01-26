@@ -28,3 +28,7 @@ jwt:
     lifetime: 60m
   refresh:
     lifetime: 1d
+
+competition:
+  settings:
+    flag-cost: 300

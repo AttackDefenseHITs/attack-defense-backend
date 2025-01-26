@@ -11,10 +11,28 @@ import ru.hits.attackdefenceplatform.common.exception.CompetitionException;
 import ru.hits.attackdefenceplatform.common.exception.TeamException;
 import ru.hits.attackdefenceplatform.common.exception.TeamNotFoundException;
 import ru.hits.attackdefenceplatform.common.exception.UserException;
+import ru.hits.attackdefenceplatform.common.exception.flag.FlagExpiredException;
+import ru.hits.attackdefenceplatform.common.exception.flag.InvalidFlagException;
+import ru.hits.attackdefenceplatform.common.exception.flag.OwnFlagSubmissionException;
 
 @ControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+    @ExceptionHandler(FlagExpiredException.class)
+    public ResponseEntity<String> handleFlagExpiredException(FlagExpiredException ex) {
+        return ResponseEntity.status(HttpStatus.GONE).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(OwnFlagSubmissionException.class)
+    public ResponseEntity<String> handleOwnFlagSubmissionException(OwnFlagSubmissionException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidFlagException.class)
+    public ResponseEntity<String> handleInvalidFlagException(InvalidFlagException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
     @ExceptionHandler(CompetitionException.class)
     public ResponseEntity<Object> handleCompetitionException(Exception ex){
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);

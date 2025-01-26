@@ -129,6 +129,7 @@ public class ServiceStatusServiceImpl implements ServiceStatusService {
                             double sla = totalDuration == 0 ? 0 : (status.getTotalOkDuration() * 100.0 / totalDuration);
 
                             return new ServiceStatusSummary(
+                                    status.getService().getId(),
                                     String.format("%.2f%%", sla),
                                     status.getLastStatus()
                             );

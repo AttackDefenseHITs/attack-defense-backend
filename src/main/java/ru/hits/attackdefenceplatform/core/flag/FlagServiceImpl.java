@@ -1,9 +1,13 @@
 package ru.hits.attackdefenceplatform.core.flag;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.hits.attackdefenceplatform.common.exception.TeamException;
+import ru.hits.attackdefenceplatform.common.exception.flag.FlagExpiredException;
+import ru.hits.attackdefenceplatform.common.exception.flag.InvalidFlagException;
+import ru.hits.attackdefenceplatform.common.exception.flag.OwnFlagSubmissionException;
 import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionEntity;
 import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionRepository;
 import ru.hits.attackdefenceplatform.core.flag.repository.FlagEntity;
@@ -17,6 +21,10 @@ import java.util.Date;
 @Service
 @RequiredArgsConstructor
 public class FlagServiceImpl implements FlagService {
+
+    @Value("${competition.settings.flag-cost}")
+    private Integer flagCost;
+
     private final FlagRepository flagRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final FlagSubmissionRepository flagSubmissionRepository;
@@ -29,20 +37,20 @@ public class FlagServiceImpl implements FlagService {
 
         try {
             var currentFlag = flagRepository.findByValue(flagValue)
-                    .orElseThrow(() -> new IllegalArgumentException("Неправильное значение флага"));
+                    .orElseThrow(() -> new InvalidFlagException("Неправильное значение флага"));
 
             if (!currentFlag.getIsActive()) {
-                throw new IllegalStateException("Флаг больше не активен");
+                throw new FlagExpiredException("Флаг больше не активен");
             }
 
             var userTeam = teamMember.getTeam();
             if (currentFlag.getFlagOwner().equals(userTeam)) {
-                throw new IllegalArgumentException("Вы не можете отправить флаг своей команды");
+                throw new OwnFlagSubmissionException("Вы не можете отправить флаг своей команды");
             }
 
             currentFlag.setIsActive(false);
 
-            teamMember.setPoints(teamMember.getPoints() + 100);
+            teamMember.setPoints(teamMember.getPoints() + flagCost);
             saveFlagSubmission(teamMember, currentFlag, flagValue, true);
 
             teamMemberRepository.save(teamMember);
@@ -53,6 +61,7 @@ public class FlagServiceImpl implements FlagService {
             throw e;
         }
     }
+
 
     private void saveFlagSubmission(TeamMemberEntity teamMember, FlagEntity flag, String flagValue, boolean isCorrect) {
         var flagSubmission = new FlagSubmissionEntity();

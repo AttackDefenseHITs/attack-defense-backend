@@ -11,8 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.hits.attackdefenceplatform.core.checker.CheckerService;
-import ru.hits.attackdefenceplatform.core.service_status.ServiceStatusService;
-import ru.hits.attackdefenceplatform.public_interface.service_statuses.ServiceStatusInfo;
+import ru.hits.attackdefenceplatform.public_interface.checker.StartCheckerRequest;
 
 import java.io.IOException;
 import java.util.List;
@@ -54,9 +53,9 @@ public class CheckerController {
     public ResponseEntity<String> runChecker(
             @PathVariable UUID serviceId,
             @PathVariable UUID teamId,
-            @RequestBody List<String> commands)
+            @RequestBody StartCheckerRequest request)
     {
-        checkerService.runChecker(serviceId, teamId, commands);
+        checkerService.runChecker(serviceId, teamId, request.commands());
         return ResponseEntity.ok("Checker executed successfully.");
     }
 
