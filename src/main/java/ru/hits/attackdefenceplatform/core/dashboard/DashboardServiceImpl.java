@@ -2,6 +2,7 @@ package ru.hits.attackdefenceplatform.core.dashboard;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionEntity;
@@ -17,6 +18,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class DashboardServiceImpl implements DashboardService{
+
+    @Value("${competition.settings.flag-cost}")
+    private Integer flagCost;
 
     private final FlagSubmissionRepository flagSubmissionRepository;
 
@@ -34,7 +38,7 @@ public class DashboardServiceImpl implements DashboardService{
         List<FlagSubmissionWithPointsDto> result = new ArrayList<>();
 
         for (FlagSubmissionEntity submission : submissions) {
-            int flagPoints = submission.getFlag() != null ? 100 : 0;
+            int flagPoints = submission.getFlag() != null ? flagCost : 0;
             if (submission.getIsCorrect()) {
                 totalTeamPoints += flagPoints;
             }
