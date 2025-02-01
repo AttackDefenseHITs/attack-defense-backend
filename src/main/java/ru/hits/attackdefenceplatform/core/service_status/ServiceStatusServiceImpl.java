@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.hits.attackdefenceplatform.core.checker.enums.CheckerResult;
+import ru.hits.attackdefenceplatform.core.points.PointsService;
 import ru.hits.attackdefenceplatform.core.service_status.repository.ServiceStatusEntity;
 import ru.hits.attackdefenceplatform.core.service_status.repository.ServiceStatusRepository;
 import ru.hits.attackdefenceplatform.core.team.TeamService;
@@ -13,6 +14,7 @@ import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
 import ru.hits.attackdefenceplatform.core.user.repository.UserRepository;
 import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.VulnerableServiceEntity;
 import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.VulnerableServiceRepository;
+import ru.hits.attackdefenceplatform.public_interface.service_statuses.FlagPointsForServiceDto;
 import ru.hits.attackdefenceplatform.public_interface.service_statuses.ServiceStatusInfo;
 import ru.hits.attackdefenceplatform.public_interface.service_statuses.ServiceStatusSummary;
 import ru.hits.attackdefenceplatform.public_interface.service_statuses.TeamServiceStatusDto;
@@ -28,12 +30,14 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ServiceStatusServiceImpl implements ServiceStatusService {
+    private final static Double DEFAULT_SLA = 100.0;
 
     private final ServiceStatusRepository serviceStatusRepository;
     private final VulnerableServiceRepository vulnerableServiceRepository;
     private final TeamRepository teamRepository;
     private final UserRepository userRepository;
     private final TeamService teamService;
+    private final PointsService pointsService;
 
     private final WebSocketClient<ServiceStatusInfo> webSocketClient;
 
@@ -108,7 +112,7 @@ public class ServiceStatusServiceImpl implements ServiceStatusService {
                 .stream()
                 .toList();
 
-        Map<String, ServiceStatusSummary> services = mapStatusesToServiceSummaries(statusesForTeam);
+        var services = mapStatusesToServiceSummaries(statusesForTeam);
 
         return new TeamServiceStatusDto(
                 teamService.mapTeamEntityToTeamListDto(team, null),
@@ -124,13 +128,22 @@ public class ServiceStatusServiceImpl implements ServiceStatusService {
                 .collect(Collectors.toMap(
                         status -> status.getService().getName(),
                         status -> {
+
                             long totalDuration = status.getTotalOkDuration() + status.getTotalMumbleDuration()
                                     + status.getTotalCorruptDuration() + status.getTotalDownDuration();
-                            double sla = totalDuration == 0 ? 0 : (status.getTotalOkDuration() * 100.0 / totalDuration);
+
+                            double sla = totalDuration == 0
+                                    ? DEFAULT_SLA
+                                    : (status.getTotalOkDuration() * DEFAULT_SLA / totalDuration);
+
+                            var flagPoints = pointsService
+                                    .getFlagPointsForServiceAndTeam(status.getTeam(), status.getService());
 
                             return new ServiceStatusSummary(
                                     status.getService().getId(),
                                     String.format("%.2f%%", sla),
+                                    flagPoints,
+                                    //new FlagPointsForServiceDto(12L, 12L),
                                     status.getLastStatus()
                             );
                         }

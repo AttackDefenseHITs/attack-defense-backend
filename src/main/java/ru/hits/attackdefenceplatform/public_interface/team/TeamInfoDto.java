@@ -12,7 +12,7 @@ public record TeamInfoDto(
         Long userCount,
         Long membersCount,
         Integer place,
-        Integer points,
+        Double points,
         Boolean canJoin,
         Boolean isMyTeam,
         Boolean canLeave,

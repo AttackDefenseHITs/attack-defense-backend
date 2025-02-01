@@ -32,3 +32,4 @@ jwt:
 competition:
   settings:
     flag-cost: 300
+    flag-lost: 150

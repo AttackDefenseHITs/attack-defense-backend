@@ -7,5 +7,6 @@ import java.util.UUID;
 public record ServiceStatusSummary(
         UUID serviceId,
         String sla,
+        FlagPointsForServiceDto flagPoints,
         CheckerResult status
 ) { }

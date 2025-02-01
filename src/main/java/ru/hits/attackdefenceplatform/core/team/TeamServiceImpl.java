@@ -8,6 +8,7 @@ import ru.hits.attackdefenceplatform.common.exception.TeamNotFoundException;
 import ru.hits.attackdefenceplatform.common.exception.UserException;
 import ru.hits.attackdefenceplatform.core.competition.CompetitionService;
 import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionStatus;
+import ru.hits.attackdefenceplatform.core.points.PointsService;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberRepository;
@@ -34,6 +35,7 @@ public class TeamServiceImpl implements TeamService {
     private final TeamMemberRepository teamMemberRepository;
     private final CompetitionService competitionService;
     private final VirtualMachineService virtualMachineService;
+    private final PointsService pointsService;
 
     @Transactional
     @Override
@@ -114,8 +116,8 @@ public class TeamServiceImpl implements TeamService {
         var isMyTeam = isUserInTeam(user, team);
         var canLeave = canLeaveFromTeam(user, team);
 
-        Integer place = calculateTeamPlace(team);
-        Integer points = calculateTeamPoints(team);
+        var place = calculateTeamPlace(team);
+        var points = pointsService.calculateTeamFlagPoints(team);
 
         var virtualMachine = getFullTeamVirtualMachineInfo(teamId, isMyTeam);
 
@@ -208,14 +210,11 @@ public class TeamServiceImpl implements TeamService {
 
     private Integer calculateTeamPlace(TeamEntity team) {
         List<TeamEntity> allTeams = teamRepository.findAll();
-        allTeams.sort((t1, t2) -> Integer.compare(calculateTeamPoints(t2), calculateTeamPoints(t1)));
+        allTeams.sort((t1, t2) -> Double.compare(
+                pointsService.calculateTeamFlagPoints(t2),
+                pointsService.calculateTeamFlagPoints(t1))
+        );
         return allTeams.indexOf(team) + 1;
-    }
-
-    private Integer calculateTeamPoints(TeamEntity team) {
-        return teamMemberRepository.findByTeam(team).stream()
-                .mapToInt(member -> member.getPoints() != null ? member.getPoints() : 0)
-                .sum();
     }
 
     private VirtualMachineDto getFullTeamVirtualMachineInfo(UUID teamId, boolean isMyTeam){
@@ -241,8 +240,8 @@ public class TeamServiceImpl implements TeamService {
                 .map(u -> isUserInTeam(u, team))
                 .orElse(false);
 
-        Integer place = calculateTeamPlace(team);
-        Integer points = calculateTeamPoints(team);
+        var place = calculateTeamPlace(team);
+        var points = pointsService.calculateTeamFlagPoints(team);
 
         var virtualMachineIp = Optional.ofNullable(getFullTeamVirtualMachineInfo(team.getId(), true))
                 .map(VirtualMachineDto::ipAddress)

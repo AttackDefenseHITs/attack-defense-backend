@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import ru.hits.attackdefenceplatform.core.FlagCostProperties;
 import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionEntity;
 import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionRepository;
 import ru.hits.attackdefenceplatform.core.dashboard.repository.spec.FlagSubmissionSpecifications;
@@ -19,10 +20,8 @@ import java.util.UUID;
 @Slf4j
 public class DashboardServiceImpl implements DashboardService{
 
-    @Value("${competition.settings.flag-cost}")
-    private Integer flagCost;
-
     private final FlagSubmissionRepository flagSubmissionRepository;
+    private final FlagCostProperties flagCostProperties;
 
     @Override
     public List<FlagSubmissionWithPointsDto> getFilteredSubmissions(Boolean isCorrect, UUID teamId) {
@@ -38,7 +37,7 @@ public class DashboardServiceImpl implements DashboardService{
         List<FlagSubmissionWithPointsDto> result = new ArrayList<>();
 
         for (FlagSubmissionEntity submission : submissions) {
-            int flagPoints = submission.getFlag() != null ? flagCost : 0;
+            int flagPoints = submission.getFlag() != null ? flagCostProperties.getFlagCost() : 0;
             if (submission.getIsCorrect()) {
                 totalTeamPoints += flagPoints;
             }

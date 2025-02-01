@@ -6,7 +6,7 @@ public record TeamListDto(
         UUID id,
         String name,
         Integer place,
-        Integer points,
+        Double points,
         Long userCount,
         Long membersCount,
         Boolean isMyTeam,

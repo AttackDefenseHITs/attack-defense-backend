@@ -1,13 +1,13 @@
 package ru.hits.attackdefenceplatform.core.flag;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.hits.attackdefenceplatform.common.exception.TeamException;
 import ru.hits.attackdefenceplatform.common.exception.flag.FlagExpiredException;
 import ru.hits.attackdefenceplatform.common.exception.flag.InvalidFlagException;
 import ru.hits.attackdefenceplatform.common.exception.flag.OwnFlagSubmissionException;
+import ru.hits.attackdefenceplatform.core.FlagCostProperties;
 import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionEntity;
 import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionRepository;
 import ru.hits.attackdefenceplatform.core.flag.repository.FlagEntity;
@@ -22,8 +22,7 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class FlagServiceImpl implements FlagService {
 
-    @Value("${competition.settings.flag-cost}")
-    private Integer flagCost;
+    private final FlagCostProperties flagCostProperties;
 
     private final FlagRepository flagRepository;
     private final TeamMemberRepository teamMemberRepository;
@@ -50,7 +49,7 @@ public class FlagServiceImpl implements FlagService {
 
             currentFlag.setIsActive(false);
 
-            teamMember.setPoints(teamMember.getPoints() + flagCost);
+            teamMember.setPoints(teamMember.getPoints() + flagCostProperties.getFlagCost());
             saveFlagSubmission(teamMember, currentFlag, flagValue, true);
 
             teamMemberRepository.save(teamMember);
