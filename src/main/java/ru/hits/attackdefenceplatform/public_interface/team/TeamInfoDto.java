@@ -9,7 +9,7 @@ import java.util.UUID;
 public record TeamInfoDto(
         UUID id,
         String name,
-        Long userCount,
+        Integer userCount,
         Long membersCount,
         Integer place,
         Double points,

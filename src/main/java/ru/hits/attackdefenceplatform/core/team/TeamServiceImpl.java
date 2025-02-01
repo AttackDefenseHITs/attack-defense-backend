@@ -62,23 +62,20 @@ public class TeamServiceImpl implements TeamService {
             throw new TeamException("Вы не можете зайти в команду после начала соревнования");
         }
 
-        var team = teamRepository.findById(teamId)
+        var team = teamRepository.findByIdWithMembers(teamId)
                 .orElseThrow(() -> new TeamNotFoundException("Команда с ID " + teamId + " не найдена"));
 
-        boolean isUserInAnyTeam = teamMemberRepository.existsByUser(user);
-        if (isUserInAnyTeam) {
+        if (team.getMembers().stream().anyMatch(member -> member.getUser().equals(user))) {
             throw new UserException("Пользователь уже состоит в другой команде");
         }
 
-        long currentMembersCount = teamMemberRepository.countByTeam(team);
-        if (currentMembersCount >= team.getMaxMembers()) {
-            throw new TeamException("В команде с ID " + teamId + " нет места для нового участника");
+        if (team.getMembers().size() >= team.getMaxMembers()) {
+            throw new TeamException("В команде нет места для нового участника");
         }
 
         var teamMember = new TeamMemberEntity();
         teamMember.setUser(user);
         teamMember.setTeam(team);
-
         teamMemberRepository.save(teamMember);
     }
 
@@ -90,11 +87,13 @@ public class TeamServiceImpl implements TeamService {
             throw new TeamException("Вы не можете выйти из команды после начала соревнования");
         }
 
-        var team = teamRepository.findById(teamId)
+        var team = teamRepository.findByIdWithMembers(teamId)
                 .orElseThrow(() -> new TeamNotFoundException("Команда с ID " + teamId + " не найдена"));
 
-        var teamMember = teamMemberRepository.findByUserAndTeam(user, team)
-                .orElseThrow(() -> new UserException("Пользователь не состоит в команде с ID " + teamId));
+        var teamMember = team.getMembers().stream()
+                .filter(member -> member.getUser().equals(user))
+                .findFirst()
+                .orElseThrow(() -> new UserException("Пользователь не состоит в команде"));
 
         teamMemberRepository.delete(teamMember);
     }
@@ -102,44 +101,33 @@ public class TeamServiceImpl implements TeamService {
     @Transactional(readOnly = true)
     @Override
     public TeamInfoDto getTeamById(UUID teamId, UserEntity user) {
-        var team = teamRepository.findById(teamId)
+        var team = teamRepository.findByIdWithMembers(teamId)
                 .orElseThrow(() -> new TeamNotFoundException("Команда с ID " + teamId + " не найдена"));
 
-        var userCount = teamMemberRepository.countByTeam(team);
+        var members = team.getMembers();
+        var userCount = members.size();
         var membersCount = team.getMaxMembers();
-
-        var memberList = teamMemberRepository.findByTeam(team).stream()
+        var memberList = members.stream()
                 .map(member -> mapUserEntityToMemberDto(member.getUser(), member.getPoints()))
                 .toList();
 
-        var canJoin = canUserJoinTeam(user, team);
-        var isMyTeam = isUserInTeam(user, team);
-        var canLeave = canLeaveFromTeam(user, team);
-
+        var canJoin = canUserJoinTeam(user, team, userCount);
+        var isMyTeam = isUserInTeam(user, members);
+        var canLeave = canLeaveFromTeam(user, members);
         var place = calculateTeamPlace(team);
         var points = pointsService.calculateTeamFlagPoints(team);
-
         var virtualMachine = getFullTeamVirtualMachineInfo(teamId, isMyTeam);
 
         return new TeamInfoDto(
-                team.getId(),
-                team.getName(),
-                userCount,
-                membersCount,
-                place,
-                points,
-                canJoin,
-                isMyTeam,
-                canLeave,
-                memberList,
-                virtualMachine
+                team.getId(), team.getName(), userCount, membersCount,
+                place, points, canJoin, isMyTeam, canLeave, memberList, virtualMachine
         );
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<TeamListDto> getAllTeams(UserEntity user) {
-        return teamRepository.findAll().stream()
+        return teamRepository.findAllWithMembers().stream()
                 .map(team -> mapTeamEntityToTeamListDto(team, user))
                 .toList();
     }
@@ -149,12 +137,9 @@ public class TeamServiceImpl implements TeamService {
     public List<TeamListDto> createManyTeams(CreateManyTeamsRequest request) {
         List<TeamListDto> teamListDtos = new ArrayList<>();
         for (long i = 1; i <= request.teamsCount(); i++) {
-            String teamName = "Команда " + i;
-
             var team = new TeamEntity();
-            team.setName(teamName);
+            team.setName("Команда " + i);
             team.setMaxMembers(request.maxMembers());
-
             var newTeam = teamRepository.save(team);
             teamListDtos.add(mapTeamEntityToTeamListDto(newTeam, null));
         }
@@ -165,14 +150,10 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public void updateTeam(UUID teamId, CreateTeamRequest request) {
         var team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new TeamNotFoundException("Команда с ID " + teamId + " не найдена"));
+                .orElseThrow(() -> new TeamNotFoundException("Команда не найдена"));
 
-        Optional.ofNullable(request.name())
-                .filter(name -> !name.isBlank())
-                .ifPresent(team::setName);
-
-        Optional.ofNullable(request.maxMembers())
-                .ifPresent(team::setMaxMembers);
+        Optional.ofNullable(request.name()).filter(name -> !name.isBlank()).ifPresent(team::setName);
+        Optional.ofNullable(request.maxMembers()).ifPresent(team::setMaxMembers);
 
         teamRepository.save(team);
     }
@@ -181,83 +162,66 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public void removeMemberFromTeam(UUID teamId, UUID userId) {
         var teamMember = teamMemberRepository.findByUserIdAndTeamId(userId, teamId)
-                .orElseThrow(() -> new UserException("Участник с ID " + userId + " не найден в команде с ID " + teamId));
+                .orElseThrow(() -> new UserException("Участник не найден в команде"));
 
         teamMemberRepository.delete(teamMember);
     }
 
-    private boolean canUserJoinTeam(UserEntity user, TeamEntity team) {
-        boolean isUserInTeam = teamMemberRepository.existsByUser(user);
-        long userCount = teamMemberRepository.countByTeam(team);
+    private boolean canUserJoinTeam(UserEntity user, TeamEntity team, long userCount) {
         var competition = competitionService.getCompetition();
-        boolean competitionNotStarted = competition.getStatus().equals(CompetitionStatus.NEW);
+        boolean competitionNotStarted = competition.getStatus() == CompetitionStatus.NEW;
+        boolean isUserInTeam = team.getMembers().stream().anyMatch(member -> member.getUser().equals(user));
 
         return !isUserInTeam && userCount < team.getMaxMembers() && competitionNotStarted;
     }
 
-    private boolean isUserInTeam(UserEntity user, TeamEntity team) {
-        return teamMemberRepository.existsByUserAndTeam(user, team);
+    private boolean isUserInTeam(UserEntity user, List<TeamMemberEntity> members) {
+        return members.stream().anyMatch(member -> member.getUser().equals(user));
     }
 
-    private boolean canLeaveFromTeam(UserEntity user, TeamEntity team){
+    private boolean canLeaveFromTeam(UserEntity user, List<TeamMemberEntity> members) {
         var competition = competitionService.getCompetition();
-
-        var userInThisTeam = isUserInTeam(user, team);
-        var competitionNotStarted = competition.getStatus().equals(CompetitionStatus.NEW);
-
-        return userInThisTeam && competitionNotStarted;
+        return isUserInTeam(user, members) && competition.getStatus() == CompetitionStatus.NEW;
     }
 
-    private Integer calculateTeamPlace(TeamEntity team) {
-        List<TeamEntity> allTeams = teamRepository.findAll();
-        allTeams.sort((t1, t2) -> Double.compare(
-                pointsService.calculateTeamFlagPoints(t2),
-                pointsService.calculateTeamFlagPoints(t1))
-        );
-        return allTeams.indexOf(team) + 1;
-    }
-
-    private VirtualMachineDto getFullTeamVirtualMachineInfo(UUID teamId, boolean isMyTeam){
+    private VirtualMachineDto getFullTeamVirtualMachineInfo(UUID teamId, boolean isMyTeam) {
         var competition = competitionService.getCompetition();
-        boolean competitionStarted = !competition.getStatus().equals(CompetitionStatus.NEW);
+        boolean competitionStarted = competition.getStatus() != CompetitionStatus.NEW;
 
-        if (competitionStarted && isMyTeam){
-            return virtualMachineService.getVirtualMachinesByTeam(teamId)
-                    .stream()
-                    .findFirst()
-                    .orElse(null);
+        if (competitionStarted && isMyTeam) {
+            return virtualMachineService.getVirtualMachinesByTeam(teamId).stream().findFirst().orElse(null);
         }
-
         return null;
     }
 
     @Override
     public TeamListDto mapTeamEntityToTeamListDto(TeamEntity team, UserEntity user) {
-        var userCount = teamMemberRepository.countByTeam(team);
+        var userCount = team.getMembers().size();
         var membersCount = team.getMaxMembers();
-
-        var isMyTeam = Optional.ofNullable(user)
-                .map(u -> isUserInTeam(u, team))
-                .orElse(false);
-
+        var isMyTeam = user != null && isUserInTeam(user, team.getMembers());
         var place = calculateTeamPlace(team);
         var points = pointsService.calculateTeamFlagPoints(team);
 
-        var virtualMachineIp = Optional.ofNullable(getFullTeamVirtualMachineInfo(team.getId(), true))
+        var virtualMachineIp = Optional.ofNullable(getFullTeamVirtualMachineInfo(team.getId(), isMyTeam))
                 .map(VirtualMachineDto::ipAddress)
                 .orElse(null);
 
-        return new TeamListDto(
-                team.getId(),
-                team.getName(),
-                place,
-                points,
-                userCount,
-                membersCount,
-                isMyTeam,
-                virtualMachineIp
-        );
+        return new TeamListDto(team.getId(), team.getName(), place, points, userCount, membersCount, isMyTeam, virtualMachineIp);
+    }
+
+    //TODO: Что-то сделать с этим - это не дело
+    private Integer calculateTeamPlace(TeamEntity team) {
+        List<TeamEntity> allTeams = teamRepository.findAll();
+        allTeams.sort((t1, t2) -> Integer.compare(calculateTeamPoints(t2), calculateTeamPoints(t1)));
+        return allTeams.indexOf(team) + 1;
+    }
+
+    private Integer calculateTeamPoints(TeamEntity team) {
+        return teamMemberRepository.findByTeam(team).stream()
+                .mapToInt(member -> member.getPoints() != null ? member.getPoints() : 0)
+                .sum();
     }
 }
+
 
 
