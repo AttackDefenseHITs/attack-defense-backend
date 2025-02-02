@@ -7,6 +7,7 @@ public record TeamScoreChangeDto(
         String teamName,
         Date submissionTime,
         Integer pointsEarned,
-        Integer totalTeamPoints
+        Integer totalTeamPoints,
+        String color
 ) {}
 

@@ -25,6 +25,8 @@ public class TeamEntity {
 
     private Long maxMembers;
 
+    private String color;
+
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeamMemberEntity> members = new ArrayList<>();
 }

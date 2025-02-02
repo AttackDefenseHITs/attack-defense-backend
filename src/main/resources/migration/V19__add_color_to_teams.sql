@@ -1,0 +1,2 @@
+ALTER TABLE teams
+    ADD COLUMN color VARCHAR(7);

@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static ru.hits.attackdefenceplatform.core.user.mapper.UserMapper.mapUserEntityToMemberDto;
+import static ru.hits.attackdefenceplatform.util.ColorUtils.generateRandomColor;
 
 @Service
 @RequiredArgsConstructor
@@ -44,6 +45,7 @@ public class TeamServiceImpl implements TeamService {
         var team = new TeamEntity();
         team.setName(request.name());
         team.setMaxMembers(request.maxMembers());
+        team.setColor(generateRandomColor());
         var newTeam = teamRepository.save(team);
 
         return mapTeamEntityToTeamListDto(newTeam, null);
@@ -142,6 +144,7 @@ public class TeamServiceImpl implements TeamService {
             var team = new TeamEntity();
             team.setName("Команда " + i);
             team.setMaxMembers(request.maxMembers());
+            team.setColor(generateRandomColor());
             var newTeam = teamRepository.save(team);
             teamListDtos.add(mapTeamEntityToTeamListDto(newTeam, null));
         }
