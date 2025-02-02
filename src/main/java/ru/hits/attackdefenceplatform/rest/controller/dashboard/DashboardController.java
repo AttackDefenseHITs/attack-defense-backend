@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.hits.attackdefenceplatform.core.dashboard.DashboardService;
-import ru.hits.attackdefenceplatform.public_interface.dashboard.FlagSubmissionWithPointsDto;
+import ru.hits.attackdefenceplatform.public_interface.dashboard.TeamScoreChangeDto;
 
 import java.util.List;
 import java.util.UUID;
@@ -20,7 +20,7 @@ public class DashboardController {
     private final DashboardService dashboardService;
 
     @GetMapping
-    public List<FlagSubmissionWithPointsDto> getFilteredSubmissions(
+    public List<TeamScoreChangeDto> getFilteredSubmissions(
             @RequestParam(required = false) Boolean isCorrect,
             @RequestParam(required = false) UUID teamId
     ) {

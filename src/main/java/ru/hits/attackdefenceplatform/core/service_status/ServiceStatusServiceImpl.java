@@ -143,7 +143,6 @@ public class ServiceStatusServiceImpl implements ServiceStatusService {
                                     status.getService().getId(),
                                     String.format("%.2f%%", sla),
                                     flagPoints,
-                                    //new FlagPointsForServiceDto(12L, 12L),
                                     status.getLastStatus()
                             );
                         }

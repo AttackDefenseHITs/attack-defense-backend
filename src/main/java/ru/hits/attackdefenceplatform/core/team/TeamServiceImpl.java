@@ -22,6 +22,7 @@ import ru.hits.attackdefenceplatform.public_interface.team.TeamListDto;
 import ru.hits.attackdefenceplatform.public_interface.vitrual_machine.VirtualMachineDto;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -129,6 +130,7 @@ public class TeamServiceImpl implements TeamService {
     public List<TeamListDto> getAllTeams(UserEntity user) {
         return teamRepository.findAllWithMembers().stream()
                 .map(team -> mapTeamEntityToTeamListDto(team, user))
+                .sorted(Comparator.comparing(TeamListDto::name))
                 .toList();
     }
 
@@ -209,7 +211,7 @@ public class TeamServiceImpl implements TeamService {
         return new TeamListDto(team.getId(), team.getName(), place, points, userCount, membersCount, isMyTeam, virtualMachineIp);
     }
 
-    //TODO: Что-то сделать с этим - это не дело
+    //TODO: Что-то сделать с этим, это не дело
     private Integer calculateTeamPlace(TeamEntity team) {
         List<TeamEntity> allTeams = teamRepository.findAll();
         allTeams.sort((t1, t2) -> Integer.compare(calculateTeamPoints(t2), calculateTeamPoints(t1)));
