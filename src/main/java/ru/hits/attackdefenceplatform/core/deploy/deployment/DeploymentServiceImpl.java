@@ -20,6 +20,9 @@ import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.Vulnerab
 import ru.hits.attackdefenceplatform.public_interface.deployment.DeploymentStatusDto;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -95,9 +98,6 @@ public class DeploymentServiceImpl implements DeploymentService {
 
         try {
             deployServicesToVirtualMachine(List.of(service), vm);
-            log.info("Сервис '{}' успешно передеплоен на виртуальной машине '{}'.",
-                    service.getName(), vm.getIpAddress()
-            );
         } catch (Exception e) {
             log.error("Ошибка при передеплое сервиса '{}' на виртуальной машине '{}': {}",
                     service.getName(), vm.getIpAddress(), e.getMessage()
@@ -148,16 +148,29 @@ public class DeploymentServiceImpl implements DeploymentService {
 
                 sendAndExecuteScript(vm.getIpAddress(), vm.getUsername(), vm.getPassword(), deploymentScript);
 
-                deploymentStatusService.updateDeploymentStatus(
-                        new DeploymentStatusDto(
-                                vm.getId(),
-                                service.getId(),
-                                DeploymentStatus.SUCCESS,
-                                "Сервис " + service.getName() + " успешно задеплоен"
-                        )
-                );
+                boolean serviceIsUp = isServiceUp(vm.getIpAddress(), service.getPort());
 
-                log.info("Сервис '{}' успешно задеплоен на '{}'.", service.getName(), vm.getIpAddress());
+                if (serviceIsUp) {
+                    deploymentStatusService.updateDeploymentStatus(
+                            new DeploymentStatusDto(
+                                    vm.getId(),
+                                    service.getId(),
+                                    DeploymentStatus.SUCCESS,
+                                    "Сервис " + service.getName() + " успешно задеплоен и работает на порту " + service.getPort()
+                            )
+                    );
+                    log.info("Сервис '{}' успешно задеплоен на '{}', доступен на порту '{}'.", service.getName(), vm.getIpAddress(), service.getPort());
+                } else {
+                    deploymentStatusService.updateDeploymentStatus(
+                            new DeploymentStatusDto(
+                                    vm.getId(),
+                                    service.getId(),
+                                    DeploymentStatus.FAILURE,
+                                    "Сервис " + service.getName() + " не смог подняться на порту " + service.getPort()
+                            )
+                    );
+                    log.error("Сервис '{}' не доступен на виртуальной машине '{}' на порту '{}'.", service.getName(), vm.getIpAddress(), service.getPort());
+                }
             } catch (Exception e) {
                 deploymentStatusService.updateDeploymentStatus(
                         new DeploymentStatusDto(
@@ -226,6 +239,15 @@ public class DeploymentServiceImpl implements DeploymentService {
             log.info("Скрипт успешно выполнен на '{}'.", host);
         } finally {
             session.disconnect();
+        }
+    }
+
+    private boolean isServiceUp(String host, int port) {
+        try (Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress(host, port), 5000);
+            return true;
+        } catch (IOException e) {
+            return false;
         }
     }
 }
