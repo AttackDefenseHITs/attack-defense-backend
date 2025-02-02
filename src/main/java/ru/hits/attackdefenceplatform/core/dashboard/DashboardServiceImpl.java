@@ -64,16 +64,18 @@ public class DashboardServiceImpl implements DashboardService {
             );
         }
 
-        var allTeams = teamRepository.findAll();
-        var startTime = Timestamp.valueOf(competitionService.getCompetitionDto().startDate());
-
-        initializeTeamsWithZeroPoints(allTeams, teamPointsMap, result, startTime);
+        var startLocalTime = competitionService.getCompetitionDto().startDate();
+        if (startLocalTime != null) {
+            var startTime = Timestamp.valueOf(startLocalTime);
+            initializeTeamsWithZeroPoints(teamPointsMap, result, startTime);
+        }
 
         return result;
     }
 
-    private void initializeTeamsWithZeroPoints(List<TeamEntity> allTeams, Map<String, Integer> teamPointsMap,
+    private void initializeTeamsWithZeroPoints(Map<String, Integer> teamPointsMap,
                                                List<TeamScoreChangeDto> result, Date startTime) {
+        var allTeams = teamRepository.findAll();
         for (TeamEntity team : allTeams) {
             String teamName = team.getName();
             if (!teamPointsMap.containsKey(teamName)) {
