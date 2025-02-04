@@ -207,7 +207,7 @@ public class TeamServiceImpl implements TeamService {
         var place = calculateTeamPlace(team);
         var points = pointsService.calculateTeamFlagPoints(team);
 
-        var virtualMachineIp = Optional.ofNullable(getFullTeamVirtualMachineInfo(team.getId(), isMyTeam))
+        var virtualMachineIp = Optional.ofNullable(getFullTeamVirtualMachineInfo(team.getId(), true))
                 .map(VirtualMachineDto::ipAddress)
                 .orElse(null);
 
