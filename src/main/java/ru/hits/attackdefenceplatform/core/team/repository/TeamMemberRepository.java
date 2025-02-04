@@ -19,5 +19,13 @@ public interface TeamMemberRepository extends JpaRepository<TeamMemberEntity, UU
 
     @Query("SELECT t FROM TeamMemberEntity t WHERE t.user.id = :userId AND t.team.id = :teamId")
     Optional<TeamMemberEntity> findByUserIdAndTeamId(@Param("userId") UUID userId, @Param("teamId") UUID teamId);
+
+    boolean existsByUser(UserEntity user);
+
+    long countByTeam(TeamEntity team);
+
+    Optional<TeamMemberEntity> findByUserAndTeam(UserEntity user, TeamEntity team);
+
+    boolean existsByUserAndTeam(UserEntity user, TeamEntity team);
 }
 

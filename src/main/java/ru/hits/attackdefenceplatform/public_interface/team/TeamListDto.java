@@ -7,7 +7,7 @@ public record TeamListDto(
         String name,
         Integer place,
         Double points,
-        Integer userCount,
+        Long userCount,
         Long membersCount,
         Boolean isMyTeam,
         String ipAddress
