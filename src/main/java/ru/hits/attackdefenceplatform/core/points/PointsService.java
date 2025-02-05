@@ -30,7 +30,7 @@ public class PointsService {
     }
 
     public FlagPointsForServiceDto getFlagPointsForServiceAndTeam(TeamEntity team, VulnerableServiceEntity service) {
-        long plusPoints = flagSubmissionRepository.countByTeamMember_TeamAndFlag_VulnerableService(team, service)
+        long plusPoints = flagSubmissionRepository.countByTeamAndFlag_VulnerableService(team, service)
                 * flagCostProperties.getFlagCost();
 
         long minusPoints = flagSubmissionRepository.countByFlag_FlagOwnerAndFlag_VulnerableService(team, service)

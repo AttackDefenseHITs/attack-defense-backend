@@ -11,7 +11,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 import ru.hits.attackdefenceplatform.core.flag.repository.FlagEntity;
+import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberEntity;
+import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
 
 import java.util.Date;
 import java.util.UUID;
@@ -24,12 +26,16 @@ public class FlagSubmissionEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "team_member_id", nullable = false)
-    private TeamMemberEntity teamMember;
-
     @Column(name = "submitted_flag", nullable = false)
     private String submittedFlag;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "team_id", nullable = false)
+    private TeamEntity team;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user;
 
     @Column(name = "submission_time", nullable = false)
     private Date submissionTime;
@@ -39,6 +45,7 @@ public class FlagSubmissionEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "flag_id")
-    private FlagEntity flag; // Связь с правильным флагом (заполняется, если флаг корректен)
+    private FlagEntity flag; //может быть null, если флаг не был сдан
 }
+
 

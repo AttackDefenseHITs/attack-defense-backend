@@ -12,6 +12,7 @@ import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionEnt
 import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionRepository;
 import ru.hits.attackdefenceplatform.core.flag.repository.FlagEntity;
 import ru.hits.attackdefenceplatform.core.flag.repository.FlagRepository;
+import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberRepository;
 import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
@@ -50,21 +51,28 @@ public class FlagServiceImpl implements FlagService {
             currentFlag.setIsActive(false);
 
             teamMember.setPoints(teamMember.getPoints() + flagCostProperties.getFlagCost());
-            saveFlagSubmission(teamMember, currentFlag, flagValue, true);
+            saveFlagSubmission(teamMember.getTeam(), user, currentFlag, flagValue, true);
 
             teamMemberRepository.save(teamMember);
             flagRepository.save(currentFlag);
 
         } catch (Exception e) {
-            saveFlagSubmission(teamMember, null, flagValue, false);
+            saveFlagSubmission(teamMember.getTeam(), user, null, flagValue, false);
             throw e;
         }
     }
 
 
-    private void saveFlagSubmission(TeamMemberEntity teamMember, FlagEntity flag, String flagValue, boolean isCorrect) {
+    private void saveFlagSubmission(
+            TeamEntity team,
+            UserEntity user,
+            FlagEntity flag,
+            String flagValue,
+            boolean isCorrect
+    ) {
         var flagSubmission = new FlagSubmissionEntity();
-        flagSubmission.setTeamMember(teamMember);
+        flagSubmission.setTeam(team);
+        flagSubmission.setUser(user);
         flagSubmission.setSubmittedFlag(flagValue);
         flagSubmission.setSubmissionTime(new Date());
         flagSubmission.setIsCorrect(isCorrect);

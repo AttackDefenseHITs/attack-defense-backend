@@ -44,7 +44,7 @@ public class DashboardServiceImpl implements DashboardService {
         List<TeamScoreChangeDto> result = new ArrayList<>();
 
         for (FlagSubmissionEntity submission : submissions) {
-            var submittingTeam = submission.getTeamMember().getTeam();
+            var submittingTeam = submission.getTeam();
             var submittingTeamName = submittingTeam.getName();
             var submittingTeamColor = submittingTeam.getColor();
 

@@ -10,6 +10,7 @@ import java.util.UUID;
 
 public interface FlagSubmissionRepository extends JpaRepository<FlagSubmissionEntity, UUID>, JpaSpecificationExecutor<FlagSubmissionEntity> {
     long countByFlag_FlagOwner(TeamEntity team);
-    long countByTeamMember_TeamAndFlag_VulnerableService(TeamEntity team, VulnerableServiceEntity service);
+    long countByTeamAndFlag_VulnerableService(TeamEntity team, VulnerableServiceEntity service);
     long countByFlag_FlagOwnerAndFlag_VulnerableService(TeamEntity team, VulnerableServiceEntity service);
 }
+
