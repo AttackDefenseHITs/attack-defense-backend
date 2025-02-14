@@ -36,8 +36,17 @@ public class CheckerResultHandler {
     }
 
     private void createNewFlags(UUID serviceId, UUID teamId, List<String> flags) {
+        List<String> validFlags = flags.stream()
+                .filter(flag -> flag.matches("^[A-Z0-9]{31}=$"))
+                .toList();
+
+        if (validFlags.isEmpty()) {
+            log.warn("Нет валидных флагов для serviceId: {}, teamId: {}", serviceId, teamId);
+            return;
+        }
+
         adminFlagService.disableAllFlagsForTeam(serviceId, teamId);
-        var request = new CreateFlagRequest(flags, serviceId, teamId);
+        var request = new CreateFlagRequest(validFlags, serviceId, teamId);
         adminFlagService.createFlags(request);
     }
 }

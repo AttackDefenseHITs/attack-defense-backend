@@ -36,6 +36,7 @@ public class DeploymentServiceImpl implements DeploymentService {
     private final VirtualMachineRepository virtualMachineRepository;
     private final VulnerableServiceRepository vulnerableServiceRepository;
     private final DeploymentStatusService deploymentStatusService;
+    private final ScriptBuilder scriptBuilder;
 
     @Setter
     private volatile boolean isDeploymentInProgress = false;
@@ -113,7 +114,7 @@ public class DeploymentServiceImpl implements DeploymentService {
     private void deployServicesToVirtualMachine(
             List<VulnerableServiceEntity> services,
             VirtualMachineEntity vm
-    ) throws Exception {
+    ) {
         log.info("Начинаем деплой на виртуальную машину '{}'.", vm.getIpAddress());
 
         for (var service : services) {
@@ -129,22 +130,7 @@ public class DeploymentServiceImpl implements DeploymentService {
                 );
 
                 // Создание скрипта деплоя для текущего сервиса
-                String deploymentScript = String.format(
-                        "if [ -d \"/opt/%s\" ]; then\n" +
-                                "  echo \"Обновление сервиса '%s'...\";\n" +
-                                "  cd /opt/%s && git pull && docker-compose up -d --build;\n" +
-                                "else\n" +
-                                "  echo \"Деплой нового сервиса '%s'...\";\n" +
-                                "  git clone %s /opt/%s && cd /opt/%s && docker-compose up -d --build;\n" +
-                                "fi\n",
-                        service.getName(),  // Проверка на существование папки
-                        service.getName(),  // Лог обновления
-                        service.getName(),  // Путь для pull
-                        service.getName(),  // Лог деплоя нового сервиса
-                        service.getGitRepositoryUrl(), // URL репозитория
-                        service.getName(),  // Путь для clone
-                        service.getName()   // Путь для docker-compose
-                );
+                String deploymentScript = scriptBuilder.buildDeploymentScript(service);
 
                 sendAndExecuteScript(vm.getIpAddress(), vm.getUsername(), vm.getPassword(), deploymentScript);
 
@@ -185,7 +171,6 @@ public class DeploymentServiceImpl implements DeploymentService {
             }
         }
     }
-
 
     private void sendAndExecuteScript(
             String host,
@@ -251,6 +236,7 @@ public class DeploymentServiceImpl implements DeploymentService {
         }
     }
 }
+
 
 
 

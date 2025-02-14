@@ -29,10 +29,8 @@ public class WebSocketStorage {
 
     public void sendMessage(final SessionKey sessionKey, final String message) {
         WebSocketSession session = sessions.get(sessionKey);
-        log.info(String.valueOf(session));
         if (session != null && session.isOpen()) {
             try {
-                log.info(session.getId());
                 session.sendMessage(new TextMessage(message));
             } catch (IOException e) {
                 throw new RuntimeException("exp");
