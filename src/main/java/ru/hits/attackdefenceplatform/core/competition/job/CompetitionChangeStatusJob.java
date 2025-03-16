@@ -11,6 +11,8 @@ import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionAction;
 import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionStatus;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -24,22 +26,28 @@ public class CompetitionChangeStatusJob implements Job {
     public void execute(JobExecutionContext context) throws JobExecutionException {
         var competition = competitionService.getCompetition();
 
+        var startDateUTC = competition.getStartDate() != null ? competition.getStartDate().atZone(ZoneOffset.UTC) : null;
+        var endDateUTC = competition.getEndDate() != null ? competition.getEndDate().atZone(ZoneOffset.UTC) : null;
+        var nowUTC = ZonedDateTime.now(ZoneOffset.UTC);
+
         if (competition.getStatus() == CompetitionStatus.NEW
-                && isDateValid(competition.getStartDate(), LocalDateTime.now()::isAfter)) {
+                && startDateUTC != null && isDateValid(startDateUTC, nowUTC::isAfter)) {
             competitionService.changeCompetitionStatus(CompetitionAction.START);
         }
         else if (competition.getStatus().equals(CompetitionStatus.IN_PROGRESS)
-                && isDateValid(competition.getEndDate(), LocalDateTime.now()::isAfter)) {
+                && endDateUTC != null && isDateValid(endDateUTC, nowUTC::isAfter)) {
             competitionService.changeCompetitionStatus(CompetitionAction.COMPLETE);
         }
     }
 
-    private boolean isDateValid(LocalDateTime date, Function<LocalDateTime, Boolean> validator) {
+    private boolean isDateValid(ZonedDateTime date, Function<ZonedDateTime, Boolean> validator) {
         return Optional.ofNullable(date)
                 .map(validator)
                 .orElse(false);
     }
 }
+
+
 
 
 

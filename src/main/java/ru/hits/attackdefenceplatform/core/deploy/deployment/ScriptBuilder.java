@@ -5,15 +5,14 @@ import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.Vulnerab
 
 @Component
 public class ScriptBuilder {
-
     public String buildDeploymentScript(VulnerableServiceEntity service) {
         return String.format(
                 "if [ -d \"/opt/%s\" ]; then\n" +
                         "  echo \"Обновление сервиса '%s'...\";\n" +
-                        "  cd /opt/%s && git pull && docker-compose up -d --build;\n" +
+                        "  cd /opt/%s && sudo docker-compose down && git pull && sudo chmod -R 777 . && sudo docker-compose up -d;\n" +
                         "else\n" +
                         "  echo \"Деплой нового сервиса '%s'...\";\n" +
-                        "  git clone %s /opt/%s && cd /opt/%s && docker-compose up -d --build;\n" +
+                        "  git clone %s /opt/%s && cd /opt/%s && sudo chmod -R 777 . && sudo docker-compose up -d --build;\n" +
                         "fi\n",
                 service.getName(),  // Проверка на существование папки
                 service.getName(),  // Лог обновления
@@ -25,4 +24,5 @@ public class ScriptBuilder {
         );
     }
 }
+
 

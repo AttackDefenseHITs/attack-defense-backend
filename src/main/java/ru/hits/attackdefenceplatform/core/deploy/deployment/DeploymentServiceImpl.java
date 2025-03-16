@@ -228,12 +228,21 @@ public class DeploymentServiceImpl implements DeploymentService {
     }
 
     private boolean isServiceUp(String host, int port) {
-        try (Socket socket = new Socket()) {
-            socket.connect(new InetSocketAddress(host, port), 5000);
-            return true;
-        } catch (IOException e) {
-            return false;
+        int attempts = 0;
+        while (attempts < 10) {
+            try (Socket socket = new Socket()) {
+                socket.connect(new InetSocketAddress(host, port), 5000);
+                return true;
+            } catch (IOException e) {
+                attempts++;
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                }
+            }
         }
+        return false;
     }
 }
 
