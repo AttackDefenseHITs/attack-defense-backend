@@ -40,9 +40,9 @@ public class AdminFlagServiceImpl implements AdminFlagService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<FlagListDto> getAllFlags() {
+    public List<FlagDto> getAllFlags() {
         return flagRepository.findAll().stream()
-                .map(FlagMapper::mapToFlagListDto)
+                .map(FlagMapper::mapToFlagDto)
                 .toList();
     }
 
@@ -64,24 +64,33 @@ public class AdminFlagServiceImpl implements AdminFlagService {
     }
 
     @Override
+    public FlagDto changeFlagStatus(UUID id) {
+        var flag = flagRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Флаг с ID " + id + " не найден"));
+        flag.setIsActive(!flag.getIsActive());
+        var newFlag = flagRepository.save(flag);
+        return FlagMapper.mapToFlagDto(newFlag);
+    }
+
+    @Override
     @Transactional(readOnly = true)
-    public List<FlagListDto> getFlagsByService(UUID serviceId) {
+    public List<FlagDto> getFlagsByService(UUID serviceId) {
         var service = vulnerableServiceRepository.findById(serviceId)
                 .orElseThrow(() -> new EntityNotFoundException("Сервис с ID " + serviceId + " не найден"));
 
         return flagRepository.findByVulnerableService(service).stream()
-                .map(FlagMapper::mapToFlagListDto)
+                .map(FlagMapper::mapToFlagDto)
                 .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<FlagListDto> getFlagsByTeam(UUID teamId) {
+    public List<FlagDto> getFlagsByTeam(UUID teamId) {
         var team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new EntityNotFoundException("Команда с ID " + teamId + " не найдена"));
 
         return flagRepository.findByFlagOwner(team).stream()
-                .map(FlagMapper::mapToFlagListDto)
+                .map(FlagMapper::mapToFlagDto)
                 .toList();
     }
 

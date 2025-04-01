@@ -8,5 +8,6 @@ public record FlagDto(
         String teamName,
         UUID serviceId,
         String serviceName,
+        String value,
         Boolean isActive
 ) {}

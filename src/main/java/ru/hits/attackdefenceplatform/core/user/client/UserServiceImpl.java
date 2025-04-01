@@ -1,12 +1,15 @@
 package ru.hits.attackdefenceplatform.core.user.client;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.hits.attackdefenceplatform.common.exception.TeamNotFoundException;
 import ru.hits.attackdefenceplatform.common.exception.UserAlreadyExistsException;
 import ru.hits.attackdefenceplatform.core.token.TokenService;
 import ru.hits.attackdefenceplatform.core.user.client.UserService;
+import ru.hits.attackdefenceplatform.core.user.repository.Role;
 import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
 import ru.hits.attackdefenceplatform.core.user.mapper.UserMapper;
 import ru.hits.attackdefenceplatform.core.user.repository.UserRepository;
@@ -18,6 +21,7 @@ import ru.hits.attackdefenceplatform.public_interface.user.UserDto;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -59,6 +63,17 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAll().stream()
                 .map(UserMapper::mapUserEntityToDto)
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    public UserDto setUserRole(UUID userId, Role role){
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь с ID " + userId + " не найден"));
+
+        user.setRole(role);
+        var newUser = userRepository.save(user);
+        return UserMapper.mapUserEntityToDto(newUser);
     }
 
     @Override

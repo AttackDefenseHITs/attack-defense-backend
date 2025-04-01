@@ -1,20 +1,16 @@
 package ru.hits.attackdefenceplatform.websocket.handler;
 
-import io.jsonwebtoken.ExpiredJwtException;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketSession;
-import org.springframework.web.socket.handler.AbstractWebSocketHandler;
 import ru.hits.attackdefenceplatform.util.JwtTokenUtils;
 import ru.hits.attackdefenceplatform.websocket.storage.WebSocketStorage;
 import ru.hits.attackdefenceplatform.websocket.storage.key.SessionKey;
 import ru.hits.attackdefenceplatform.websocket.storage.key.WebSocketHandlerType;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 @Component
 @Slf4j
@@ -41,7 +37,6 @@ public class CompetitionEventHandler extends AbstractEventHandler {
             }
         }
     }
-
 
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) {

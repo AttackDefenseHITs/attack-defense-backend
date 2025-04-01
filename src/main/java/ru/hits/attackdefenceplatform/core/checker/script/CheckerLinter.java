@@ -12,7 +12,7 @@ import java.util.List;
 
 @Component
 @Slf4j
-public class CheckerValidator {
+public class CheckerLinter {
     private static final List<String> REQUIRED_FUNCTIONS = List.of("check", "put", "get", "get_flags");
 
     /**

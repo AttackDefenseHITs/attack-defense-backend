@@ -10,7 +10,7 @@ import ru.hits.attackdefenceplatform.core.checker.handler.CheckerResultHandler;
 import ru.hits.attackdefenceplatform.core.checker.repository.CheckerEntity;
 import ru.hits.attackdefenceplatform.core.checker.repository.CheckerRepository;
 import ru.hits.attackdefenceplatform.core.checker.script.CheckerFileService;
-import ru.hits.attackdefenceplatform.core.checker.script.CheckerValidator;
+import ru.hits.attackdefenceplatform.core.checker.script.CheckerLinter;
 import ru.hits.attackdefenceplatform.core.checker.script.ScriptExecutor;
 import ru.hits.attackdefenceplatform.core.virtual_machine.VirtualMachineService;
 import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.VulnerableServiceEntity;
@@ -30,7 +30,7 @@ import java.util.concurrent.Executors;
 @Slf4j
 public class CheckerServiceImpl implements CheckerService{
     private final CheckerFileService checkerFileService;
-    private final CheckerValidator checkerValidator;
+    private final CheckerLinter checkerLinter;
     private final CheckerResultHandler checkerResultHandler;
     private final ScriptExecutor scriptExecutor;
 
@@ -47,7 +47,7 @@ public class CheckerServiceImpl implements CheckerService{
 
         var scriptPath = checkerFileService.saveScriptToFile(scriptText);
 
-        if (!checkerValidator.validate(scriptPath.toFile())) {
+        if (!checkerLinter.validate(scriptPath.toFile())) {
             throw new IllegalArgumentException("Checker script is invalid");
         }
 

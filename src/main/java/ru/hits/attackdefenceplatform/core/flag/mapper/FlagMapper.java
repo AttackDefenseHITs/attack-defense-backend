@@ -31,15 +31,8 @@ public class FlagMapper {
                 flag.getFlagOwner().getName(),
                 flag.getVulnerableService().getId(),
                 flag.getVulnerableService().getName(),
+                flag.getValue(),
                 flag.getIsActive()
-        );
-    }
-
-    public static FlagListDto mapToFlagListDto(FlagEntity flag) {
-        return new FlagListDto(
-                flag.getId(),
-                flag.getFlagOwner().getName(),
-                flag.getVulnerableService().getName()
         );
     }
 }

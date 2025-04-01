@@ -5,5 +5,6 @@ import java.util.UUID;
 public record FlagListDto(
         UUID id,
         String teamName,
-        String serviceName
+        String serviceName,
+        String value
 ) {}

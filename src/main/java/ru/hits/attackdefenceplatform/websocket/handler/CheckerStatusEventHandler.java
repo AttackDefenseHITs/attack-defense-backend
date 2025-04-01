@@ -1,6 +1,5 @@
 package ru.hits.attackdefenceplatform.websocket.handler;
 
-import io.jsonwebtoken.ExpiredJwtException;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
