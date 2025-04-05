@@ -12,5 +12,7 @@ public record CompetitionDto(
         Integer totalRounds,
         Integer roundDurationMinutes,
         Integer currentRound,
+        Integer flagSendCost,
+        Integer flagLostCost,
         String rules
 ) {}

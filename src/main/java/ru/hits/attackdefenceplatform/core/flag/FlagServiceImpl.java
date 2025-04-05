@@ -7,13 +7,12 @@ import ru.hits.attackdefenceplatform.common.exception.TeamException;
 import ru.hits.attackdefenceplatform.common.exception.flag.FlagExpiredException;
 import ru.hits.attackdefenceplatform.common.exception.flag.InvalidFlagException;
 import ru.hits.attackdefenceplatform.common.exception.flag.OwnFlagSubmissionException;
-import ru.hits.attackdefenceplatform.core.FlagCostProperties;
+import ru.hits.attackdefenceplatform.core.competition.CompetitionService;
 import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionEntity;
 import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionRepository;
 import ru.hits.attackdefenceplatform.core.flag.repository.FlagEntity;
 import ru.hits.attackdefenceplatform.core.flag.repository.FlagRepository;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
-import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberRepository;
 import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
 
@@ -23,7 +22,7 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class FlagServiceImpl implements FlagService {
 
-    private final FlagCostProperties flagCostProperties;
+    private final CompetitionService competitionService;
 
     private final FlagRepository flagRepository;
     private final TeamMemberRepository teamMemberRepository;
@@ -32,6 +31,7 @@ public class FlagServiceImpl implements FlagService {
     @Override
     @Transactional
     public void sendFlag(String flagValue, UserEntity user) {
+        var competitionDto = competitionService.getCompetitionDto();
         var teamMember = teamMemberRepository.findByUser(user)
                 .orElseThrow(() -> new TeamException("Пользователь не является участником соревнований"));
 
@@ -50,7 +50,7 @@ public class FlagServiceImpl implements FlagService {
 
             currentFlag.setIsActive(false);
 
-            teamMember.setPoints(teamMember.getPoints() + flagCostProperties.getFlagCost());
+            teamMember.setPoints(teamMember.getPoints() + competitionDto.flagSendCost());
             saveFlagSubmission(teamMember.getTeam(), user, currentFlag, flagValue, true);
 
             teamMemberRepository.save(teamMember);

@@ -13,6 +13,8 @@ public class CompetitionMapper {
                 competition.getTotalRounds(),
                 competition.getRoundDurationMinutes(),
                 competition.getCurrentRound(),
+                competition.getFlagSendCost(),
+                competition.getFlagLostCost(),
                 competition.getRules()
         );
     }

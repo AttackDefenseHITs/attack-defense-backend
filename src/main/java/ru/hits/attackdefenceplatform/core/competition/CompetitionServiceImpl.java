@@ -9,6 +9,9 @@ import ru.hits.attackdefenceplatform.core.competition.repository.Competition;
 import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionAction;
 import ru.hits.attackdefenceplatform.core.competition.repository.CompetitionRepository;
 import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionStatus;
+import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionRepository;
+import ru.hits.attackdefenceplatform.core.flag.repository.FlagRepository;
+import ru.hits.attackdefenceplatform.core.service_status.repository.ServiceStatusRepository;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberRepository;
 import ru.hits.attackdefenceplatform.websocket.client.WebSocketClient;
 import ru.hits.attackdefenceplatform.websocket.model.NotificationEventModel;
@@ -31,6 +34,9 @@ import static ru.hits.attackdefenceplatform.core.competition.mapper.CompetitionM
 public class CompetitionServiceImpl implements CompetitionService {
     private final CompetitionRepository competitionRepository;
     private final TeamMemberRepository teamMemberRepository;
+    private final FlagSubmissionRepository flagSubmissionRepository;
+    private final ServiceStatusRepository serviceStatusRepository;
+    private final FlagRepository flagRepository;
     private final WebSocketClient<NotificationEventModel> notificationWebSocketClient;
 
     /**
@@ -149,6 +155,8 @@ public class CompetitionServiceImpl implements CompetitionService {
         competition.setStartDate(request.startDate());
         competition.setEndDate(request.endDate());
         competition.setTotalRounds(request.totalRounds());
+        competition.setFlagSendCost(request.flagSendCost());
+        competition.setFlagLostCost(request.flagLostCost());
         competition.setRoundDurationMinutes(request.roundDurationMinutes());
         competition.setRules(request.rules());
 
@@ -187,7 +195,15 @@ public class CompetitionServiceImpl implements CompetitionService {
         competition.setRoundDurationMinutes(20);
         competition.setStartDate(null);
         competition.setEndDate(null);
+        competition.setFlagSendCost(300);
+        competition.setFlagLostCost(150);
+
+        serviceStatusRepository.deleteAll();
+        flagRepository.deleteAll();
+        flagSubmissionRepository.deleteAll();
+        teamMemberRepository.deleteAll();
         competitionRepository.save(competition);
+
         return CompetitionMapper.mapToCompetitionDto(competition);
     }
 

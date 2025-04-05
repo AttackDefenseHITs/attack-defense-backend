@@ -33,6 +33,10 @@ public class Competition {
 
     private Integer currentRound;
 
+    private Integer flagSendCost;
+
+    private Integer flagLostCost;
+
     @Lob
     private String rules;
 }

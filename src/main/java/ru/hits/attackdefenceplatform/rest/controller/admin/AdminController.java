@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.hits.attackdefenceplatform.core.user.client.UserService;
 import ru.hits.attackdefenceplatform.core.user.repository.Role;
+import ru.hits.attackdefenceplatform.public_interface.user.RoleDto;
 import ru.hits.attackdefenceplatform.public_interface.user.UserDto;
 
 import java.util.List;
@@ -33,8 +34,8 @@ public class AdminController {
 
     @PostMapping("/{id}")
     @Operation(summary = "Назначить пользователю роль")
-    public ResponseEntity<UserDto> setUserRole(@PathVariable UUID id, @RequestBody Role role) {
-        var user = userService.setUserRole(id, role);
+    public ResponseEntity<UserDto> setUserRole(@PathVariable UUID id, @RequestBody RoleDto role) {
+        var user = userService.setUserRole(id, role.role());
         return ResponseEntity.ok(user);
     }
 }

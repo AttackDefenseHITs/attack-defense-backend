@@ -1,0 +1,5 @@
+ALTER TABLE competitions
+    ADD COLUMN flag_send_cost INTEGER NOT NULL DEFAULT 300;
+
+ALTER TABLE competitions
+    ADD COLUMN flag_lost_cost INTEGER NOT NULL DEFAULT 150;

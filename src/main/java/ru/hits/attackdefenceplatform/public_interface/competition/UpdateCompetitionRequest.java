@@ -8,6 +8,8 @@ public record UpdateCompetitionRequest(
         LocalDateTime endDate,
         Integer totalRounds,
         Integer roundDurationMinutes,
+        Integer flagSendCost,
+        Integer flagLostCost,
         String rules
 ) {
 }

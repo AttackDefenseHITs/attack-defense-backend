@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import ru.hits.attackdefenceplatform.core.FlagCostProperties;
 import ru.hits.attackdefenceplatform.core.competition.CompetitionService;
 import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionEntity;
 import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionRepository;
@@ -19,7 +18,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -28,7 +26,6 @@ import java.util.UUID;
 public class DashboardServiceImpl implements DashboardService {
 
     private final FlagSubmissionRepository flagSubmissionRepository;
-    private final FlagCostProperties flagCostProperties;
     private final CompetitionService competitionService;
     private final TeamRepository teamRepository;
 
@@ -86,22 +83,24 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     private int calculatePointsEarned(FlagSubmissionEntity submission, String submittingTeam) {
+        var competitionDto = competitionService.getCompetitionDto();
         int pointsEarned = 0;
         if (submission.getIsCorrect() && submission.getFlag() != null) {
             String flagOwnerTeam = submission.getFlag().getFlagOwner().getName();
             if (!submittingTeam.equals(flagOwnerTeam)) {
-                pointsEarned = flagCostProperties.getFlagCost();
+                pointsEarned = competitionDto.flagSendCost();
             }
         }
         return pointsEarned;
     }
 
     private int calculatePointsLost(FlagSubmissionEntity submission, String submittingTeam) {
+        var competitionDto = competitionService.getCompetitionDto();
         int pointsLost = 0;
         if (submission.getIsCorrect() && submission.getFlag() != null) {
             String flagOwnerTeam = submission.getFlag().getFlagOwner().getName();
             if (!submittingTeam.equals(flagOwnerTeam)) {
-                pointsLost = -flagCostProperties.getFlagLost();
+                pointsLost = -competitionDto.flagLostCost();
             }
         }
         return pointsLost;
