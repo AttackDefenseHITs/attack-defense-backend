@@ -8,6 +8,8 @@ import ru.hits.attackdefenceplatform.common.exception.TeamNotFoundException;
 import ru.hits.attackdefenceplatform.common.exception.UserException;
 import ru.hits.attackdefenceplatform.core.competition.CompetitionService;
 import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionStatus;
+import ru.hits.attackdefenceplatform.core.points.PointsService;
+import ru.hits.attackdefenceplatform.core.points.SlaService;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberRepository;
@@ -34,6 +36,7 @@ public class TeamServiceImpl implements TeamService {
     private final TeamMemberRepository teamMemberRepository;
     private final CompetitionService competitionService;
     private final VirtualMachineService virtualMachineService;
+    private final PointsService pointsService;
 
     @Transactional
     @Override
@@ -213,9 +216,7 @@ public class TeamServiceImpl implements TeamService {
     }
 
     private Double calculateTeamPoints(TeamEntity team) {
-        return teamMemberRepository.findByTeam(team).stream()
-                .mapToDouble(member -> member.getPoints() != null ? member.getPoints() : 0)
-                .sum();
+        return pointsService.calculateTeamFlagPoints(team);
     }
 
     private VirtualMachineDto getFullTeamVirtualMachineInfo(UUID teamId, boolean isMyTeam){

@@ -17,9 +17,11 @@ public class PointsService {
     private final TeamMemberRepository teamMemberRepository;
     private final FlagSubmissionRepository flagSubmissionRepository;
     private final CompetitionService competitionService;
+    private final SlaService slaService;
 
     public Double calculateTeamFlagPoints(TeamEntity team) {
         var competitionDto = competitionService.getCompetitionDto();
+
         double totalPoints = teamMemberRepository.findByTeam(team).stream()
                 .mapToDouble(member -> member.getPoints() != null ? member.getPoints() : 0)
                 .sum();
@@ -27,7 +29,12 @@ public class PointsService {
         long stolenFlags = flagSubmissionRepository.countByFlag_FlagOwner(team);
         double stolenPoints = stolenFlags * competitionDto.flagLostCost();
 
-        return totalPoints - stolenPoints;
+        double netPoints = totalPoints - stolenPoints;
+        if (netPoints < 0) {
+            return netPoints;
+        }
+
+        return netPoints * slaService.getTeamSla(team);
     }
 
     public FlagPointsForServiceDto getFlagPointsForServiceAndTeam(TeamEntity team, VulnerableServiceEntity service) {

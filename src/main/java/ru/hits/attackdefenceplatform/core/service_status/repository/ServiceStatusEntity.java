@@ -84,5 +84,9 @@ public class ServiceStatusEntity {
         lastStatus = result;
         lastChanged = now;
     }
+
+    public long getTotalDuration() {
+        return totalOkDuration + totalMumbleDuration + totalCorruptDuration + totalDownDuration;
+    }
 }
 
