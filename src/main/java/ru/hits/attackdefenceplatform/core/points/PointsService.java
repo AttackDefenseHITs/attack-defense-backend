@@ -10,6 +10,9 @@ import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberRepository;
 import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.VulnerableServiceEntity;
 import ru.hits.attackdefenceplatform.public_interface.service_statuses.FlagPointsForServiceDto;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -31,10 +34,17 @@ public class PointsService {
 
         double netPoints = totalPoints - stolenPoints;
         if (netPoints < 0) {
-            return netPoints;
+            return roundToThreeDecimals(netPoints);
         }
 
-        return netPoints * slaService.getTeamSla(team);
+        double result = netPoints * slaService.getTeamSla(team);
+        return roundToThreeDecimals(result);
+    }
+
+    private Double roundToThreeDecimals(double value) {
+        return new BigDecimal(value)
+                .setScale(3, RoundingMode.HALF_UP)
+                .doubleValue();
     }
 
     public FlagPointsForServiceDto getFlagPointsForServiceAndTeam(TeamEntity team, VulnerableServiceEntity service) {

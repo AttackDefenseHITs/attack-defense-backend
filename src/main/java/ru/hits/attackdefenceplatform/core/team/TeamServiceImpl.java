@@ -21,6 +21,7 @@ import ru.hits.attackdefenceplatform.public_interface.team.CreateTeamRequest;
 import ru.hits.attackdefenceplatform.public_interface.team.TeamInfoDto;
 import ru.hits.attackdefenceplatform.public_interface.team.TeamListDto;
 import ru.hits.attackdefenceplatform.public_interface.vitrual_machine.VirtualMachineDto;
+import ru.hits.attackdefenceplatform.util.ColorUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +45,7 @@ public class TeamServiceImpl implements TeamService {
         var team = new TeamEntity();
         team.setName(request.name());
         team.setMaxMembers(request.maxMembers());
+        team.setColor(ColorUtils.generateRandomColor());
         var newTeam = teamRepository.save(team);
 
         return mapTeamEntityToTeamListDto(newTeam, null);
