@@ -22,12 +22,12 @@ public class CheckerLinter {
      */
     public boolean validate(File scriptFile) {
         if (!validateSyntax(scriptFile)) {
-            log.error("Script {} failed syntax validation.", scriptFile.getAbsolutePath());
+            log.error("Скрипт {} не прошёл синтаксическую проверку.", scriptFile.getAbsolutePath());
             return false;
         }
 
         if (!validateRequiredFunctions(scriptFile)) {
-            log.error("Script {} failed function validation.", scriptFile.getAbsolutePath());
+            log.error("Скрипт {} не прошёл проверку обязательных функций.", scriptFile.getAbsolutePath());
             return false;
         }
 
@@ -51,14 +51,14 @@ public class CheckerLinter {
 
             int exitCode = process.waitFor();
             if (exitCode != 0) {
-                log.error("Syntax validation failed for script {}. Exit code: {}", scriptFile.getAbsolutePath(), exitCode);
+                log.error("Синтаксическая проверка скрипта {} завершилась неудачно. Код ошибки: {}", scriptFile.getAbsolutePath(), exitCode);
                 return false;
             }
 
-            log.info("Syntax validation passed for script {}", scriptFile.getAbsolutePath());
+            log.info("Синтаксическая проверка скрипта {} пройдена успешно.", scriptFile.getAbsolutePath());
             return true;
         } catch (Exception e) {
-            log.error("Exception during syntax validation for script {}: {}", scriptFile.getAbsolutePath(), e.getMessage());
+            log.error("Исключение во время синтаксической проверки скрипта {}: {}", scriptFile.getAbsolutePath(), e.getMessage());
             return false;
         }
     }
@@ -72,25 +72,29 @@ public class CheckerLinter {
         try {
             var lines = Files.readAllLines(scriptFile.toPath());
             var foundFunctions = REQUIRED_FUNCTIONS.stream()
-                    .filter(function -> lines.stream().anyMatch(line -> line.matches("^\\s*def\\s+" + function + "\\s*\\(.*\\):.*$")))
+                    .filter(function -> lines.stream().anyMatch(
+                            line -> line.matches("^\\s*def\\s+" + function + "\\s*\\(.*\\):.*$"))
+                    )
                     .toList();
 
-            foundFunctions.forEach(function -> log.info("Function '{}' found in script {}", function, scriptFile.getAbsolutePath()));
+            //для дебага
+            foundFunctions.forEach(function -> log.info("Функция '{}' найдена в скрипте {}", function, scriptFile.getAbsolutePath()));
 
             if (foundFunctions.size() == REQUIRED_FUNCTIONS.size()) {
-                log.info("All required functions are present in script {}", scriptFile.getAbsolutePath());
+                log.info("Все обязательные функции присутствуют в скрипте {}", scriptFile.getAbsolutePath());
                 return true;
             } else {
-                log.error("Missing required functions in script {}. Found: {}, Required: {}",
+                log.error("В скрипте {} отсутствуют обязательные функции. Найденные функции: {}, Обязательные: {}",
                         scriptFile.getAbsolutePath(), foundFunctions, REQUIRED_FUNCTIONS);
                 return false;
             }
         } catch (IOException e) {
-            log.error("Error reading script file {}: {}", scriptFile.getAbsolutePath(), e.getMessage());
+            log.error("Ошибка чтения файла скрипта {}: {}", scriptFile.getAbsolutePath(), e.getMessage());
             return false;
         }
     }
 }
+
 
 
 

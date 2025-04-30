@@ -28,7 +28,7 @@ import java.util.concurrent.Executors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CheckerServiceImpl implements CheckerService{
+public class CheckerServiceImpl implements CheckerService {
     private final CheckerFileService checkerFileService;
     private final CheckerLinter checkerLinter;
     private final CheckerResultHandler checkerResultHandler;
@@ -48,7 +48,7 @@ public class CheckerServiceImpl implements CheckerService{
         var scriptPath = checkerFileService.saveScriptToFile(scriptText);
 
         if (!checkerLinter.validate(scriptPath.toFile())) {
-            throw new IllegalArgumentException("Checker script is invalid");
+            throw new IllegalArgumentException("Скрипт чекера недействителен");
         }
 
         saveChecker(service, existingCheckerOptional, scriptPath);
@@ -57,7 +57,7 @@ public class CheckerServiceImpl implements CheckerService{
     @Override
     public String getCheckerScriptByServiceId(UUID serviceId) throws IOException {
         var checkerEntity = checkerRepository.findByVulnerableServiceId(serviceId).orElse(null);
-        return checkerEntity == null ? "" : checkerFileService.readScriptFromFile(checkerEntity.getScriptFilePath());
+        return checkerEntity == null ? "" : checkerFileService.readScriptFromFilePath(checkerEntity.getScriptFilePath());
     }
 
     @Override
@@ -79,16 +79,16 @@ public class CheckerServiceImpl implements CheckerService{
         var allVirtualMachines = virtualMachineService.getAllVirtualMachines();
 
         if (allCheckers.isEmpty()) {
-            log.warn("No checkers found to run.");
+            log.warn("Чекеры не найдены для выполнения.");
             return;
         }
 
         if (allVirtualMachines.isEmpty()) {
-            log.warn("No virtual machines found to run checkers on.");
+            log.warn("Виртуальные машины не найдены для выполнения чекеров.");
             return;
         }
 
-        log.info("Starting execution of all checkers. Total checkers: {}, Total VMs: {}", allCheckers.size(), allVirtualMachines.size());
+        log.info("Запуск выполнения всех чекеров. Всего чекеров: {}, Всего виртуальных машин: {}", allCheckers.size(), allVirtualMachines.size());
 
         allCheckers.forEach(checker -> {
             var service = checker.getVulnerableService();
@@ -97,16 +97,20 @@ public class CheckerServiceImpl implements CheckerService{
                 try {
                     for (var vm : allVirtualMachines) {
                         var executionData = new ExecutionData(service, checker, vm, String.join(" ", commands));
-                        executeChecker(executionData.getVirtualMachine(), executionData.getCheckerEntity(),
-                                executionData.getService(), executionData.getCommand());
+                        executeChecker(
+                                executionData.getVirtualMachine(),
+                                executionData.getCheckerEntity(),
+                                executionData.getService(),
+                                executionData.getCommand()
+                        );
                     }
                 } catch (Exception e) {
-                    log.error("Failed to execute checker for service ID {}: {}", checker.getVulnerableService().getId(), e.getMessage(), e);
+                    log.error("Не удалось выполнить чекер для сервиса с ID {}: {}", checker.getVulnerableService().getId(), e.getMessage(), e);
                 }
             });
         });
 
-        log.info("All checkers have been submitted for execution on all virtual machines.");
+        log.info("Все чекеры отправлены на выполнение на всех виртуальных машинах.");
     }
 
     private void executeChecker(
@@ -119,7 +123,7 @@ public class CheckerServiceImpl implements CheckerService{
             var targetIp = virtualMachine.ipAddress();
             int targetPort = service.getPort();
 
-            log.info("Running checker for service: {} on virtual machine with IP: {}", service.getName(), targetIp);
+            log.info("Запуск чекера для сервиса: {} на виртуальной машине с IP: {}", service.getName(), targetIp);
             var result = scriptExecutor.executeScript(
                     checkerEntity.getScriptFilePath(),
                     command,
@@ -129,20 +133,20 @@ public class CheckerServiceImpl implements CheckerService{
 
             checkerResultHandler.handleCheckerResult(service.getId(), virtualMachine.teamId(), result);
         } catch (Exception e) {
-            log.error("Error running checker: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to run checker", e);
+            log.error("Ошибка при запуске чекера: {}", e.getMessage(), e);
+            throw new RuntimeException("Не удалось запустить чекер", e);
         }
     }
 
     private ExecutionData prepareCheckerExecution(UUID serviceId, UUID teamId, List<String> commands) {
         var service = vulnerableServiceRepository.findById(serviceId)
-                .orElseThrow(() -> new IllegalArgumentException("Service not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Сервис не найден"));
         var checkerEntity = checkerRepository.findByVulnerableServiceId(serviceId)
-                .orElseThrow(() -> new IllegalArgumentException("Checker not found for the given service ID"));
+                .orElseThrow(() -> new IllegalArgumentException("Чекер не найден для данного ID сервиса"));
         var virtualMachine = virtualMachineService.getVirtualMachinesByTeam(teamId)
                 .stream()
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Virtual Machine not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Виртуальная машина не найдена"));
 
         var command = String.join(" ", commands);
 
@@ -151,7 +155,7 @@ public class CheckerServiceImpl implements CheckerService{
 
     private VulnerableServiceEntity findServiceById(UUID serviceId) {
         return vulnerableServiceRepository.findById(serviceId)
-                .orElseThrow(() -> new IllegalArgumentException("Service not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Сервис не найден"));
     }
 
     private void saveChecker(VulnerableServiceEntity service,
@@ -162,13 +166,13 @@ public class CheckerServiceImpl implements CheckerService{
             checkerFileService.deleteScriptFile(existingChecker.getScriptFilePath());
             existingChecker.setScriptFilePath(scriptPath.toString());
             checkerRepository.save(existingChecker);
-            log.info("Checker for service {} already exists. Path updated to {}", service.getName(), scriptPath);
+            log.info("Чекер для сервиса {} уже существует. Путь обновлён на {}", service.getName(), scriptPath);
         } else {
             var newChecker = new CheckerEntity();
             newChecker.setVulnerableService(service);
             newChecker.setScriptFilePath(scriptPath.toString());
             checkerRepository.save(newChecker);
-            log.info("New checker script for service {} saved successfully at {}", service.getName(), scriptPath);
+            log.info("Новый скрипт чекера для сервиса {} успешно сохранён по пути {}", service.getName(), scriptPath);
         }
     }
 
@@ -181,6 +185,7 @@ public class CheckerServiceImpl implements CheckerService{
         private String command;
     }
 }
+
 
 
 

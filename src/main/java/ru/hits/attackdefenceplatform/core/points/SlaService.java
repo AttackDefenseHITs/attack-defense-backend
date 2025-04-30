@@ -28,8 +28,7 @@ public class SlaService {
 
             totalSla += sla;
         }
-        var result = totalSla / teamStatuses.size() / DEFAULT_SLA;
 
-        return result;
+        return totalSla / teamStatuses.size() / DEFAULT_SLA;
     }
 }

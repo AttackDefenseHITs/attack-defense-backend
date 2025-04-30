@@ -19,12 +19,12 @@ public class CheckerResultHandler {
     private final ServiceStatusService serviceStatusService;
 
     public void handleCheckerResult(UUID serviceId, UUID teamId, ScriptExecutionResult result) {
-        //Логирование для дебага. Потом удалить
+        // Логирование для отладки. Позже удалить
         switch (result.getCheckerResult()) {
-            case OK -> log.info("Checker OK for service: {}, team: {}", serviceId, teamId);
+            case OK -> log.info("Проверка пройдена успешно для сервиса: {}, команды: {}", serviceId, teamId);
             case MUMBLE, CORRUPT, DOWN ->
-                    log.warn("Checker issue detected for service: {}, team: {}, result: {}", serviceId, teamId, result);
-            case CHECK_FAILED -> log.error("Checker failed for service: {}, team: {}", serviceId, teamId);
+                    log.warn("Обнаружена проблема при проверке для сервиса: {}, команды: {}, результат: {}", serviceId, teamId, result);
+            case CHECK_FAILED -> log.error("Проверка не пройдена для сервиса: {}, команды: {}", serviceId, teamId);
         }
 
         serviceStatusService.updateServiceStatus(serviceId, teamId, result.getCheckerResult());

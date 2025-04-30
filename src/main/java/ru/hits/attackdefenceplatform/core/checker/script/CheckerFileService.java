@@ -27,7 +27,7 @@ public class CheckerFileService {
         return scriptPath;
     }
 
-    public String readScriptFromFile(String scriptFilePath) throws IOException {
+    public String readScriptFromFilePath(String scriptFilePath) throws IOException {
         var scriptPath = Paths.get(scriptFilePath);
         return Files.readString(scriptPath);
     }
@@ -37,13 +37,13 @@ public class CheckerFileService {
         if (Files.exists(scriptPath)) {
             try {
                 Files.delete(scriptPath);
-                log.info("Checker file deleted successfully: {}", scriptPath);
+                log.info("Чекер удален успешно: {}", scriptPath);
             } catch (IOException e) {
-                log.error("Failed to delete checker file: {}", scriptPath, e);
-                throw new RuntimeException("Failed to delete checker file: " + scriptPath, e);
+                log.error("Ошибка удаления чекера: {}", scriptPath, e);
+                throw new RuntimeException("Ошибка удаления чекера: " + scriptPath, e);
             }
         } else {
-            log.warn("Checker file does not exist: {}", scriptPath);
+            log.warn("Файл чекера не найден: {}", scriptPath);
         }
     }
 
@@ -51,7 +51,7 @@ public class CheckerFileService {
         Path checkersDirPath = Paths.get(checkersDirectory);
         if (!Files.exists(checkersDirPath)) {
             Files.createDirectories(checkersDirPath);
-            log.info("Created directory for checkers: {}", checkersDirectory);
+            log.info("Создана директория для чекеров: {}", checkersDirectory);
         }
     }
 }
