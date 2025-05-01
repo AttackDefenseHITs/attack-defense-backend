@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.core.competition.configuration;
+package ru.hits.attackdefenceplatform.cron;
 
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobBuilder;
@@ -13,8 +13,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.scheduling.quartz.SpringBeanJobFactory;
-import ru.hits.attackdefenceplatform.core.competition.job.CompetitionChangeStatusJob;
-import ru.hits.attackdefenceplatform.core.competition.job.CompetitionStartNextRoundJob;
+import ru.hits.attackdefenceplatform.cron.job.CompetitionChangeStatusJob;
+import ru.hits.attackdefenceplatform.cron.job.CompetitionStartNextRoundJob;
 import ru.hits.attackdefenceplatform.core.token.job.RefreshTokenCleanupJob;
 
 @Configuration

@@ -3,11 +3,13 @@ package ru.hits.attackdefenceplatform.core.flag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.hits.attackdefenceplatform.common.exception.CompetitionException;
 import ru.hits.attackdefenceplatform.common.exception.TeamException;
 import ru.hits.attackdefenceplatform.common.exception.flag.FlagExpiredException;
 import ru.hits.attackdefenceplatform.common.exception.flag.InvalidFlagException;
 import ru.hits.attackdefenceplatform.common.exception.flag.OwnFlagSubmissionException;
 import ru.hits.attackdefenceplatform.core.competition.CompetitionService;
+import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionStatus;
 import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionEntity;
 import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionRepository;
 import ru.hits.attackdefenceplatform.core.flag.repository.FlagEntity;
@@ -18,22 +20,44 @@ import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
 
 import java.util.Date;
 
+/**
+ * Реализация сервиса для работы с флагами в соревнованиях.
+ */
 @Service
 @RequiredArgsConstructor
 public class FlagServiceImpl implements FlagService {
 
     private final CompetitionService competitionService;
-
     private final FlagRepository flagRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final FlagSubmissionRepository flagSubmissionRepository;
 
+    /**
+     * Обрабатывает отправку флага участником соревнования.
+     *
+     * <p>Метод проверяет, что пользователь является участником соревнований, соревнование находится в активном круге и в состоянии IN_PROGRESS.
+     * Затем пытается найти флаг по переданному значению, проверяет его активность и принадлежность к чужой команде.
+     * При успешной проверке флаг деактивируется, начисляются баллы участнику, и сохраняется сабмит флага с признаком корректной отправки.
+     * В случае возникновения исключения сохраняется сабмит флага с признаком некорректной отправки, а затем исключение пробрасывается дальше.</p>
+     *
+     * @param flagValue значение флага, переданное участником
+     * @param user пользователь, пытающийся отправить флаг
+     * @throws TeamException если пользователь не является участником соревнований
+     * @throws CompetitionException если текущий момент не позволяет сдачу флага
+     * @throws InvalidFlagException если флаг не найден или имеет неправильное значение
+     * @throws FlagExpiredException если флаг больше не активен
+     * @throws OwnFlagSubmissionException если участник пытается отправить флаг своей команды
+     */
     @Override
     @Transactional
     public void sendFlag(String flagValue, UserEntity user) {
         var competitionDto = competitionService.getCompetitionDto();
         var teamMember = teamMemberRepository.findByUser(user)
                 .orElseThrow(() -> new TeamException("Пользователь не является участником соревнований"));
+
+        if (competitionDto.currentRound() == 0 || competitionDto.status() != CompetitionStatus.IN_PROGRESS) {
+            throw new CompetitionException("Флаг сдавать в текущий момент нельзя");
+        }
 
         try {
             var currentFlag = flagRepository.findByValue(flagValue)
@@ -48,21 +72,37 @@ public class FlagServiceImpl implements FlagService {
                 throw new OwnFlagSubmissionException("Вы не можете отправить флаг своей команды");
             }
 
+            // Деактивация флага после успешной отправки
             currentFlag.setIsActive(false);
 
+            // Начисление баллов за отправку флага участнику
             teamMember.setPoints(teamMember.getPoints() + competitionDto.flagSendCost());
+            // Сохранение сабмита флага с корректным признаком
             saveFlagSubmission(teamMember.getTeam(), user, currentFlag, flagValue, true);
 
+            // Сохранение обновленных сущностей
             teamMemberRepository.save(teamMember);
             flagRepository.save(currentFlag);
 
         } catch (Exception e) {
+            // При возникновении ошибки сохраняется сабмит флага с некорректным признаком
             saveFlagSubmission(teamMember.getTeam(), user, null, flagValue, false);
             throw e;
         }
     }
 
-
+    /**
+     * Сохраняет информацию о сабмите флага.
+     *
+     * <p>Метод создает новую сущность FlagSubmissionEntity, заполняет ее данными о команде, пользователе, значении флага,
+     * времени отправки, а также признаком корректности отправки и, при наличии, ссылкой на сущность флага.</p>
+     *
+     * @param team команда участника, отправившая флаг
+     * @param user пользователь, отправивший флаг
+     * @param flag сущность флага, если он определен; иначе null
+     * @param flagValue строковое значение отправленного флага
+     * @param isCorrect флаг, указывающий корректна ли отправка флага
+     */
     private void saveFlagSubmission(
             TeamEntity team,
             UserEntity user,
@@ -81,3 +121,4 @@ public class FlagServiceImpl implements FlagService {
         flagSubmissionRepository.save(flagSubmission);
     }
 }
+

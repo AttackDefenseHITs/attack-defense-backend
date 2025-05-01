@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.core.competition.job;
+package ru.hits.attackdefenceplatform.cron.job;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

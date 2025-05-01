@@ -30,6 +30,9 @@ import java.util.UUID;
 
 import static ru.hits.attackdefenceplatform.core.user.mapper.UserMapper.mapUserEntityToMemberDto;
 
+/**
+ * Сервис для работы с командами в соревнованиях.
+ */
 @Service
 @RequiredArgsConstructor
 public class TeamServiceImpl implements TeamService {
@@ -39,6 +42,12 @@ public class TeamServiceImpl implements TeamService {
     private final VirtualMachineService virtualMachineService;
     private final PointsService pointsService;
 
+    /**
+     * Создает новую команду.
+     *
+     * @param request данные для создания команды
+     * @return DTO новой команды
+     */
     @Transactional
     @Override
     public TeamListDto createTeam(CreateTeamRequest request) {
@@ -47,16 +56,26 @@ public class TeamServiceImpl implements TeamService {
         team.setMaxMembers(request.maxMembers());
         team.setColor(ColorUtils.generateRandomColor());
         var newTeam = teamRepository.save(team);
-
         return mapTeamEntityToTeamListDto(newTeam, null);
     }
 
+    /**
+     * Удаляет команду по ID.
+     *
+     * @param id идентификатор команды
+     */
     @Transactional
     @Override
     public void deleteTeam(UUID id) {
         teamRepository.deleteById(id);
     }
 
+    /**
+     * Добавляет пользователя в команду.
+     *
+     * @param user пользователь, желающий присоединиться
+     * @param teamId идентификатор команды
+     */
     @Transactional
     @Override
     public void joinToTeam(UserEntity user, UUID teamId) {
@@ -68,8 +87,7 @@ public class TeamServiceImpl implements TeamService {
         var team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new TeamNotFoundException("Команда с ID " + teamId + " не найдена"));
 
-        boolean isUserInAnyTeam = teamMemberRepository.existsByUser(user);
-        if (isUserInAnyTeam) {
+        if (teamMemberRepository.existsByUser(user)) {
             throw new UserException("Пользователь уже состоит в другой команде");
         }
 
@@ -81,10 +99,15 @@ public class TeamServiceImpl implements TeamService {
         var teamMember = new TeamMemberEntity();
         teamMember.setUser(user);
         teamMember.setTeam(team);
-
         teamMemberRepository.save(teamMember);
     }
 
+    /**
+     * Удаляет пользователя из команды.
+     *
+     * @param user пользователь, покидающий команду
+     * @param teamId идентификатор команды
+     */
     @Transactional
     @Override
     public void leftFromTeam(UserEntity user, UUID teamId) {
@@ -102,6 +125,13 @@ public class TeamServiceImpl implements TeamService {
         teamMemberRepository.delete(teamMember);
     }
 
+    /**
+     * Возвращает информацию о команде.
+     *
+     * @param teamId идентификатор команды
+     * @param user пользователь, запрашивающий информацию
+     * @return DTO с информацией о команде
+     */
     @Transactional(readOnly = true)
     @Override
     public TeamInfoDto getTeamById(UUID teamId, UserEntity user) {
@@ -121,7 +151,6 @@ public class TeamServiceImpl implements TeamService {
 
         Integer place = calculateTeamPlace(team);
         Double points = calculateTeamPoints(team);
-
         var virtualMachine = getFullTeamVirtualMachineInfo(teamId, isMyTeam);
 
         return new TeamInfoDto(
@@ -139,6 +168,12 @@ public class TeamServiceImpl implements TeamService {
         );
     }
 
+    /**
+     * Возвращает список всех команд с информацией для отображения.
+     *
+     * @param user пользователь, запрашивающий список
+     * @return список DTO команд
+     */
     @Transactional(readOnly = true)
     @Override
     public List<TeamListDto> getAllTeams(UserEntity user) {
@@ -147,23 +182,33 @@ public class TeamServiceImpl implements TeamService {
                 .toList();
     }
 
+    /**
+     * Создает множество команд.
+     *
+     * @param request данные для создания команд
+     * @return список DTO созданных команд
+     */
     @Transactional
     @Override
     public List<TeamListDto> createManyTeams(CreateManyTeamsRequest request) {
         List<TeamListDto> teamListDtos = new ArrayList<>();
         for (long i = 1; i <= request.teamsCount(); i++) {
             String teamName = "Команда " + i;
-
             var team = new TeamEntity();
             team.setName(teamName);
             team.setMaxMembers(request.maxMembers());
-
             var newTeam = teamRepository.save(team);
             teamListDtos.add(mapTeamEntityToTeamListDto(newTeam, null));
         }
         return teamListDtos;
     }
 
+    /**
+     * Обновляет данные команды.
+     *
+     * @param teamId идентификатор команды
+     * @param request новые данные для команды
+     */
     @Transactional
     @Override
     public void updateTeam(UUID teamId, CreateTeamRequest request) {
@@ -180,77 +225,118 @@ public class TeamServiceImpl implements TeamService {
         teamRepository.save(team);
     }
 
+    /**
+     * Удаляет участника из команды.
+     *
+     * @param teamId идентификатор команды
+     * @param userId идентификатор пользователя
+     */
     @Transactional
     @Override
     public void removeMemberFromTeam(UUID teamId, UUID userId) {
         var teamMember = teamMemberRepository.findByUserIdAndTeamId(userId, teamId)
                 .orElseThrow(() -> new UserException("Участник с ID " + userId + " не найден в команде с ID " + teamId));
-
         teamMemberRepository.delete(teamMember);
     }
 
+    /**
+     * Проверяет, может ли пользователь присоединиться к команде.
+     *
+     * @param user пользователь
+     * @param team команда
+     * @return true, если возможно, иначе false
+     */
     private boolean canUserJoinTeam(UserEntity user, TeamEntity team) {
         boolean isUserInTeam = teamMemberRepository.existsByUser(user);
         long userCount = teamMemberRepository.countByTeam(team);
         var competition = competitionService.getCompetition();
         boolean competitionNotStarted = competition.getStatus().equals(CompetitionStatus.NEW);
-
         return !isUserInTeam && userCount < team.getMaxMembers() && competitionNotStarted;
     }
 
+    /**
+     * Проверяет, состоит ли пользователь в команде.
+     *
+     * @param user пользователь
+     * @param team команда
+     * @return true, если пользователь состоит в команде, иначе false
+     */
     private boolean isUserInTeam(UserEntity user, TeamEntity team) {
         return teamMemberRepository.existsByUserAndTeam(user, team);
     }
 
-    private boolean canLeaveFromTeam(UserEntity user, TeamEntity team){
+    /**
+     * Проверяет, может ли пользователь покинуть команду.
+     *
+     * @param user пользователь
+     * @param team команда
+     * @return true, если пользователь может выйти, иначе false
+     */
+    private boolean canLeaveFromTeam(UserEntity user, TeamEntity team) {
         var competition = competitionService.getCompetition();
-
-        var userInThisTeam = isUserInTeam(user, team);
-        var competitionNotStarted = competition.getStatus().equals(CompetitionStatus.NEW);
-
-        return userInThisTeam && competitionNotStarted;
+        return isUserInTeam(user, team) && competition.getStatus().equals(CompetitionStatus.NEW);
     }
 
+    /**
+     * Вычисляет место команды в рейтинге.
+     *
+     * @param team команда
+     * @return место команды
+     */
     private Integer calculateTeamPlace(TeamEntity team) {
         List<TeamEntity> allTeams = teamRepository.findAll();
         allTeams.sort((t1, t2) -> Double.compare(calculateTeamPoints(t2), calculateTeamPoints(t1)));
         return allTeams.indexOf(team) + 1;
     }
 
+    /**
+     * Вычисляет баллы команды.
+     *
+     * @param team команда
+     * @return количество баллов
+     */
     private Double calculateTeamPoints(TeamEntity team) {
         return pointsService.calculateTeamFlagPoints(team);
     }
 
-    private VirtualMachineDto getFullTeamVirtualMachineInfo(UUID teamId, boolean isMyTeam){
+    /**
+     * Возвращает информацию о виртуальной машине команды.
+     *
+     * @param teamId идентификатор команды
+     * @param isMyTeam флаг, указывающий, является ли запрос от участника команды
+     * @return DTO виртуальной машины или null
+     */
+    private VirtualMachineDto getFullTeamVirtualMachineInfo(UUID teamId, boolean isMyTeam) {
         var competition = competitionService.getCompetition();
         boolean competitionStarted = !competition.getStatus().equals(CompetitionStatus.NEW);
-
-        if (competitionStarted && isMyTeam){
+        if (competitionStarted && isMyTeam) {
             return virtualMachineService.getVirtualMachinesByTeam(teamId)
                     .stream()
                     .findFirst()
                     .orElse(null);
         }
-
         return null;
     }
 
+    /**
+     * Преобразует сущность команды в DTO для списка.
+     *
+     * @param team сущность команды
+     * @param user пользователь, запрашивающий информацию (может быть null)
+     * @return DTO команды
+     */
     @Override
     public TeamListDto mapTeamEntityToTeamListDto(TeamEntity team, UserEntity user) {
         var userCount = teamMemberRepository.countByTeam(team);
         var membersCount = team.getMaxMembers();
-
         var isMyTeam = Optional.ofNullable(user)
                 .map(u -> isUserInTeam(u, team))
                 .orElse(false);
-
         var place = calculateTeamPlace(team);
         var points = calculateTeamPoints(team);
-
         var virtualMachineIp = Optional.ofNullable(getFullTeamVirtualMachineInfo(team.getId(), true))
                 .map(VirtualMachineDto::ipAddress)
                 .orElse(null);
-
         return new TeamListDto(
                 team.getId(),
                 team.getName(),

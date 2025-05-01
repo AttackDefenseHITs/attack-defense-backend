@@ -16,6 +16,9 @@ import ru.hits.attackdefenceplatform.public_interface.flag.FlagListDto;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Сервис для административного управления флагами.
+ */
 @Service
 @RequiredArgsConstructor
 public class AdminFlagServiceImpl implements AdminFlagService {
@@ -23,6 +26,11 @@ public class AdminFlagServiceImpl implements AdminFlagService {
     private final TeamRepository teamRepository;
     private final VulnerableServiceRepository vulnerableServiceRepository;
 
+    /**
+     * Создает флаги для указанной команды и сервиса.
+     *
+     * @param request данные для создания флагов
+     */
     @Override
     @Transactional
     public void createFlags(CreateFlagRequest request) {
@@ -38,6 +46,11 @@ public class AdminFlagServiceImpl implements AdminFlagService {
         }
     }
 
+    /**
+     * Возвращает список всех флагов.
+     *
+     * @return список FlagDto
+     */
     @Override
     @Transactional(readOnly = true)
     public List<FlagDto> getAllFlags() {
@@ -46,6 +59,12 @@ public class AdminFlagServiceImpl implements AdminFlagService {
                 .toList();
     }
 
+    /**
+     * Возвращает флаг по его ID.
+     *
+     * @param id идентификатор флага
+     * @return FlagDto
+     */
     @Override
     @Transactional(readOnly = true)
     public FlagDto getFlagById(UUID id) {
@@ -54,6 +73,11 @@ public class AdminFlagServiceImpl implements AdminFlagService {
         return FlagMapper.mapToFlagDto(flag);
     }
 
+    /**
+     * Удаляет флаг по ID.
+     *
+     * @param id идентификатор флага
+     */
     @Override
     @Transactional
     public void deleteFlag(UUID id) {
@@ -63,6 +87,12 @@ public class AdminFlagServiceImpl implements AdminFlagService {
         flagRepository.deleteById(id);
     }
 
+    /**
+     * Переключает статус активности флага.
+     *
+     * @param id идентификатор флага
+     * @return обновлённый FlagDto
+     */
     @Override
     public FlagDto changeFlagStatus(UUID id) {
         var flag = flagRepository.findById(id)
@@ -72,6 +102,12 @@ public class AdminFlagServiceImpl implements AdminFlagService {
         return FlagMapper.mapToFlagDto(newFlag);
     }
 
+    /**
+     * Возвращает флаги для указанного сервиса.
+     *
+     * @param serviceId идентификатор сервиса
+     * @return список FlagDto
+     */
     @Override
     @Transactional(readOnly = true)
     public List<FlagDto> getFlagsByService(UUID serviceId) {
@@ -83,6 +119,12 @@ public class AdminFlagServiceImpl implements AdminFlagService {
                 .toList();
     }
 
+    /**
+     * Возвращает флаги для указанной команды.
+     *
+     * @param teamId идентификатор команды
+     * @return список FlagDto
+     */
     @Override
     @Transactional(readOnly = true)
     public List<FlagDto> getFlagsByTeam(UUID teamId) {
@@ -94,12 +136,17 @@ public class AdminFlagServiceImpl implements AdminFlagService {
                 .toList();
     }
 
+    /**
+     * Деактивирует все флаги для заданной команды и сервиса.
+     *
+     * @param serviceId идентификатор сервиса
+     * @param teamId идентификатор команды
+     */
     @Transactional
-    public void disableAllFlagsForTeam(UUID serviceId, UUID teamId){
+    public void disableAllFlagsForTeam(UUID serviceId, UUID teamId) {
         var flags = flagRepository.findFlagsByServiceAndTeam(serviceId, teamId);
-
         flags.forEach(flag -> flag.setIsActive(false));
-
         flagRepository.saveAll(flags);
     }
 }
+

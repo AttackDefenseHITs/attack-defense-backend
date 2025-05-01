@@ -10,11 +10,28 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
+/**
+ * Компонент для выполнения скриптов.
+ */
 @Component
 @Slf4j
 public class ScriptExecutor {
     private final static String USED_LANGUAGE = "python3";
 
+    /**
+     * Выполняет Python-скрипт с заданными параметрами.
+     *
+     * <p>Метод запускает процесс с использованием заданного интерпретатора (python3) и переданных аргументов,
+     * считывает вывод процесса, логирует его построчно и возвращает результат выполнения.</p>
+     *
+     * @param scriptPath путь к исполняемому скрипту
+     * @param commands строка с командами для скрипта
+     * @param targetIp IP-адрес целевой машины
+     * @param targetPort порт целевой машины
+     * @return объект ScriptExecutionResult, содержащий результат выполнения скрипта и вывод процесса
+     * @throws IOException если произошла ошибка ввода-вывода при запуске процесса или чтении его вывода
+     * @throws InterruptedException если текущий поток прерван во время ожидания завершения процесса
+     */
     public ScriptExecutionResult executeScript(
             String scriptPath,
             String commands,
@@ -46,5 +63,6 @@ public class ScriptExecutor {
         return new ScriptExecutionResult(result, outputLines);
     }
 }
+
 
 

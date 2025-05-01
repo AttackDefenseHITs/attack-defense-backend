@@ -71,7 +71,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGenericException(Exception ex) {
         log.info("Произошла неизвестная ошибка " + ex.getMessage());
-        //return new ResponseEntity<>("Что-то пошло не так, но мы не знаем что", HttpStatus.INTERNAL_SERVER_ERROR);
-        return new ResponseEntity<>(ex, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>("Что-то пошло не так, но мы не знаем что", HttpStatus.INTERNAL_SERVER_ERROR);
+        //return new ResponseEntity<>(ex, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
