@@ -20,6 +20,7 @@ import ru.hits.attackdefenceplatform.public_interface.team.CreateManyTeamsReques
 import ru.hits.attackdefenceplatform.public_interface.team.CreateTeamRequest;
 import ru.hits.attackdefenceplatform.public_interface.team.TeamInfoDto;
 import ru.hits.attackdefenceplatform.public_interface.team.TeamListDto;
+import ru.hits.attackdefenceplatform.public_interface.user.UserTeamMemberDto;
 
 import java.util.List;
 import java.util.UUID;
@@ -100,6 +101,13 @@ public class TeamController {
     ) {
         teamService.removeMemberFromTeam(teamId, userId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/members-rating")
+    @Operation(summary = "Получить рейтинг участников всех команд")
+    public ResponseEntity<List<UserTeamMemberDto>> getMemberRating() {
+        var membersList = teamService.getTeamMemberRatings();
+        return ResponseEntity.ok(membersList);
     }
 }
 

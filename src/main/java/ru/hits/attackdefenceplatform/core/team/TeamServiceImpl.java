@@ -9,7 +9,6 @@ import ru.hits.attackdefenceplatform.common.exception.UserException;
 import ru.hits.attackdefenceplatform.core.competition.CompetitionService;
 import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionStatus;
 import ru.hits.attackdefenceplatform.core.points.PointsService;
-import ru.hits.attackdefenceplatform.core.points.SlaService;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberRepository;
@@ -20,10 +19,12 @@ import ru.hits.attackdefenceplatform.public_interface.team.CreateManyTeamsReques
 import ru.hits.attackdefenceplatform.public_interface.team.CreateTeamRequest;
 import ru.hits.attackdefenceplatform.public_interface.team.TeamInfoDto;
 import ru.hits.attackdefenceplatform.public_interface.team.TeamListDto;
+import ru.hits.attackdefenceplatform.public_interface.user.UserTeamMemberDto;
 import ru.hits.attackdefenceplatform.public_interface.vitrual_machine.VirtualMachineDto;
 import ru.hits.attackdefenceplatform.util.ColorUtils;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -347,5 +348,16 @@ public class TeamServiceImpl implements TeamService {
                 isMyTeam,
                 virtualMachineIp
         );
+    }
+
+    /**
+     * Отдает список участников команды с очками
+     */
+    @Override
+    public List<UserTeamMemberDto> getTeamMemberRatings() {
+        return teamMemberRepository.findAll().stream()
+                .map(member -> mapUserEntityToMemberDto(member.getUser(), member.getPoints()))
+                .sorted(Comparator.comparingInt(UserTeamMemberDto::points).reversed())
+                .toList();
     }
 }

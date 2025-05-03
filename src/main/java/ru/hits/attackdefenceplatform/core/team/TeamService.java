@@ -6,6 +6,7 @@ import ru.hits.attackdefenceplatform.public_interface.team.CreateManyTeamsReques
 import ru.hits.attackdefenceplatform.public_interface.team.CreateTeamRequest;
 import ru.hits.attackdefenceplatform.public_interface.team.TeamInfoDto;
 import ru.hits.attackdefenceplatform.public_interface.team.TeamListDto;
+import ru.hits.attackdefenceplatform.public_interface.user.UserTeamMemberDto;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,4 +22,5 @@ public interface TeamService {
     void updateTeam(UUID teamId, CreateTeamRequest request);
     void removeMemberFromTeam(UUID teamId, UUID userId);
     TeamListDto mapTeamEntityToTeamListDto(TeamEntity team, UserEntity user);
+    List<UserTeamMemberDto> getTeamMemberRatings();
 }
