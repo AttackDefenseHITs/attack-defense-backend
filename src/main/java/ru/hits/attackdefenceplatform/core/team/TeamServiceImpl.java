@@ -194,12 +194,10 @@ public class TeamServiceImpl implements TeamService {
     public List<TeamListDto> createManyTeams(CreateManyTeamsRequest request) {
         List<TeamListDto> teamListDtos = new ArrayList<>();
         for (long i = 1; i <= request.teamsCount(); i++) {
-            String teamName = "Команда " + i;
-            var team = new TeamEntity();
-            team.setName(teamName);
-            team.setMaxMembers(request.maxMembers());
-            var newTeam = teamRepository.save(team);
-            teamListDtos.add(mapTeamEntityToTeamListDto(newTeam, null));
+            var teamName = "Команда " + i;
+            var teamRequest = new CreateTeamRequest(teamName, request.maxMembers());
+            var teamDto = createTeam(teamRequest);
+            teamListDtos.add(teamDto);
         }
         return teamListDtos;
     }
