@@ -15,7 +15,7 @@ public class ScriptBuilder {
                         "  sudo docker-compose down && \n" +
                         "  git pull && \n" +
                         "  sudo chmod -R 777 . && \n" +
-                        "  sudo docker-compose up -d;\n" +
+                        "  sudo docker-compose up -d --build;\n" +
                         "else\n" +
                         "  echo \"Деплой нового сервиса '%s'...\";\n" +
                         "  git clone %s /opt/%s && cd /opt/%s && sudo chmod -R 777 . && sudo docker-compose up -d --build;\n" +
