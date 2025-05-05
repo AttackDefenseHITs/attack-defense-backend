@@ -9,7 +9,13 @@ public class ScriptBuilder {
         return String.format(
                 "if [ -d \"/opt/%s\" ]; then\n" +
                         "  echo \"Обновление сервиса '%s'...\";\n" +
-                        "  cd /opt/%s && sudo docker-compose down && git pull && sudo chmod -R 777 . && sudo docker-compose up -d;\n" +
+                        "  cd /opt/%s && \n" +
+                        "  echo \"Сброс локальных изменений...\";\n" +
+                        "  git reset --hard HEAD && git clean -fd && \n" +
+                        "  sudo docker-compose down && \n" +
+                        "  git pull && \n" +
+                        "  sudo chmod -R 777 . && \n" +
+                        "  sudo docker-compose up -d;\n" +
                         "else\n" +
                         "  echo \"Деплой нового сервиса '%s'...\";\n" +
                         "  git clone %s /opt/%s && cd /opt/%s && sudo chmod -R 777 . && sudo docker-compose up -d --build;\n" +
@@ -24,5 +30,6 @@ public class ScriptBuilder {
         );
     }
 }
+
 
 
