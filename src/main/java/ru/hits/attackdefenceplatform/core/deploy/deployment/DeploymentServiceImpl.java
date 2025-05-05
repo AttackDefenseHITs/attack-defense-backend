@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import ru.hits.attackdefenceplatform.core.deploy.deployment.DeploymentService;
@@ -20,14 +21,21 @@ import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.Vulnerab
 import ru.hits.attackdefenceplatform.public_interface.deployment.DeploymentStatusDto;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 @RequiredArgsConstructor
@@ -38,18 +46,19 @@ public class DeploymentServiceImpl implements DeploymentService {
     private final DeploymentStatusService deploymentStatusService;
     private final ScriptBuilder scriptBuilder;
 
-    @Setter
-    private volatile boolean isDeploymentInProgress = false;
+    @Qualifier("taskExecutor")
+    private final Executor taskExecutor;
+
+    private final AtomicBoolean isDeploymentInProgress = new AtomicBoolean(false);
 
     @Async("taskExecutor")
     @Override
     public void deployAllServices() {
-        if (isDeploymentInProgress) {
+        if (!isDeploymentInProgress.compareAndSet(false, true)) {
             log.warn("Деплой всех сервисов уже запущен.");
             return;
         }
 
-        isDeploymentInProgress = true;
         deploymentStatusService.updateAllStatusesBeforeAllDeployment();
         log.info("Деплой всех сервисов запущен.");
 
@@ -57,35 +66,33 @@ public class DeploymentServiceImpl implements DeploymentService {
             var virtualMachines = virtualMachineRepository.findAll();
             var vulnerableServices = vulnerableServiceRepository.findAll();
 
-            ExecutorService executorService = Executors.newFixedThreadPool(virtualMachines.size());
+            List<CompletableFuture<Void>> deploymentTasks = new ArrayList<>();
 
             for (var vm : virtualMachines) {
-                executorService.submit(() -> {
+                deploymentTasks.add(CompletableFuture.runAsync(() -> {
                     try {
                         deployServicesToVirtualMachine(vulnerableServices, vm);
                     } catch (Exception e) {
-                        log.error("Ошибка при деплое сервисов на виртуальную машину '{}': {}",
-                                vm.getIpAddress(), e.getMessage()
-                        );
+                        log.error("Ошибка при деплое сервисов на виртуальную машину '{}': {}", vm.getIpAddress(), e.getMessage(), e);
                     }
-                });
+                }, taskExecutor));
             }
 
-            executorService.shutdown();
-            if (!executorService.awaitTermination(1, TimeUnit.HOURS)) {
-                log.error("Деплой не завершился за установленное время.");
-            }
+            CompletableFuture.allOf(deploymentTasks.toArray(new CompletableFuture[0])).get(1, TimeUnit.HOURS);
+
+        } catch (TimeoutException e) {
+            log.error("Деплой не завершился за установленное время.");
         } catch (Exception e) {
-            log.error("Ошибка при выполнении деплоя всех сервисов: {}", e.getMessage());
+            log.error("Ошибка при выполнении деплоя всех сервисов: {}", e.getMessage(), e);
         } finally {
-            setDeploymentInProgress(false);
+            isDeploymentInProgress.set(false);
         }
     }
 
     @Override
     @Async("taskExecutor")
     public void deployServiceOnVirtualMachine(UUID serviceId, UUID virtualMachineId) {
-        if (isDeploymentInProgress()) {
+        if (!isDeploymentInProgress.compareAndSet(false, true)) {
             log.warn("Деплой сервиса уже запущен.");
             return;
         }
@@ -101,14 +108,15 @@ public class DeploymentServiceImpl implements DeploymentService {
             deployServicesToVirtualMachine(List.of(service), vm);
         } catch (Exception e) {
             log.error("Ошибка при передеплое сервиса '{}' на виртуальной машине '{}': {}",
-                    service.getName(), vm.getIpAddress(), e.getMessage()
-            );
+                    service.getName(), vm.getIpAddress(), e.getMessage(), e);
+        } finally {
+            isDeploymentInProgress.set(false);
         }
     }
 
     @Override
     public Boolean isDeploymentInProgress() {
-        return isDeploymentInProgress;
+        return isDeploymentInProgress.get();
     }
 
     private void deployServicesToVirtualMachine(
@@ -119,7 +127,6 @@ public class DeploymentServiceImpl implements DeploymentService {
 
         for (var service : services) {
             try {
-                // Уведомляем, что деплой начался
                 deploymentStatusService.updateDeploymentStatus(
                         new DeploymentStatusDto(
                                 vm.getId(),
@@ -129,7 +136,6 @@ public class DeploymentServiceImpl implements DeploymentService {
                         )
                 );
 
-                // Создание скрипта деплоя для текущего сервиса
                 String deploymentScript = scriptBuilder.buildDeploymentScript(service);
 
                 sendAndExecuteScript(vm.getIpAddress(), vm.getUsername(), vm.getPassword(), deploymentScript);
@@ -167,46 +173,39 @@ public class DeploymentServiceImpl implements DeploymentService {
                         )
                 );
 
-                log.error("Ошибка деплоя сервиса '{}' на '{}': {}", service.getName(), vm.getIpAddress(), e.getMessage());
+                log.error("Ошибка деплоя сервиса '{}' на '{}': {}", service.getName(), vm.getIpAddress(), e.getMessage(), e);
             }
         }
     }
 
-    private void sendAndExecuteScript(
-            String host,
-            String username,
-            String password,
-            String scriptContent
-    ) throws Exception {
+    private void sendAndExecuteScript(String host, String username, String password, String scriptContent) throws Exception {
         var jsch = new JSch();
         Session session = jsch.getSession(username, host, 22);
         session.setPassword(password);
-
-        // Настройка безопасности
         session.setConfig("StrictHostKeyChecking", "no");
         session.connect();
 
         try {
-            // Открываем канал для передачи файла
             var channelSftp = (ChannelSftp) session.openChannel("sftp");
             channelSftp.connect();
 
-            // Путь для скрипта на удаленной машине
             var scriptPath = "/tmp/deploy_services.sh";
 
-            // Загружаем скрипт на удаленную машину
-            try (var inputStream = new ByteArrayInputStream(scriptContent.getBytes())) {
+            try (var inputStream = new ByteArrayInputStream(scriptContent.getBytes(StandardCharsets.UTF_8))) {
                 channelSftp.put(inputStream, scriptPath);
             }
 
             channelSftp.disconnect();
             log.info("Скрипт деплоя успешно отправлен на '{}'.", host);
 
-            // Выполнение скрипта
             var channelExec = (ChannelExec) session.openChannel("exec");
             channelExec.setCommand("bash " + scriptPath);
-            channelExec.setErrStream(System.err);
-            channelExec.setOutputStream(System.out);
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ByteArrayOutputStream errorStream = new ByteArrayOutputStream();
+
+            channelExec.setOutputStream(outputStream);
+            channelExec.setErrStream(errorStream);
 
             channelExec.connect();
 
@@ -214,8 +213,19 @@ public class DeploymentServiceImpl implements DeploymentService {
                 Thread.sleep(100);
             }
 
-            var exitStatus = channelExec.getExitStatus();
+            int exitStatus = channelExec.getExitStatus();
             channelExec.disconnect();
+
+            String output = outputStream.toString(StandardCharsets.UTF_8);
+            String errors = errorStream.toString(StandardCharsets.UTF_8);
+
+            if (!output.isBlank()) {
+                log.info("Вывод скрипта на '{}':\n{}", host, output);
+            }
+
+            if (!errors.isBlank()) {
+                log.warn("Ошибки скрипта на '{}':\n{}", host, errors);
+            }
 
             if (exitStatus != 0) {
                 throw new RuntimeException("Скрипт завершился с ошибкой, код: " + exitStatus);
@@ -245,6 +255,7 @@ public class DeploymentServiceImpl implements DeploymentService {
         return false;
     }
 }
+
 
 
 

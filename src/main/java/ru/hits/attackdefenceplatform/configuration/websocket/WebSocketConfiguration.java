@@ -15,7 +15,7 @@ import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import ru.hits.attackdefenceplatform.websocket.handler.CheckerStatusEventHandler;
-import ru.hits.attackdefenceplatform.websocket.handler.CompetitionEventHandler;
+import ru.hits.attackdefenceplatform.websocket.handler.AnnouncementEventHandler;
 import ru.hits.attackdefenceplatform.websocket.handler.DeploymentEventHandler;
 
 import java.util.List;
@@ -24,12 +24,12 @@ import java.util.List;
 @EnableWebSocket
 @EnableWebSocketMessageBroker
 public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer, WebSocketConfigurer {
-    private final CompetitionEventHandler competitionEventHandler;
+    private final AnnouncementEventHandler competitionEventHandler;
     private final DeploymentEventHandler deploymentEventHandler;
     private final CheckerStatusEventHandler checkerStatusEventHandler;
 
     public WebSocketConfiguration(
-            @Lazy CompetitionEventHandler competitionEventHandler,
+            @Lazy AnnouncementEventHandler competitionEventHandler,
             @Lazy DeploymentEventHandler deploymentEventHandler,
             @Lazy CheckerStatusEventHandler checkerStatusEventHandler
     ) {

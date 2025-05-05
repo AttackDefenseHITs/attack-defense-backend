@@ -14,10 +14,10 @@ import java.io.IOException;
 
 @Component
 @Slf4j
-public class CompetitionEventHandler extends AbstractEventHandler {
+public class AnnouncementEventHandler extends AbstractEventHandler {
     private final WebSocketStorage webSocketStorage;
 
-    public CompetitionEventHandler(JwtTokenUtils jwtTokenUtils, WebSocketStorage webSocketStorage) {
+    public AnnouncementEventHandler(JwtTokenUtils jwtTokenUtils, WebSocketStorage webSocketStorage) {
         super(jwtTokenUtils);
         this.webSocketStorage = webSocketStorage;
     }
