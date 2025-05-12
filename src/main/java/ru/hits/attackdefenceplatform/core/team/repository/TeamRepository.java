@@ -11,6 +11,9 @@ import java.util.UUID;
 
 public interface TeamRepository extends JpaRepository<TeamEntity, UUID> {
 
-    @Query("SELECT new ru.hits.attackdefenceplatform.core.team.repository.TeamPointsDto(t.id, SUM(t.points)) FROM TeamMemberEntity t WHERE t.team.id = :teamId GROUP BY t.team.id ORDER BY SUM(t.points) DESC")
-    List<TeamPointsDto> findAllTeamsWithPoints();
+    @Query("SELECT t FROM TeamEntity t LEFT JOIN FETCH t.members WHERE t.id = :teamId")
+    Optional<TeamEntity> findByIdWithMembers(@Param("teamId") UUID teamId);
+
+    @Query("SELECT t FROM TeamEntity t LEFT JOIN FETCH t.members")
+    List<TeamEntity> findAllWithMembers();
 }

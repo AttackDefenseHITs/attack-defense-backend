@@ -12,7 +12,6 @@ import ru.hits.attackdefenceplatform.core.points.PointsService;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberRepository;
-import ru.hits.attackdefenceplatform.core.team.repository.TeamPointsDto;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamRepository;
 import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
 import ru.hits.attackdefenceplatform.core.virtual_machine.VirtualMachineService;
@@ -284,19 +283,9 @@ public class TeamServiceImpl implements TeamService {
      * @return место команды
      */
     private Integer calculateTeamPlace(TeamEntity team) {
-        // Получаем команды с баллами из репозитория
-        List<TeamPointsDto> teamPoints = teamRepository.findAllTeamsWithPoints();
-
-        // Сортируем команды по баллам
-        teamPoints.sort((t1, t2) -> Double.compare(t2.getPoints(), t1.getPoints()));
-
-        // Находим место текущей команды
-        for (int i = 0; i < teamPoints.size(); i++) {
-            if (teamPoints.get(i).getTeamId().equals(team.getId())) {
-                return i + 1;  // Индексация с 1 для мест в рейтинге
-            }
-        }
-        return null;  // Если команда не найдена (на всякий случай)
+        List<TeamEntity> allTeams = teamRepository.findAll();
+        allTeams.sort((t1, t2) -> Double.compare(calculateTeamPoints(t2), calculateTeamPoints(t1)));
+        return allTeams.indexOf(team) + 1;
     }
 
     /**

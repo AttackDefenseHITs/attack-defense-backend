@@ -25,10 +25,9 @@ public class PointsService {
     public Double calculateTeamFlagPoints(TeamEntity team) {
         var competitionDto = competitionService.getCompetitionDto();
 
-        var totalPoints = teamMemberRepository.sumPointsByTeam(team);
-        if (totalPoints == null) {
-            totalPoints = 0.0;
-        }
+        double totalPoints = teamMemberRepository.findByTeam(team).stream()
+                .mapToDouble(member -> member.getPoints() != null ? member.getPoints() : 0)
+                .sum();
 
         long stolenFlags = flagSubmissionRepository.countByFlag_FlagOwner(team);
         double stolenPoints = stolenFlags * competitionDto.flagLostCost();
