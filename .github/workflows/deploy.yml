@@ -46,6 +46,8 @@ jobs:
           ssh -t $VPS_USER@$VPS_HOST << EOF
             cd attack-defense-backend/
           
+            git pull
+          
             echo "POSTGRES_USER=${POSTGRES_USER}" > .env
             echo "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" >> .env
             echo "DOCKER_USERNAME=${DOCKER_USERNAME}" >> .env
