@@ -2,10 +2,15 @@ package ru.hits.attackdefenceplatform.core.flag;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.hits.attackdefenceplatform.common.exception.TeamNotFoundException;
 import ru.hits.attackdefenceplatform.core.flag.mapper.FlagMapper;
+import ru.hits.attackdefenceplatform.core.flag.repository.FlagEntity;
 import ru.hits.attackdefenceplatform.core.flag.repository.FlagRepository;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamRepository;
 import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.VulnerableServiceRepository;
@@ -47,16 +52,26 @@ public class AdminFlagServiceImpl implements AdminFlagService {
     }
 
     /**
-     * Возвращает список всех флагов.
+     * Возвращает список флагов с пагинацией и фильтрацией по имени команды или сервиса.
      *
-     * @return список FlagDto
+     * @param page Номер страницы
+     * @param size Количество элементов на странице
+     * @param search Строка поиска по имени команды или сервиса
+     * @return объект Page с флагами
      */
     @Override
     @Transactional(readOnly = true)
-    public List<FlagDto> getAllFlags() {
-        return flagRepository.findAll().stream()
-                .map(FlagMapper::mapToFlagDto)
-                .toList();
+    public Page<FlagDto> getAllFlags(int page, int size, String search) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        if (search != null && !search.isEmpty()) {
+            Specification<FlagEntity> spec = createFlagSearchSpecification(search);
+            Page<FlagEntity> flagPage = flagRepository.findAll(spec, pageable);
+            return flagPage.map(FlagMapper::mapToFlagDto);
+        } else {
+            Page<FlagEntity> flagPage = flagRepository.findAll(pageable);
+            return flagPage.map(FlagMapper::mapToFlagDto);
+        }
     }
 
     /**
@@ -147,6 +162,19 @@ public class AdminFlagServiceImpl implements AdminFlagService {
         var flags = flagRepository.findFlagsByServiceAndTeam(serviceId, teamId);
         flags.forEach(flag -> flag.setIsActive(false));
         flagRepository.saveAll(flags);
+    }
+
+    /**
+     * Создает спецификацию для поиска флагов по имени команды или сервиса.
+     *
+     * @param search Строка поиска
+     * @return спецификация для поиска
+     */
+    private Specification<FlagEntity> createFlagSearchSpecification(String search) {
+        return (root, query, builder) -> builder.or(
+                builder.like(root.get("flagOwner").get("name"), "%" + search + "%"),
+                builder.like(root.get("vulnerableService").get("name"), "%" + search + "%")
+        );
     }
 }
 

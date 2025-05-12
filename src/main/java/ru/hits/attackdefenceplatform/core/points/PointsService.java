@@ -3,10 +3,12 @@ package ru.hits.attackdefenceplatform.core.points;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.hits.attackdefenceplatform.common.exception.TeamNotFoundException;
 import ru.hits.attackdefenceplatform.core.competition.CompetitionService;
 import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionRepository;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberRepository;
+import ru.hits.attackdefenceplatform.core.team.repository.TeamRepository;
 import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.VulnerableServiceEntity;
 import ru.hits.attackdefenceplatform.public_interface.service_statuses.FlagPointsForServiceDto;
 
@@ -17,7 +19,7 @@ import java.math.RoundingMode;
 @RequiredArgsConstructor
 @Slf4j
 public class PointsService {
-    private final TeamMemberRepository teamMemberRepository;
+    private final TeamRepository teamRepository;
     private final FlagSubmissionRepository flagSubmissionRepository;
     private final CompetitionService competitionService;
     private final SlaService slaService;
@@ -25,10 +27,10 @@ public class PointsService {
     public Double calculateTeamFlagPoints(TeamEntity team) {
         var competitionDto = competitionService.getCompetitionDto();
 
-        double totalPoints = teamMemberRepository.findByTeam(team).stream()
-                .mapToDouble(member -> member.getPoints() != null ? member.getPoints() : 0)
-                .sum();
+        var teamPointsDto = teamRepository.getTeamPointsById(team.getId())
+                .orElseThrow(() -> new TeamNotFoundException("Команда с ID " + team.getId() + " не найдена"));
 
+        double totalPoints = teamPointsDto.points();
         long stolenFlags = flagSubmissionRepository.countByFlag_FlagOwner(team);
         double stolenPoints = stolenFlags * competitionDto.flagLostCost();
 

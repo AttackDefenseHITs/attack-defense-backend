@@ -12,13 +12,16 @@ import ru.hits.attackdefenceplatform.core.points.PointsService;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberRepository;
+import ru.hits.attackdefenceplatform.core.team.repository.model.TeamPointsDto;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamRepository;
 import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
 import ru.hits.attackdefenceplatform.core.virtual_machine.VirtualMachineService;
 import ru.hits.attackdefenceplatform.public_interface.team.CreateManyTeamsRequest;
 import ru.hits.attackdefenceplatform.public_interface.team.CreateTeamRequest;
+import ru.hits.attackdefenceplatform.public_interface.team.CreatedTeamResponse;
 import ru.hits.attackdefenceplatform.public_interface.team.TeamInfoDto;
 import ru.hits.attackdefenceplatform.public_interface.team.TeamListDto;
+import ru.hits.attackdefenceplatform.public_interface.team.TeamShortDataDto;
 import ru.hits.attackdefenceplatform.public_interface.user.UserTeamMemberDto;
 import ru.hits.attackdefenceplatform.public_interface.vitrual_machine.VirtualMachineDto;
 import ru.hits.attackdefenceplatform.util.ColorUtils;
@@ -51,13 +54,18 @@ public class TeamServiceImpl implements TeamService {
      */
     @Transactional
     @Override
-    public TeamListDto createTeam(CreateTeamRequest request) {
+    public CreatedTeamResponse createTeam(CreateTeamRequest request) {
         var team = new TeamEntity();
         team.setName(request.name());
         team.setMaxMembers(request.maxMembers());
         team.setColor(ColorUtils.generateRandomColor());
         var newTeam = teamRepository.save(team);
-        return mapTeamEntityToTeamListDto(newTeam, null);
+        return new CreatedTeamResponse(
+                newTeam.getId(),
+                newTeam.getName(),
+                0L,
+                newTeam.getMaxMembers()
+        );
     }
 
     /**
@@ -146,11 +154,13 @@ public class TeamServiceImpl implements TeamService {
                 .map(member -> mapUserEntityToMemberDto(member.getUser(), member.getPoints()))
                 .toList();
 
+        List<TeamPointsDto> rankedTeams = teamRepository.getTeamPointsRanked();
+
         var canJoin = canUserJoinTeam(user, team);
         var isMyTeam = isUserInTeam(user, team);
         var canLeave = canLeaveFromTeam(user, team);
 
-        Integer place = calculateTeamPlace(team);
+        Integer place = calculateTeamPlace(team, rankedTeams);
         Double points = calculateTeamPoints(team);
         var virtualMachine = getFullTeamVirtualMachineInfo(teamId, isMyTeam);
 
@@ -178,8 +188,9 @@ public class TeamServiceImpl implements TeamService {
     @Transactional(readOnly = true)
     @Override
     public List<TeamListDto> getAllTeams(UserEntity user) {
+        List<TeamPointsDto> rankedTeams = teamRepository.getTeamPointsRanked();
         return teamRepository.findAll().stream()
-                .map(team -> mapTeamEntityToTeamListDto(team, user))
+                .map(team -> mapTeamEntityToTeamListDto(team, user, rankedTeams))
                 .toList();
     }
 
@@ -191,8 +202,8 @@ public class TeamServiceImpl implements TeamService {
      */
     @Transactional
     @Override
-    public List<TeamListDto> createManyTeams(CreateManyTeamsRequest request) {
-        List<TeamListDto> teamListDtos = new ArrayList<>();
+    public List<CreatedTeamResponse> createManyTeams(CreateManyTeamsRequest request) {
+        List<CreatedTeamResponse> teamListDtos = new ArrayList<>();
         for (long i = 1; i <= request.teamsCount(); i++) {
             var teamName = "Команда " + i;
             var teamRequest = new CreateTeamRequest(teamName, request.maxMembers());
@@ -282,10 +293,13 @@ public class TeamServiceImpl implements TeamService {
      * @param team команда
      * @return место команды
      */
-    private Integer calculateTeamPlace(TeamEntity team) {
-        List<TeamEntity> allTeams = teamRepository.findAll();
-        allTeams.sort((t1, t2) -> Double.compare(calculateTeamPoints(t2), calculateTeamPoints(t1)));
-        return allTeams.indexOf(team) + 1;
+    public Integer calculateTeamPlace(TeamEntity team, List<TeamPointsDto> rankedTeams) {
+        for (int i = 0; i < rankedTeams.size(); i++) {
+            if (rankedTeams.get(i).teamId().equals(team.getId())) {
+                return i + 1;
+            }
+        }
+        return null;
     }
 
     /**
@@ -294,7 +308,7 @@ public class TeamServiceImpl implements TeamService {
      * @param team команда
      * @return количество баллов
      */
-    private Double calculateTeamPoints(TeamEntity team) {
+    public Double calculateTeamPoints(TeamEntity team) {
         return pointsService.calculateTeamFlagPoints(team);
     }
 
@@ -317,6 +331,35 @@ public class TeamServiceImpl implements TeamService {
         return null;
     }
 
+    @Override
+    public TeamShortDataDto mapToTeamServiceStatusDto(TeamEntity team){
+        List<TeamPointsDto> rankedTeams = teamRepository.getTeamPointsRanked();
+        var place = calculateTeamPlace(team, rankedTeams);
+        var points = calculateTeamPoints(team);
+        var virtualMachineIp = Optional.ofNullable(getFullTeamVirtualMachineInfo(team.getId(), true))
+                .map(VirtualMachineDto::ipAddress)
+                .orElse(null);
+
+        return new TeamShortDataDto(
+                team.getId(),
+                team.getName(),
+                place,
+                points,
+                virtualMachineIp
+        );
+    }
+
+    /**
+     * Отдает список участников команды с очками
+     */
+    @Override
+    public List<UserTeamMemberDto> getTeamMemberRatings() {
+        return teamMemberRepository.findAll().stream()
+                .map(member -> mapUserEntityToMemberDto(member.getUser(), member.getPoints()))
+                .sorted(Comparator.comparingInt(UserTeamMemberDto::points).reversed())
+                .toList();
+    }
+
     /**
      * Преобразует сущность команды в DTO для списка.
      *
@@ -324,14 +367,13 @@ public class TeamServiceImpl implements TeamService {
      * @param user пользователь, запрашивающий информацию (может быть null)
      * @return DTO команды
      */
-    @Override
-    public TeamListDto mapTeamEntityToTeamListDto(TeamEntity team, UserEntity user) {
+    private TeamListDto mapTeamEntityToTeamListDto(TeamEntity team, UserEntity user, List<TeamPointsDto> rankedTeams) {
         var userCount = teamMemberRepository.countByTeam(team);
         var membersCount = team.getMaxMembers();
         var isMyTeam = Optional.ofNullable(user)
                 .map(u -> isUserInTeam(u, team))
                 .orElse(false);
-        var place = calculateTeamPlace(team);
+        var place = calculateTeamPlace(team, rankedTeams);
         var points = calculateTeamPoints(team);
         var virtualMachineIp = Optional.ofNullable(getFullTeamVirtualMachineInfo(team.getId(), true))
                 .map(VirtualMachineDto::ipAddress)
@@ -346,16 +388,5 @@ public class TeamServiceImpl implements TeamService {
                 isMyTeam,
                 virtualMachineIp
         );
-    }
-
-    /**
-     * Отдает список участников команды с очками
-     */
-    @Override
-    public List<UserTeamMemberDto> getTeamMemberRatings() {
-        return teamMemberRepository.findAll().stream()
-                .map(member -> mapUserEntityToMemberDto(member.getUser(), member.getPoints()))
-                .sorted(Comparator.comparingInt(UserTeamMemberDto::points).reversed())
-                .toList();
     }
 }

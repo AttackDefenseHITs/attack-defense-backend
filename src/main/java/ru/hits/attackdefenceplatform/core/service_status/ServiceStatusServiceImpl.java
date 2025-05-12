@@ -59,15 +59,6 @@ public class ServiceStatusServiceImpl implements ServiceStatusService {
     }
 
     @Override
-    @Transactional
-    public TeamServiceStatusDto getServiceStatus(UUID serviceId, UUID teamId) {
-        var team = findTeam(teamId);
-        var service = findService(serviceId);
-
-        return getServiceStatusByTeamAndService(service, team);
-    }
-
-    @Override
     public ServiceStatusInfo getAllServiceStatuses() {
         var teams = teamRepository.findAll();
         var serviceStatuses = serviceStatusRepository.findAll();
@@ -80,7 +71,7 @@ public class ServiceStatusServiceImpl implements ServiceStatusService {
             Map<String, ServiceStatusSummary> services = mapStatusesToServiceSummaries(statusesForTeam);
 
             return new TeamServiceStatusDto(
-                    teamService.mapTeamEntityToTeamListDto(team, null),
+                    teamService.mapToTeamServiceStatusDto(team),
                     services
             );
         }).toList();
@@ -115,7 +106,7 @@ public class ServiceStatusServiceImpl implements ServiceStatusService {
         var services = mapStatusesToServiceSummaries(statusesForTeam);
 
         return new TeamServiceStatusDto(
-                teamService.mapTeamEntityToTeamListDto(team, null),
+                teamService.mapToTeamServiceStatusDto(team),
                 services
         );
     }

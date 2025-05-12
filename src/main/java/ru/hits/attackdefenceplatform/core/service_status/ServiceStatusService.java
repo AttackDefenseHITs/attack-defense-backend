@@ -20,14 +20,6 @@ public interface ServiceStatusService {
     void updateServiceStatus(UUID serviceId, UUID teamId, CheckerResult result);
 
     /**
-     * Получает информацию о статусе сервиса для команды.
-     *
-     * @param serviceId ID сервиса.
-     * @param teamId    ID команды.
-     */
-    TeamServiceStatusDto getServiceStatus(UUID serviceId, UUID teamId);
-
-    /**
      * Получает информацию о статусах всех сервисов
      */
     ServiceStatusInfo getAllServiceStatuses();

@@ -18,6 +18,7 @@ import ru.hits.attackdefenceplatform.core.team.TeamService;
 import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
 import ru.hits.attackdefenceplatform.public_interface.team.CreateManyTeamsRequest;
 import ru.hits.attackdefenceplatform.public_interface.team.CreateTeamRequest;
+import ru.hits.attackdefenceplatform.public_interface.team.CreatedTeamResponse;
 import ru.hits.attackdefenceplatform.public_interface.team.TeamInfoDto;
 import ru.hits.attackdefenceplatform.public_interface.team.TeamListDto;
 import ru.hits.attackdefenceplatform.public_interface.user.UserTeamMemberDto;
@@ -63,7 +64,7 @@ public class TeamController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     @Operation(summary = "Создать команду")
-    public ResponseEntity<TeamListDto> createTeam(@RequestBody CreateTeamRequest request) {
+    public ResponseEntity<CreatedTeamResponse> createTeam(@RequestBody CreateTeamRequest request) {
         var team = teamService.createTeam(request);
         return ResponseEntity.ok(team);
     }
@@ -79,7 +80,7 @@ public class TeamController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/bulk")
     @Operation(summary = "Создать несколько команд")
-    public ResponseEntity<List<TeamListDto>> createManyTeams(@RequestBody CreateManyTeamsRequest request) {
+    public ResponseEntity<List<CreatedTeamResponse>> createManyTeams(@RequestBody CreateManyTeamsRequest request) {
         var teams = teamService.createManyTeams(request);
         return ResponseEntity.ok(teams);
     }
