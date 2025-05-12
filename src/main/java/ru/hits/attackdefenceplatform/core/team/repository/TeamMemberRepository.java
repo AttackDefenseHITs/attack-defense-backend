@@ -1,5 +1,6 @@
 package ru.hits.attackdefenceplatform.core.team.repository;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,8 +11,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface TeamMemberRepository extends JpaRepository<TeamMemberEntity, UUID> {
-    List<TeamMemberEntity> findByTeam(TeamEntity team);
-
     Optional<TeamMemberEntity> findByUser(UserEntity user);
 
     @Query("SELECT t.user.id FROM TeamMemberEntity t")
@@ -27,5 +26,14 @@ public interface TeamMemberRepository extends JpaRepository<TeamMemberEntity, UU
     Optional<TeamMemberEntity> findByUserAndTeam(UserEntity user, TeamEntity team);
 
     boolean existsByUserAndTeam(UserEntity user, TeamEntity team);
+
+    @EntityGraph(attributePaths = {"user"})
+    List<TeamMemberEntity> findAll();
+
+    @EntityGraph(attributePaths = {"user"})
+    List<TeamMemberEntity> findByTeam(TeamEntity team);
+
+    @Query("SELECT SUM(t.points) FROM TeamMemberEntity t WHERE t.team = :team")
+    Double sumPointsByTeam(@Param("team") TeamEntity team);
 }
 
