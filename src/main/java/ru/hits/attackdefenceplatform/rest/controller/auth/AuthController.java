@@ -23,7 +23,7 @@ public class AuthController {
 
     @PostMapping("login")
     @Operation(summary = "Авторизация пользователя", description = "Позволяет пользователю войти в систему")
-    public ResponseEntity<TokenResponse> loginUser(@RequestBody LoginUserRequest body){
+    public ResponseEntity<TokenResponse> loginUser(@Valid @RequestBody LoginUserRequest body){
         return ResponseEntity.ok(userService.loginUser(body));
     }
 
