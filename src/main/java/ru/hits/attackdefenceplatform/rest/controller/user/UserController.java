@@ -2,6 +2,7 @@ package ru.hits.attackdefenceplatform.rest.controller.user;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -40,9 +41,9 @@ public class UserController {
     }
 
     @PutMapping("/profile")
-    @Operation(summary = "Получить профиль пользователя")
+    @Operation(summary = "Изменить профиль пользователя")
     public ResponseEntity<UserDto> updateUserProfile(
-            @RequestBody UpdateUserRequest request,
+            @Valid  @RequestBody UpdateUserRequest request,
             @AuthenticationPrincipal UserEntity user
     ){
         var dto = userService.updateUserProfile(user, request);
