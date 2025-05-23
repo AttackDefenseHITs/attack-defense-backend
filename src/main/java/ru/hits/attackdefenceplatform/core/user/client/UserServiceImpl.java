@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public TokenResponse registerUser(CreateUserRequest dto) {
         if (userRepository.findByLogin(dto.login()).isPresent()) {
-            throw new UserAlreadyExistsException("Пользователь с таким логином уже существует: " + dto.login());
+            throw new IllegalArgumentException("Пользователь с таким логином уже существует: " + dto.login());
         }
 
         var userEntity = UserMapper.mapCreateUserDtoToEntity(dto);
