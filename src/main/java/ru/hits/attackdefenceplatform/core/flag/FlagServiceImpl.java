@@ -32,6 +32,11 @@ public class FlagServiceImpl implements FlagService {
     private final TeamMemberRepository teamMemberRepository;
     private final FlagSubmissionRepository flagSubmissionRepository;
 
+    private static final String FLAG_SUCCESS = "Успешно";
+    private static final String FLAG_OWN = "Флаг команды";
+    private static final String FLAG_NOT_ACTIVE = "Флаг не активен";
+    private static final String FLAG_INCORRECT = "Флаг неверный";
+
     /**
      * Обрабатывает отправку флага участником соревнования.
      *
@@ -54,42 +59,36 @@ public class FlagServiceImpl implements FlagService {
         var competitionDto = competitionService.getCompetitionDto();
         var teamMember = teamMemberRepository.findByUser(user)
                 .orElseThrow(() -> new TeamException("Пользователь не является участником соревнований"));
+        var userTeam = teamMember.getTeam();
 
         if (competitionDto.currentRound() == 0 || competitionDto.status() != CompetitionStatus.IN_PROGRESS) {
             throw new CompetitionException("Флаг сдавать в текущий момент нельзя");
         }
 
-        try {
-            var currentFlag = flagRepository.findByValue(flagValue)
-                    .orElseThrow(() -> new InvalidFlagException("Неправильное значение флага"));
+        var currentFlag = flagRepository.findByValue(flagValue)
+                .orElseThrow(() -> {
+                    saveFlagSubmission(userTeam, user, null, flagValue, false, FLAG_INCORRECT);
+                    return new InvalidFlagException("Неправильное значение флага");
+                });
 
-            if (!currentFlag.getIsActive()) {
-                throw new FlagExpiredException("Флаг больше не активен");
-            }
-
-            var userTeam = teamMember.getTeam();
-            if (currentFlag.getFlagOwner().equals(userTeam)) {
-                throw new OwnFlagSubmissionException("Вы не можете отправить флаг своей команды");
-            }
-
-            // Деактивация флага после успешной отправки
-            currentFlag.setIsActive(false);
-
-            // Начисление баллов за отправку флага участнику
-            teamMember.setPoints(teamMember.getPoints() + competitionDto.flagSendCost());
-            // Сохранение сабмита флага с корректным признаком
-            saveFlagSubmission(teamMember.getTeam(), user, currentFlag, flagValue, true);
-
-            // Сохранение обновленных сущностей
-            teamMemberRepository.save(teamMember);
-            flagRepository.save(currentFlag);
-
-        } catch (Exception e) {
-            // При возникновении ошибки сохраняется сабмит флага с некорректным признаком
-            saveFlagSubmission(teamMember.getTeam(), user, null, flagValue, false);
-            throw e;
+        if (!currentFlag.getIsActive()) {
+            saveFlagSubmission(userTeam, user, null, flagValue, false, FLAG_NOT_ACTIVE);
+            throw new FlagExpiredException("Флаг больше не активен");
         }
+
+        if (currentFlag.getFlagOwner().equals(userTeam)) {
+            saveFlagSubmission(userTeam, user, currentFlag, flagValue, false, FLAG_OWN);
+            throw new OwnFlagSubmissionException("Вы не можете отправить флаг своей команды");
+        }
+
+        currentFlag.setIsActive(false);
+        teamMember.setPoints(teamMember.getPoints() + competitionDto.flagSendCost());
+
+        saveFlagSubmission(userTeam, user, currentFlag, flagValue, true, FLAG_SUCCESS);
+        teamMemberRepository.save(teamMember);
+        flagRepository.save(currentFlag);
     }
+
 
     /**
      * Сохраняет информацию о сабмите флага.
@@ -108,7 +107,8 @@ public class FlagServiceImpl implements FlagService {
             UserEntity user,
             FlagEntity flag,
             String flagValue,
-            boolean isCorrect
+            boolean isCorrect,
+            String result
     ) {
         var flagSubmission = new FlagSubmissionEntity();
         flagSubmission.setTeam(team);
@@ -117,6 +117,7 @@ public class FlagServiceImpl implements FlagService {
         flagSubmission.setSubmissionTime(new Date());
         flagSubmission.setIsCorrect(isCorrect);
         flagSubmission.setFlag(flag);
+        flagSubmission.setResult(result);
 
         flagSubmissionRepository.save(flagSubmission);
     }

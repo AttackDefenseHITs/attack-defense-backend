@@ -46,6 +46,9 @@ public class FlagSubmissionEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "flag_id")
     private FlagEntity flag; //может быть null, если флаг не был сдан
+
+    @Column(name = "result", nullable = false)
+    private String result;
 }
 
 

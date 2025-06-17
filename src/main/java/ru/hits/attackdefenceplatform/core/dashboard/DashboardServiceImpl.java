@@ -221,7 +221,8 @@ public class DashboardServiceImpl implements DashboardService {
                 entity.getSubmittedFlag(),
                 entity.getUser().getName(),
                 entity.getSubmissionTime(),
-                entity.getIsCorrect()
+                entity.getIsCorrect(),
+                entity.getResult()
         );
     }
 }

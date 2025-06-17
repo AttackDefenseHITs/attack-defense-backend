@@ -1,0 +1,2 @@
+ALTER TABLE flag_submissions
+    ADD COLUMN result VARCHAR(255) NOT NULL DEFAULT 'UNKNOWN';
