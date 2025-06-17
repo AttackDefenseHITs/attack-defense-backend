@@ -54,7 +54,6 @@ public class FlagServiceImpl implements FlagService {
      * @throws OwnFlagSubmissionException если участник пытается отправить флаг своей команды
      */
     @Override
-    @Transactional
     public void sendFlag(String flagValue, UserEntity user) {
         var competitionDto = competitionService.getCompetitionDto();
         var teamMember = teamMemberRepository.findByUser(user)
