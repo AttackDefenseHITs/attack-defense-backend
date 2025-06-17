@@ -65,29 +65,6 @@ public class QuartzCompetitionConfiguration {
     }
 
     @Bean
-    public JobDetail refreshTokenCleanupJobDetail() {
-        return JobBuilder.newJob(RefreshTokenCleanupJob.class)
-                .withIdentity("refreshTokenCleanupJob")
-                .storeDurably()
-                .build();
-    }
-
-    @Bean
-    public Trigger refreshTokenCleanupTrigger() {
-        var scheduleBuilder = SimpleScheduleBuilder
-                .simpleSchedule()
-                .withIntervalInHours(24)
-                .repeatForever();
-
-        return TriggerBuilder.newTrigger()
-                .forJob(refreshTokenCleanupJobDetail())
-                .withIdentity("refreshTokenCleanupTrigger")
-                .withSchedule(scheduleBuilder)
-                .startNow()
-                .build();
-    }
-
-    @Bean
     public SpringBeanJobFactory springBeanJobFactory(ApplicationContext applicationContext) {
         var jobFactory = new SpringBeanJobFactory();
         jobFactory.setApplicationContext(applicationContext);

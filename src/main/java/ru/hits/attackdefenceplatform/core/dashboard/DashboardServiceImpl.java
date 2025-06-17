@@ -2,6 +2,10 @@ package ru.hits.attackdefenceplatform.core.dashboard;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import ru.hits.attackdefenceplatform.core.competition.CompetitionService;
@@ -10,6 +14,7 @@ import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionRep
 import ru.hits.attackdefenceplatform.core.dashboard.repository.spec.FlagSubmissionSpecifications;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamRepository;
+import ru.hits.attackdefenceplatform.public_interface.dashboard.FlagSubmissionDto;
 import ru.hits.attackdefenceplatform.public_interface.dashboard.TeamScoreChangeDto;
 
 import java.sql.Timestamp;
@@ -44,6 +49,14 @@ public class DashboardServiceImpl implements DashboardService {
         Specification<FlagSubmissionEntity> spec = FlagSubmissionSpecifications.createSpecification(isCorrect, teamId);
         var submissions = flagSubmissionRepository.findAll(spec);
         return convertSubmissionsToDTO(submissions);
+    }
+
+    @Override
+    public Page<FlagSubmissionDto> getFlagSubmissions(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "submissionTime"));
+
+        Page<FlagSubmissionEntity> submissionPage = flagSubmissionRepository.findAll(pageable);
+        return submissionPage.map(this::createFlagSubmissionDto);
     }
 
     /**
@@ -198,6 +211,17 @@ public class DashboardServiceImpl implements DashboardService {
                 points,
                 teamPointsMap.get(teamName),
                 teamColor
+        );
+    }
+
+    private FlagSubmissionDto createFlagSubmissionDto(
+            FlagSubmissionEntity entity
+    ) {
+        return new FlagSubmissionDto(
+                entity.getSubmittedFlag(),
+                entity.getUser().getName(),
+                entity.getSubmissionTime(),
+                entity.getIsCorrect()
         );
     }
 }
