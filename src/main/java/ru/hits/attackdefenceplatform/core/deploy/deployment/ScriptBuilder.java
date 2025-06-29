@@ -11,14 +11,14 @@ public class ScriptBuilder {
                         "  echo \"Обновление сервиса '%s'...\";\n" +
                         "  cd /opt/%s && \n" +
                         "  echo \"Сброс локальных изменений...\";\n" +
-                        "  git reset --hard HEAD && git clean -fd && \n" +
+                        "  sudo git reset --hard HEAD && sudo git clean -fd && \n" +
                         "  sudo docker-compose down && \n" +
-                        "  git pull && \n" +
+                        "  sudo git pull && \n" +
                         "  sudo chmod -R 777 . && \n" +
                         "  sudo docker-compose up -d --build;\n" +
                         "else\n" +
                         "  echo \"Деплой нового сервиса '%s'...\";\n" +
-                        "  git clone %s /opt/%s && cd /opt/%s && sudo chmod -R 777 . && sudo docker-compose up -d --build;\n" +
+                        "  sudo git clone %s /opt/%s && cd /opt/%s && sudo chmod -R 777 . && sudo docker-compose up -d --build;\n" +
                         "fi\n",
                 service.getName(),  // Проверка на существование папки
                 service.getName(),  // Лог обновления
