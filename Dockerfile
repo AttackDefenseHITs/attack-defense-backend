@@ -4,7 +4,7 @@ WORKDIR /home/gradle/project
 RUN gradle build -x test --no-daemon
 
 FROM openjdk:17-jdk-slim
-RUN apt-get update && apt-get install -y python3 python3-pip
+RUN apt-get update && apt-get install -y python3 python3-pip --fix-missing
 RUN pip3 install requests psycopg2-binary beautifulsoup4
 COPY --from=build /home/gradle/project/build/libs/*.jar /opt/service.jar
 EXPOSE 8080
