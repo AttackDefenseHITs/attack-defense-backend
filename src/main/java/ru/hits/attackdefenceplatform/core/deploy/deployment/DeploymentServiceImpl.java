@@ -92,11 +92,6 @@ public class DeploymentServiceImpl implements DeploymentService {
     @Override
     @Async("taskExecutor")
     public void deployServiceOnVirtualMachine(UUID serviceId, UUID virtualMachineId) {
-        if (!isDeploymentInProgress.compareAndSet(false, true)) {
-            log.warn("Деплой сервиса уже запущен.");
-            return;
-        }
-
         var vm = virtualMachineRepository.findById(virtualMachineId)
                 .orElseThrow(() -> new IllegalArgumentException("Виртуальная машина с ID '" + virtualMachineId + "' не найдена"));
         var service = vulnerableServiceRepository.findById(serviceId)
@@ -109,8 +104,6 @@ public class DeploymentServiceImpl implements DeploymentService {
         } catch (Exception e) {
             log.error("Ошибка при передеплое сервиса '{}' на виртуальной машине '{}': {}",
                     service.getName(), vm.getIpAddress(), e.getMessage(), e);
-        } finally {
-            isDeploymentInProgress.set(false);
         }
     }
 
