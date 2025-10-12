@@ -15,7 +15,6 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.scheduling.quartz.SpringBeanJobFactory;
 import ru.hits.attackdefenceplatform.cron.job.CompetitionChangeStatusJob;
 import ru.hits.attackdefenceplatform.cron.job.CompetitionStartNextRoundJob;
-import ru.hits.attackdefenceplatform.core.token.job.RefreshTokenCleanupJob;
 
 @Configuration
 @Slf4j

@@ -2,7 +2,6 @@ package ru.hits.attackdefenceplatform.core.flag;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.hits.attackdefenceplatform.common.exception.CompetitionException;
 import ru.hits.attackdefenceplatform.common.exception.TeamException;
 import ru.hits.attackdefenceplatform.common.exception.flag.FlagExpiredException;
