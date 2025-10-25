@@ -28,3 +28,7 @@ jwt:
     lifetime: 60m
   refresh:
     lifetime: 1d
+
+github:
+  token: ${GITHUB_TOKEN}
+  organization: AttackDefenseHITs
