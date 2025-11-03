@@ -7,6 +7,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import lombok.Data;
+import ru.hits.attackdefenceplatform.core.competition.CompetitionMode;
 import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionStatus;
 
 import java.time.LocalDateTime;
@@ -39,4 +40,7 @@ public class Competition {
 
     @Lob
     private String rules;
+
+    @Enumerated(EnumType.STRING)
+    private CompetitionMode mode;
 }

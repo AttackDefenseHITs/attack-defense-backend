@@ -30,5 +30,5 @@ jwt:
     lifetime: 1d
 
 github:
-  token: ${GITHUB_TOKEN}
+  token: ${REPO_TOKEN}
   organization: AttackDefenseHITs
