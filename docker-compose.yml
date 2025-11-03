@@ -44,6 +44,8 @@ services:
       - ./certbot/conf:/etc/letsencrypt
     depends_on:
       - webapi
+    env_file:
+      - .env
     networks:
       - app-net
 
