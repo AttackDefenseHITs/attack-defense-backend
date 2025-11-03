@@ -42,5 +42,5 @@ public class Competition {
     private String rules;
 
     @Enumerated(EnumType.STRING)
-    private CompetitionMode mode;
+    private CompetitionMode competitionMode;
 }

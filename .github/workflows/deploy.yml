@@ -36,6 +36,10 @@ jobs:
         run: |
           ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
 
+      - name: Verify secret
+        run: | 
+          echo "Secret: ${{ secrets.REPO_TOKEN }}}"
+
       - name: Deploy to VPS
         env:
           VPS_HOST: ${{ secrets.VPS_HOST }}
