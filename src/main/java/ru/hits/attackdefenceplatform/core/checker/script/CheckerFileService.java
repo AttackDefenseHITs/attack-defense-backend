@@ -1,8 +1,10 @@
 package ru.hits.attackdefenceplatform.core.checker.script;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import ru.hits.attackdefenceplatform.configuration.properties.CheckersProperties;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -15,17 +17,9 @@ import java.util.UUID;
  */
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class CheckerFileService {
-    private final String checkersDirectory;
-
-    /**
-     * Конструктор сервиса, инициализирующий директорию для чекеров.
-     *
-     * @param checkersDirectory путь к директории, где будут храниться чекеры (подставляется из application.properties)
-     */
-    public CheckerFileService(@Value("${checkers.directory}") String checkersDirectory) {
-        this.checkersDirectory = checkersDirectory;
-    }
+    private final CheckersProperties properties;
 
     /**
      * Сохраняет текст скрипта в новый файл в директории чекеров.
@@ -39,7 +33,7 @@ public class CheckerFileService {
     public Path saveScriptToFile(String scriptText) throws IOException {
         ensureCheckersDirectoryExists();
         var fileName = UUID.randomUUID() + "_checker.py";
-        var scriptPath = Paths.get(checkersDirectory, fileName);
+        var scriptPath = Paths.get(properties.getDirectory(), fileName);
         Files.writeString(scriptPath, scriptText);
         return scriptPath;
     }
@@ -86,10 +80,10 @@ public class CheckerFileService {
      * @throws IOException если не удалось создать директорию
      */
     private void ensureCheckersDirectoryExists() throws IOException {
-        Path checkersDirPath = Paths.get(checkersDirectory);
+        Path checkersDirPath = Paths.get(properties.getDirectory());
         if (!Files.exists(checkersDirPath)) {
             Files.createDirectories(checkersDirPath);
-            log.info("Создана директория для чекеров: {}", checkersDirectory);
+            log.info("Создана директория для чекеров: {}", properties.getDirectory());
         }
     }
 }

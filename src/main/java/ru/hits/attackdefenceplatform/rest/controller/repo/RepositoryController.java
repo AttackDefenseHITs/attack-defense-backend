@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.hits.attackdefenceplatform.repo.RepositoryService;
+import ru.hits.attackdefenceplatform.repo.RepositorySyncService;
 import ru.hits.attackdefenceplatform.repo.model.RepositoryInfoDto;
 
 @RestController
@@ -16,6 +17,7 @@ import ru.hits.attackdefenceplatform.repo.model.RepositoryInfoDto;
 @RequiredArgsConstructor
 public class RepositoryController {
     private final RepositoryService repositoryService;
+    private final RepositorySyncService repositorySyncService;
 
     @PostMapping("/create")
     @Operation(summary = "Создать шаблонный репозиторий")
@@ -24,4 +26,10 @@ public class RepositoryController {
         return ResponseEntity.ok(dto);
     }
 
+    @PostMapping("/sync")
+    @Operation(summary = "Выполнить синхронизацию")
+    public ResponseEntity<Void> syncRepo() {
+        repositorySyncService.syncRepo();
+        return ResponseEntity.ok().build();
+    }
 }

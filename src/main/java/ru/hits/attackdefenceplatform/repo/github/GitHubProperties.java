@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.repo;
+package ru.hits.attackdefenceplatform.repo.github;
 
 import lombok.Getter;
 import lombok.Setter;
