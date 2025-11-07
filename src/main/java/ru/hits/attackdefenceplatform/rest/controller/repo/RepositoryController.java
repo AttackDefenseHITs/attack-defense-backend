@@ -7,9 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.hits.attackdefenceplatform.repo.RepositoryService;
-import ru.hits.attackdefenceplatform.repo.RepositorySyncService;
-import ru.hits.attackdefenceplatform.repo.model.RepositoryInfoDto;
+import ru.hits.attackdefenceplatform.modules.repo.RepositoryService;
+import ru.hits.attackdefenceplatform.modules.repo.RepositorySyncService;
+import ru.hits.attackdefenceplatform.modules.repo.model.RepositoryInfoDto;
 
 @RestController
 @RequestMapping("/api/admin/repo")

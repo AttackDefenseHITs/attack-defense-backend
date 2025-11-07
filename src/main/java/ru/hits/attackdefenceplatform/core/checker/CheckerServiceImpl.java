@@ -12,7 +12,7 @@ import ru.hits.attackdefenceplatform.core.checker.repository.CheckerRepository;
 import ru.hits.attackdefenceplatform.core.checker.script.CheckerFileService;
 import ru.hits.attackdefenceplatform.core.checker.script.CheckerLinter;
 import ru.hits.attackdefenceplatform.core.checker.script.ScriptExecutor;
-import ru.hits.attackdefenceplatform.core.virtual_machine.VirtualMachineService;
+import ru.hits.attackdefenceplatform.modules.virtual_machine.VirtualMachineService;
 import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.VulnerableServiceEntity;
 import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.VulnerableServiceRepository;
 import ru.hits.attackdefenceplatform.public_interface.vitrual_machine.VirtualMachineDto;

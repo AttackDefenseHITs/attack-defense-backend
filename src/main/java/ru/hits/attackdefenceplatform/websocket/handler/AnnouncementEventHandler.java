@@ -26,7 +26,7 @@ public class AnnouncementEventHandler extends AbstractEventHandler {
     public void afterConnectionEstablished(WebSocketSession session) {
         try {
             var userId = getUserId(session);
-            SessionKey sessionKey = new SessionKey(userId, WebSocketHandlerType.COMPETITION);
+            SessionKey sessionKey = new SessionKey(userId, WebSocketHandlerType.EVENT);
             webSocketStorage.add(sessionKey, session);
         } catch (Exception ex) {
             log.error("Ошибка при установлении WebSocket соединения: {}", ex.getMessage(), ex);

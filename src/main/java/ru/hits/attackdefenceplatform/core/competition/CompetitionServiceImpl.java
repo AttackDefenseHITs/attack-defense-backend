@@ -4,25 +4,23 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.hits.attackdefenceplatform.common.exception.CompetitionException;
+import ru.hits.attackdefenceplatform.configuration.properties.CompetitionDefaultsProperties;
 import ru.hits.attackdefenceplatform.core.competition.mapper.CompetitionMapper;
 import ru.hits.attackdefenceplatform.core.competition.repository.Competition;
 import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionAction;
 import ru.hits.attackdefenceplatform.core.competition.repository.CompetitionRepository;
 import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionStatus;
+import ru.hits.attackdefenceplatform.core.competition.state.CompetitionStateFactory;
 import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionRepository;
 import ru.hits.attackdefenceplatform.core.flag.repository.FlagRepository;
+import ru.hits.attackdefenceplatform.core.notification.NotificationService;
 import ru.hits.attackdefenceplatform.core.service_status.repository.ServiceStatusRepository;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberRepository;
-import ru.hits.attackdefenceplatform.websocket.client.WebSocketClient;
-import ru.hits.attackdefenceplatform.websocket.model.NotificationEventModel;
-import ru.hits.attackdefenceplatform.websocket.storage.key.WebSocketHandlerType;
+import ru.hits.attackdefenceplatform.public_interface.competition.UpdateCompetitionModeRequest;
 import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionDto;
 import ru.hits.attackdefenceplatform.public_interface.competition.UpdateCompetitionRequest;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
-import java.util.UUID;
 
 import static ru.hits.attackdefenceplatform.core.competition.mapper.CompetitionMapper.mapToCompetitionDto;
 
@@ -37,94 +35,26 @@ public class CompetitionServiceImpl implements CompetitionService {
     private final FlagSubmissionRepository flagSubmissionRepository;
     private final ServiceStatusRepository serviceStatusRepository;
     private final FlagRepository flagRepository;
-    private final WebSocketClient<NotificationEventModel> notificationWebSocketClient;
+
+    private final NotificationService notificationService;
+    private final CompetitionStateFactory stateFactory;
+    private final CompetitionDefaultsProperties defaults;
 
     /**
      * Метод для изменения статуса соревнования
      */
-    @Override
     @Transactional
+    @Override
     public CompetitionDto changeCompetitionStatus(CompetitionAction action) {
         var competition = getCompetition();
 
-        switch (action) {
-            case START -> handleStartCompetition(competition);
-            case COMPLETE -> handleCompleteCompetition(competition);
-            case CANCEL -> handleCancelCompetition(competition);
-            case PAUSE -> handlePauseCompetition(competition);
-            case RESUME -> handleResumeCompetition(competition);
-            default -> throw new CompetitionException("Неизвестное действие: " + action);
-        }
+        var state = stateFactory.getState(competition.getStatus());
+        state.handle(competition, action);
 
-        var updatedCompetition = competitionRepository.save(competition);
-        return CompetitionMapper.mapToCompetitionDto(updatedCompetition);
-    }
+        competitionRepository.save(competition);
+        notificationService.notifyAllTeams(stateFactory.getMessage(action));
 
-    /**
-     * Обработка старта соревнования
-     */
-    private void handleStartCompetition(Competition competition) {
-        if (competition.getStatus() != CompetitionStatus.NEW &&
-                competition.getStatus() != CompetitionStatus.CANCELLED &&
-                competition.getStatus() != CompetitionStatus.COMPLETED) {
-            throw new CompetitionException("Соревнование может быть запущено только из состояния NEW, CANCELLED или COMPLETED");
-        }
-        competition.setStartDate(LocalDateTime.now(ZoneOffset.UTC));
-        competition.setStatus(CompetitionStatus.IN_PROGRESS);
-        competition.setCurrentRound(0);
-        notifyParticipants("Соревнование началось! Удачи!");
-    }
-
-    /**
-     * Обработка завершения соревнования
-     */
-    private void handleCompleteCompetition(Competition competition) {
-        if (competition.getStatus() != CompetitionStatus.IN_PROGRESS) {
-            throw new CompetitionException("Соревнование может быть завершено только из состояния IN_PROGRESS");
-        }
-        competition.setStatus(CompetitionStatus.COMPLETED);
-
-        notifyParticipants("Соревнование завершено! Всем спасибо за участие!");
-    }
-
-    /**
-     * Обработка отмены соревнования
-     */
-    private void handleCancelCompetition(Competition competition) {
-        if (competition.getStatus() == CompetitionStatus.NEW) {
-            throw new CompetitionException("Соревнование в статусе NEW не может быть отменено");
-        }
-        if (competition.getStatus() == CompetitionStatus.COMPLETED ||
-                competition.getStatus() == CompetitionStatus.CANCELLED) {
-            throw new CompetitionException("Соревнование не может быть отменено, так как оно уже завершено или отменено");
-        }
-        competition.setStatus(CompetitionStatus.CANCELLED);
-
-        notifyParticipants("Соревнование было отменено!");
-    }
-
-    /**
-     * Обработка паузы соревнования
-     */
-    private void handlePauseCompetition(Competition competition) {
-        if (competition.getStatus() != CompetitionStatus.IN_PROGRESS) {
-            throw new CompetitionException("Соревнование может быть поставлено на паузу только из состояния IN_PROGRESS");
-        }
-        competition.setStatus(CompetitionStatus.PAUSED);
-
-        notifyParticipants("Соревнование было приостановлено!");
-    }
-
-    /**
-     * Обработка возобновления соревнования
-     */
-    private void handleResumeCompetition(Competition competition) {
-        if (competition.getStatus() != CompetitionStatus.PAUSED) {
-            throw new CompetitionException("Соревнование может быть возобновлено только из состояния PAUSED");
-        }
-        competition.setStatus(CompetitionStatus.IN_PROGRESS);
-
-        notifyParticipants("Соревнование возобновлено!");
+        return CompetitionMapper.mapToCompetitionDto(competition);
     }
 
     /**
@@ -134,13 +64,8 @@ public class CompetitionServiceImpl implements CompetitionService {
     @Transactional(readOnly = true)
     public List<CompetitionAction> getAvailableActions() {
         var competition = getCompetition();
-        var currentStatus = competition.getStatus();
-
-        return switch (currentStatus) {
-            case NEW, CANCELLED, COMPLETED -> List.of(CompetitionAction.START);
-            case IN_PROGRESS -> List.of(CompetitionAction.COMPLETE, CompetitionAction.PAUSE, CompetitionAction.CANCEL);
-            case PAUSED -> List.of(CompetitionAction.RESUME, CompetitionAction.CANCEL);
-        };
+        var state = stateFactory.getState(competition.getStatus());
+        return state.getAvailableActions();
     }
 
     /**
@@ -162,6 +87,14 @@ public class CompetitionServiceImpl implements CompetitionService {
 
         var updatedCompetition = competitionRepository.save(competition);
         return CompetitionMapper.mapToCompetitionDto(updatedCompetition);
+    }
+
+    @Override
+    @Transactional
+    public CompetitionDto updateCompetitionMode(UpdateCompetitionModeRequest request) {
+        var competition = getCompetition();
+        competition.setCompetitionMode(request.competitionMode());
+        return CompetitionMapper.mapToCompetitionDto(competitionRepository.save(competition));
     }
 
     /**
@@ -188,15 +121,16 @@ public class CompetitionServiceImpl implements CompetitionService {
      * Обновить соревнование
      */
     @Override
+    @Transactional
     public CompetitionDto restartCompetition() {
         var competition = getCompetition();
         competition.setStatus(CompetitionStatus.NEW);
-        competition.setTotalRounds(5);
-        competition.setRoundDurationMinutes(20);
+        competition.setTotalRounds(defaults.getTotalRounds());
+        competition.setRoundDurationMinutes(defaults.getRoundDurationMinutes());
         competition.setStartDate(null);
         competition.setEndDate(null);
-        competition.setFlagSendCost(300);
-        competition.setFlagLostCost(150);
+        competition.setFlagSendCost(defaults.getFlagSendCost());
+        competition.setFlagLostCost(defaults.getFlagLostCost());
 
         serviceStatusRepository.deleteAll();
         flagRepository.deleteAll();
@@ -223,8 +157,7 @@ public class CompetitionServiceImpl implements CompetitionService {
         }
 
         competition.setCurrentRound(competition.getCurrentRound() + 1);
-
-        notifyParticipants("Начался раунд " + competition.getCurrentRound());
+        notificationService.notifyAllTeams("Начался раунд " + competition.getCurrentRound());
 
         competitionRepository.save(competition);
         return CompetitionMapper.mapToCompetitionDto(competition);
@@ -237,23 +170,5 @@ public class CompetitionServiceImpl implements CompetitionService {
     public Integer getCurrentRound() {
         var competition = getCompetition();
         return competition.getCurrentRound();
-    }
-
-    /**
-     * Уведомление участников о начале соревнования
-     */
-    private void notifyParticipants(String message) {
-        var participantIds = getAllParticipantIds();
-        var eventMessage = new NotificationEventModel(WebSocketHandlerType.EVENT, message);
-        notificationWebSocketClient.sendNotification(eventMessage, participantIds);
-    }
-
-    /**
-     * Получить список идентификаторов участников
-     */
-    private List<String> getAllParticipantIds() {
-        return teamMemberRepository.findAllUserIds().stream()
-                .map(UUID::toString)
-                .toList();
     }
 }

@@ -12,8 +12,7 @@ import jakarta.persistence.Table;
 import lombok.Data;
 import ru.hits.attackdefenceplatform.core.flag.repository.FlagEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
-import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberEntity;
-import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
+import ru.hits.attackdefenceplatform.modules.user.repository.UserEntity;
 
 import java.util.Date;
 import java.util.UUID;

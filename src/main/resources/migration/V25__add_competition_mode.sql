@@ -1,0 +1,2 @@
+ALTER TABLE competitions
+    ADD COLUMN competition_mode VARCHAR(50) NOT NULL DEFAULT 'ATTACK_DEFENSE';

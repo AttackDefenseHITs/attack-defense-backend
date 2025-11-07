@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.hits.attackdefenceplatform.core.token.TokenService;
+import ru.hits.attackdefenceplatform.modules.token.TokenService;
 import ru.hits.attackdefenceplatform.public_interface.token.RefreshTokenRequest;
 import ru.hits.attackdefenceplatform.public_interface.token.TokenResponse;
 

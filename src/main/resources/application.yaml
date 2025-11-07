@@ -2,7 +2,6 @@ spring:
   application:
     name: attack-defence-platform
   jpa:
-    #show-sql: true
     properties:
       hibernate:
         format_sql: true
@@ -18,7 +17,16 @@ spring:
 springdoc:
   swagger-ui:
     enabled: true
+logging:
+  level:
+    org.springframework.web.socket.config.WebSocketMessageBrokerStats: WARN
 
+competition:
+  defaults:
+    totalRounds: 100
+    roundDurationMinutes: 3
+    flagSendCost: 300
+    flagLostCost: 150
 checkers:
   directory: /var/lib/checkers/
 

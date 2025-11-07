@@ -10,11 +10,10 @@ import ru.hits.attackdefenceplatform.core.service_status.repository.ServiceStatu
 import ru.hits.attackdefenceplatform.core.team.TeamService;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamRepository;
-import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
-import ru.hits.attackdefenceplatform.core.user.repository.UserRepository;
+import ru.hits.attackdefenceplatform.modules.user.repository.UserEntity;
+import ru.hits.attackdefenceplatform.modules.user.repository.UserRepository;
 import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.VulnerableServiceEntity;
 import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.VulnerableServiceRepository;
-import ru.hits.attackdefenceplatform.public_interface.service_statuses.FlagPointsForServiceDto;
 import ru.hits.attackdefenceplatform.public_interface.service_statuses.ServiceStatusInfo;
 import ru.hits.attackdefenceplatform.public_interface.service_statuses.ServiceStatusSummary;
 import ru.hits.attackdefenceplatform.public_interface.service_statuses.TeamServiceStatusDto;

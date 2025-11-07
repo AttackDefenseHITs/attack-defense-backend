@@ -28,17 +28,18 @@ public abstract class AbstractEventHandler extends AbstractWebSocketHandler {
                 try {
                     return jwtTokenUtils.getUserIdFromToken(token).toString();
                 } catch (ExpiredJwtException ex) {
-                    log.error("JWT токен истёк: {}. Закрываем WebSocket-сессию {}", ex.getMessage(), session.getId());
+                    log.warn("JWT токен истёк: {}. Закрываем WebSocket-сессию {}", ex.getMessage(), session.getId());
                     closeSession(session);
                 } catch (Exception ex) {
-                    log.error("Ошибка при разборе JWT токена: {}. Закрываем WebSocket-сессию {}", ex.getMessage(), session.getId());
+                    log.warn("Ошибка при разборе JWT токена: {}. Закрываем WebSocket-сессию {}", ex.getMessage(), session.getId());
                     closeSession(session);
                 }
             }
+        } else {
+            log.error("Некорректный или отсутствующий токен. Закрываем WebSocket-сессию {}", session.getId());
+            closeSession(session);
         }
 
-        log.error("Некорректный или отсутствующий токен. Закрываем WebSocket-сессию {}", session.getId());
-        closeSession(session);
         return "";
     }
 

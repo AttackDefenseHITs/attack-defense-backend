@@ -9,12 +9,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.hits.attackdefenceplatform.core.deploy.deployment.DeploymentService;
-import ru.hits.attackdefenceplatform.core.deploy.status.DeploymentStatusService;
+import ru.hits.attackdefenceplatform.modules.deploy.deployment.DeploymentService;
+import ru.hits.attackdefenceplatform.modules.deploy.status.DeploymentStatusService;
 import ru.hits.attackdefenceplatform.public_interface.deployment.DeployPossibility;
 import ru.hits.attackdefenceplatform.public_interface.deployment.DeploymentResult;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController

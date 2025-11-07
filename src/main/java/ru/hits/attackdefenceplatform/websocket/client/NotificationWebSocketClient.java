@@ -21,7 +21,7 @@ public class NotificationWebSocketClient implements WebSocketClient<Notification
     @Override
     public void sendNotification(NotificationEventModel data, List<String> userIds) {
         for (var userId : userIds) {
-            var sessionKey = new SessionKey(userId, WebSocketHandlerType.COMPETITION);
+            var sessionKey = new SessionKey(userId, WebSocketHandlerType.EVENT);
             var message = gson.toJson(data);
             webSocketStorage.sendMessage(sessionKey, message);
         }

@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.hits.attackdefenceplatform.common.exception.TeamException;
 import ru.hits.attackdefenceplatform.common.exception.TeamNotFoundException;
 import ru.hits.attackdefenceplatform.common.exception.UserException;
-import ru.hits.attackdefenceplatform.core.competition.CompetitionService;
 import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionStatus;
 import ru.hits.attackdefenceplatform.core.points.PointsService;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberEntity;
@@ -14,8 +13,9 @@ import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberRepository;
 import ru.hits.attackdefenceplatform.core.team.repository.model.TeamPointsDto;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamRepository;
-import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
-import ru.hits.attackdefenceplatform.core.virtual_machine.VirtualMachineService;
+import ru.hits.attackdefenceplatform.modules.user.repository.UserEntity;
+import ru.hits.attackdefenceplatform.modules.virtual_machine.VirtualMachineService;
+import ru.hits.attackdefenceplatform.core.CompetitionContext;
 import ru.hits.attackdefenceplatform.public_interface.team.CreateManyTeamsRequest;
 import ru.hits.attackdefenceplatform.public_interface.team.CreateTeamRequest;
 import ru.hits.attackdefenceplatform.public_interface.team.CreatedTeamResponse;
@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static ru.hits.attackdefenceplatform.core.user.mapper.UserMapper.mapUserEntityToMemberDto;
+import static ru.hits.attackdefenceplatform.modules.user.mapper.UserMapper.mapUserEntityToMemberDto;
 
 /**
  * Сервис для работы с командами в соревнованиях.
@@ -40,9 +40,10 @@ import static ru.hits.attackdefenceplatform.core.user.mapper.UserMapper.mapUserE
 @Service
 @RequiredArgsConstructor
 public class TeamServiceImpl implements TeamService {
+    private final CompetitionContext context;
+
     private final TeamRepository teamRepository;
     private final TeamMemberRepository teamMemberRepository;
-    private final CompetitionService competitionService;
     private final VirtualMachineService virtualMachineService;
     private final PointsService pointsService;
 
@@ -88,7 +89,7 @@ public class TeamServiceImpl implements TeamService {
     @Transactional
     @Override
     public void joinToTeam(UserEntity user, UUID teamId) {
-        var competition = competitionService.getCompetition();
+        var competition = context.getCurrent();
         if (competition.getStatus() != CompetitionStatus.NEW) {
             throw new TeamException("Вы не можете зайти в команду после начала соревнования");
         }
@@ -120,7 +121,7 @@ public class TeamServiceImpl implements TeamService {
     @Transactional
     @Override
     public void leftFromTeam(UserEntity user, UUID teamId) {
-        var competition = competitionService.getCompetition();
+        var competition = context.getCurrent();
         if (competition.getStatus() != CompetitionStatus.NEW) {
             throw new TeamException("Вы не можете выйти из команды после начала соревнования");
         }
@@ -259,7 +260,7 @@ public class TeamServiceImpl implements TeamService {
     private boolean canUserJoinTeam(UserEntity user, TeamEntity team) {
         boolean isUserInTeam = teamMemberRepository.existsByUser(user);
         long userCount = teamMemberRepository.countByTeam(team);
-        var competition = competitionService.getCompetition();
+        var competition = context.getCurrent();
         boolean competitionNotStarted = competition.getStatus().equals(CompetitionStatus.NEW);
         return !isUserInTeam && userCount < team.getMaxMembers() && competitionNotStarted;
     }
@@ -283,8 +284,7 @@ public class TeamServiceImpl implements TeamService {
      * @return true, если пользователь может выйти, иначе false
      */
     private boolean canLeaveFromTeam(UserEntity user, TeamEntity team) {
-        var competition = competitionService.getCompetition();
-        return isUserInTeam(user, team) && competition.getStatus().equals(CompetitionStatus.NEW);
+        return isUserInTeam(user, team) && context.isInNew();
     }
 
     /**
@@ -320,8 +320,7 @@ public class TeamServiceImpl implements TeamService {
      * @return DTO виртуальной машины или null
      */
     private VirtualMachineDto getFullTeamVirtualMachineInfo(UUID teamId, boolean isMyTeam) {
-        var competition = competitionService.getCompetition();
-        boolean competitionStarted = !competition.getStatus().equals(CompetitionStatus.NEW);
+        boolean competitionStarted = !context.isInNew();
         if (competitionStarted && isMyTeam) {
             return virtualMachineService.getVirtualMachinesByTeam(teamId)
                     .stream()

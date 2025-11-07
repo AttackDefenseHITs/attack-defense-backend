@@ -22,7 +22,7 @@ public class CompetitionChangeStatusJob implements Job {
     private final CompetitionService competitionService;
 
     @Override
-    public void execute(JobExecutionContext context) throws JobExecutionException {
+    public void execute(JobExecutionContext context) {
         var competition = competitionService.getCompetition();
 
         var startDateUTC = competition.getStartDate() != null ? competition.getStartDate().atZone(ZoneOffset.UTC) : null;

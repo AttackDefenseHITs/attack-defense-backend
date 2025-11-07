@@ -7,15 +7,14 @@ import ru.hits.attackdefenceplatform.common.exception.TeamException;
 import ru.hits.attackdefenceplatform.common.exception.flag.FlagExpiredException;
 import ru.hits.attackdefenceplatform.common.exception.flag.InvalidFlagException;
 import ru.hits.attackdefenceplatform.common.exception.flag.OwnFlagSubmissionException;
-import ru.hits.attackdefenceplatform.core.competition.CompetitionService;
-import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionStatus;
 import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionEntity;
 import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionRepository;
 import ru.hits.attackdefenceplatform.core.flag.repository.FlagEntity;
 import ru.hits.attackdefenceplatform.core.flag.repository.FlagRepository;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberRepository;
-import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
+import ru.hits.attackdefenceplatform.modules.user.repository.UserEntity;
+import ru.hits.attackdefenceplatform.core.CompetitionContext;
 
 import java.util.Date;
 
@@ -26,7 +25,8 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class FlagServiceImpl implements FlagService {
 
-    private final CompetitionService competitionService;
+    private final CompetitionContext competitionContext;
+
     private final FlagRepository flagRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final FlagSubmissionRepository flagSubmissionRepository;
@@ -54,12 +54,11 @@ public class FlagServiceImpl implements FlagService {
      */
     @Override
     public void sendFlag(String flagValue, UserEntity user) {
-        var competitionDto = competitionService.getCompetitionDto();
         var teamMember = teamMemberRepository.findByUser(user)
                 .orElseThrow(() -> new TeamException("Пользователь не является участником соревнований"));
         var userTeam = teamMember.getTeam();
 
-        if (competitionDto.currentRound() == 0 || competitionDto.status() != CompetitionStatus.IN_PROGRESS) {
+        if (competitionContext.currentRoundIsZero() || !competitionContext.isInProgress()) {
             throw new CompetitionException("Флаг сдавать в текущий момент нельзя");
         }
 
@@ -80,7 +79,7 @@ public class FlagServiceImpl implements FlagService {
         }
 
         currentFlag.setIsActive(false);
-        teamMember.setPoints(teamMember.getPoints() + competitionDto.flagSendCost());
+        teamMember.setPoints(teamMember.getPoints() + competitionContext.getCurrent().getFlagSendCost());
 
         saveFlagSubmission(userTeam, user, currentFlag, flagValue, true, FLAG_SUCCESS);
         teamMemberRepository.save(teamMember);

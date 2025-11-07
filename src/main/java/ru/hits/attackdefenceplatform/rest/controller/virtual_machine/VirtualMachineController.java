@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.hits.attackdefenceplatform.core.virtual_machine.VirtualMachineService;
+import ru.hits.attackdefenceplatform.modules.virtual_machine.VirtualMachineService;
 import ru.hits.attackdefenceplatform.public_interface.vitrual_machine.CreateVirtualMachineRequest;
 import ru.hits.attackdefenceplatform.public_interface.vitrual_machine.UpdateVirtualMachineRequest;
 import ru.hits.attackdefenceplatform.public_interface.vitrual_machine.VirtualMachineDto;

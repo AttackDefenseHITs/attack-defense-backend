@@ -1,0 +1,26 @@
+package ru.hits.attackdefenceplatform.modules.user.mapper;
+
+import ru.hits.attackdefenceplatform.modules.user.repository.Role;
+import ru.hits.attackdefenceplatform.modules.user.repository.UserEntity;
+import ru.hits.attackdefenceplatform.public_interface.user.CreateUserRequest;
+import ru.hits.attackdefenceplatform.public_interface.user.UserDto;
+import ru.hits.attackdefenceplatform.public_interface.user.UserTeamMemberDto;
+
+public class UserMapper {
+    public static UserDto mapUserEntityToDto(UserEntity user){
+        return new UserDto(user.getId(), user.getLogin(), user.getName(), user.getRole());
+    }
+
+    public static UserTeamMemberDto mapUserEntityToMemberDto(UserEntity user, Integer points){
+        return new UserTeamMemberDto(user.getId(), user.getLogin(), user.getName(), user.getRole(), points);
+    }
+
+    public static UserEntity mapCreateUserDtoToEntity(CreateUserRequest dto){
+        UserEntity user = new UserEntity();
+        user.setName(dto.name());
+        user.setLogin(dto.login());
+        user.setRole(Role.USER);
+        user.setPassword(dto.password());
+        return user;
+    }
+}
