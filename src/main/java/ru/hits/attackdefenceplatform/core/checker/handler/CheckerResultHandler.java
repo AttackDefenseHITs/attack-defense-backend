@@ -3,10 +3,11 @@ package ru.hits.attackdefenceplatform.core.checker.handler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.hits.attackdefenceplatform.common.DomainEventPublisher;
 import ru.hits.attackdefenceplatform.core.checker.data.ScriptExecutionResult;
 import ru.hits.attackdefenceplatform.core.flag.AdminFlagService;
-import ru.hits.attackdefenceplatform.core.service_status.ServiceStatusService;
 import ru.hits.attackdefenceplatform.public_interface.flag.CreateFlagRequest;
+import ru.hits.attackdefenceplatform.publisher.ServiceStatusUpdatedEvent;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,7 +20,7 @@ import java.util.UUID;
 @Slf4j
 public class CheckerResultHandler {
     private final AdminFlagService adminFlagService;
-    private final ServiceStatusService serviceStatusService;
+    private final DomainEventPublisher domainEventPublisher;
 
     private final static String FLAG_REGEX = "^[A-Z0-9]{31}=$";
 
@@ -42,7 +43,7 @@ public class CheckerResultHandler {
             case CHECK_FAILED -> log.error("Проверка не пройдена для сервиса: {}, команды: {}", serviceId, teamId);
         }
 
-        serviceStatusService.updateServiceStatus(serviceId, teamId, result.getCheckerResult());
+        domainEventPublisher.publish(new ServiceStatusUpdatedEvent(serviceId, teamId, result.getCheckerResult()));
 
         var flags = result.getOutputLines();
         if (!flags.isEmpty()){

@@ -14,7 +14,7 @@ import jakarta.persistence.Table;
 import lombok.Data;
 import ru.hits.attackdefenceplatform.modules.deploy.enums.DeploymentStatus;
 import ru.hits.attackdefenceplatform.modules.virtual_machine.repository.VirtualMachineEntity;
-import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.VulnerableServiceEntity;
+import ru.hits.attackdefenceplatform.modules.vulnerable_service.repository.VulnerableServiceEntity;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

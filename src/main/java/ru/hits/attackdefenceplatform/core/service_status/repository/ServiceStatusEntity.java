@@ -13,7 +13,7 @@ import java.util.UUID;
 import jakarta.persistence.*;
 import ru.hits.attackdefenceplatform.core.checker.enums.CheckerResult;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
-import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.VulnerableServiceEntity;
+import ru.hits.attackdefenceplatform.modules.vulnerable_service.repository.VulnerableServiceEntity;
 
 import java.time.LocalDateTime;
 

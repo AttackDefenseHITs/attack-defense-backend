@@ -6,7 +6,7 @@ import ru.hits.attackdefenceplatform.modules.deploy.enums.DeploymentStatus;
 import ru.hits.attackdefenceplatform.modules.deploy.repository.DeploymentStatusEntity;
 import ru.hits.attackdefenceplatform.modules.deploy.repository.DeploymentStatusRepository;
 import ru.hits.attackdefenceplatform.modules.virtual_machine.repository.VirtualMachineRepository;
-import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.VulnerableServiceRepository;
+import ru.hits.attackdefenceplatform.modules.vulnerable_service.repository.VulnerableServiceRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;

@@ -1,12 +1,12 @@
-package ru.hits.attackdefenceplatform.core.vulnerable_service;
+package ru.hits.attackdefenceplatform.modules.vulnerable_service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.hits.attackdefenceplatform.modules.deploy.status.mapper.DeploymentStatusInitializer;
-import ru.hits.attackdefenceplatform.core.vulnerable_service.mapper.VulnerableServiceMapper;
-import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.VulnerableServiceRepository;
+import ru.hits.attackdefenceplatform.modules.vulnerable_service.mapper.VulnerableServiceMapper;
+import ru.hits.attackdefenceplatform.modules.vulnerable_service.repository.VulnerableServiceRepository;
 import ru.hits.attackdefenceplatform.public_interface.vulnerable_service.CreateVulnerableServiceRequest;
 import ru.hits.attackdefenceplatform.public_interface.vulnerable_service.UpdateVulnerableServiceRequest;
 import ru.hits.attackdefenceplatform.public_interface.vulnerable_service.VulnerableServiceDto;

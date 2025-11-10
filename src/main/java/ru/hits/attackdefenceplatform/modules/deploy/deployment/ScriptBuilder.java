@@ -1,7 +1,7 @@
 package ru.hits.attackdefenceplatform.modules.deploy.deployment;
 
 import org.springframework.stereotype.Component;
-import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.VulnerableServiceEntity;
+import ru.hits.attackdefenceplatform.modules.vulnerable_service.repository.VulnerableServiceEntity;
 
 @Component
 public class ScriptBuilder {

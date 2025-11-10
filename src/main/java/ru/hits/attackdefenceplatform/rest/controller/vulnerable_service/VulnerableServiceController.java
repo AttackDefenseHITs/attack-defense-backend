@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.hits.attackdefenceplatform.core.vulnerable_service.VulnerableService;
+import ru.hits.attackdefenceplatform.modules.vulnerable_service.VulnerableService;
 import ru.hits.attackdefenceplatform.public_interface.vulnerable_service.CreateVulnerableServiceRequest;
 import ru.hits.attackdefenceplatform.public_interface.vulnerable_service.UpdateVulnerableServiceRequest;
 import ru.hits.attackdefenceplatform.public_interface.vulnerable_service.VulnerableServiceDto;

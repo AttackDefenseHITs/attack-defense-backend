@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.hits.attackdefenceplatform.core.checker.repository.CheckerEntity;
 import ru.hits.attackdefenceplatform.core.checker.repository.CheckerRepository;
-import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.VulnerableServiceEntity;
-import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.VulnerableServiceRepository;
+import ru.hits.attackdefenceplatform.modules.vulnerable_service.repository.VulnerableServiceEntity;
+import ru.hits.attackdefenceplatform.modules.vulnerable_service.repository.VulnerableServiceRepository;
 import ru.hits.attackdefenceplatform.modules.repo.model.RepoFileDto;
 import ru.hits.attackdefenceplatform.modules.repo.model.RepositoryInfoDto;
 

@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.core.vulnerable_service;
+package ru.hits.attackdefenceplatform.modules.vulnerable_service;
 
 import ru.hits.attackdefenceplatform.public_interface.vulnerable_service.CreateVulnerableServiceRequest;
 import ru.hits.attackdefenceplatform.public_interface.vulnerable_service.UpdateVulnerableServiceRequest;

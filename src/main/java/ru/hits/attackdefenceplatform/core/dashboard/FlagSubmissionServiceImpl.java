@@ -31,7 +31,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class DashboardServiceImpl implements DashboardService {
+public class FlagSubmissionServiceImpl implements FlagSubmissionService {
 
     private final FlagSubmissionRepository flagSubmissionRepository;
     private final CompetitionService competitionService;

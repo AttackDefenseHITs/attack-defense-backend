@@ -7,7 +7,7 @@ import ru.hits.attackdefenceplatform.public_interface.dashboard.TeamScoreChangeD
 import java.util.List;
 import java.util.UUID;
 
-public interface DashboardService {
+public interface FlagSubmissionService {
     List<TeamScoreChangeDto> getFilteredSubmissions(Boolean isCorrect, UUID teamId);
     Page<FlagSubmissionDto> getFlagSubmissions(int page, int size);
 }

@@ -1,6 +1,6 @@
-package ru.hits.attackdefenceplatform.core.vulnerable_service.mapper;
+package ru.hits.attackdefenceplatform.modules.vulnerable_service.mapper;
 
-import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.VulnerableServiceEntity;
+import ru.hits.attackdefenceplatform.modules.vulnerable_service.repository.VulnerableServiceEntity;
 import ru.hits.attackdefenceplatform.public_interface.vulnerable_service.CreateVulnerableServiceRequest;
 import ru.hits.attackdefenceplatform.public_interface.vulnerable_service.VulnerableServiceDto;
 

@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.core.vulnerable_service.repository;
+package ru.hits.attackdefenceplatform.modules.vulnerable_service.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

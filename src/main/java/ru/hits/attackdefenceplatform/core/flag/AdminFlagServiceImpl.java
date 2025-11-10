@@ -13,10 +13,9 @@ import ru.hits.attackdefenceplatform.core.flag.mapper.FlagMapper;
 import ru.hits.attackdefenceplatform.core.flag.repository.FlagEntity;
 import ru.hits.attackdefenceplatform.core.flag.repository.FlagRepository;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamRepository;
-import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.VulnerableServiceRepository;
+import ru.hits.attackdefenceplatform.modules.vulnerable_service.repository.VulnerableServiceRepository;
 import ru.hits.attackdefenceplatform.public_interface.flag.CreateFlagRequest;
 import ru.hits.attackdefenceplatform.public_interface.flag.FlagDto;
-import ru.hits.attackdefenceplatform.public_interface.flag.FlagListDto;
 
 import java.util.List;
 import java.util.UUID;

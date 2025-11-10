@@ -10,7 +10,7 @@ import ru.hits.attackdefenceplatform.modules.deploy.status.mapper.DeploymentStat
 import ru.hits.attackdefenceplatform.modules.user.repository.Role;
 import ru.hits.attackdefenceplatform.modules.user.repository.UserRepository;
 import ru.hits.attackdefenceplatform.modules.virtual_machine.mapper.VirtualMachineMapper;
-import ru.hits.attackdefenceplatform.core.vulnerable_service.mapper.VulnerableServiceMapper;
+import ru.hits.attackdefenceplatform.modules.vulnerable_service.mapper.VulnerableServiceMapper;
 import ru.hits.attackdefenceplatform.public_interface.deployment.DeploymentDataDto;
 import ru.hits.attackdefenceplatform.public_interface.deployment.DeploymentResult;
 import ru.hits.attackdefenceplatform.public_interface.deployment.DeploymentStatusDto;

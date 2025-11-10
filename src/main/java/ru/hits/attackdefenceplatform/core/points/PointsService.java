@@ -9,7 +9,7 @@ import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionRep
 import ru.hits.attackdefenceplatform.core.service_status.SlaService;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamRepository;
-import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.VulnerableServiceEntity;
+import ru.hits.attackdefenceplatform.modules.vulnerable_service.repository.VulnerableServiceEntity;
 import ru.hits.attackdefenceplatform.public_interface.service_statuses.FlagPointsForServiceDto;
 
 import java.math.BigDecimal;

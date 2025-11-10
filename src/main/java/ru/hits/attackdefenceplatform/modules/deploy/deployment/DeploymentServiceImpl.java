@@ -13,8 +13,8 @@ import ru.hits.attackdefenceplatform.modules.deploy.enums.DeploymentStatus;
 import ru.hits.attackdefenceplatform.modules.deploy.status.DeploymentStatusService;
 import ru.hits.attackdefenceplatform.modules.virtual_machine.repository.VirtualMachineEntity;
 import ru.hits.attackdefenceplatform.modules.virtual_machine.repository.VirtualMachineRepository;
-import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.VulnerableServiceEntity;
-import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.VulnerableServiceRepository;
+import ru.hits.attackdefenceplatform.modules.vulnerable_service.repository.VulnerableServiceEntity;
+import ru.hits.attackdefenceplatform.modules.vulnerable_service.repository.VulnerableServiceRepository;
 import ru.hits.attackdefenceplatform.public_interface.deployment.DeploymentStatusDto;
 
 import java.io.ByteArrayInputStream;
