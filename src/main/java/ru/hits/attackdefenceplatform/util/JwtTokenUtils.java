@@ -8,6 +8,7 @@ import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import ru.hits.attackdefenceplatform.public_interface.token.TokenUserData;
 import ru.hits.attackdefenceplatform.public_interface.user.UserDto;
 
 import javax.crypto.SecretKey;
@@ -55,6 +56,12 @@ public class JwtTokenUtils {
     public UUID getUserIdFromToken(String token) {
         String userId = getAllClaimsFromToken(token).get("userId", String.class);
         return UUID.fromString(userId);
+    }
+
+    public TokenUserData getUserDataFromToken(String token) {
+        String userId = getAllClaimsFromToken(token).get("userId", String.class);
+        String role = getAllClaimsFromToken(token).get("role", String.class);
+        return new TokenUserData(userId, role);
     }
 
     public String getTokenId(String token) {

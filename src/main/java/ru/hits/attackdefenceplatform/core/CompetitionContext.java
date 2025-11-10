@@ -5,8 +5,10 @@ import org.springframework.stereotype.Component;
 import ru.hits.attackdefenceplatform.common.exception.CompetitionException;
 import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionMode;
 import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionStatus;
+import ru.hits.attackdefenceplatform.core.competition.mapper.CompetitionMapper;
 import ru.hits.attackdefenceplatform.core.competition.repository.Competition;
 import ru.hits.attackdefenceplatform.core.competition.repository.CompetitionRepository;
+import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionDto;
 
 @Component
 @RequiredArgsConstructor
@@ -19,6 +21,10 @@ public class CompetitionContext {
                 .orElseThrow(() -> new CompetitionException("Нет активного соревнования"));
     }
 
+    public CompetitionDto getCompetitionDto() {
+        return CompetitionMapper.mapToCompetitionDto(getCurrent());
+    }
+
     public boolean isInNew() {
         return getCurrent().getStatus() == CompetitionStatus.NEW;
     }
@@ -28,7 +34,7 @@ public class CompetitionContext {
     }
 
     public boolean currentRoundIsZero(){
-        return getCurrent().getRoundDurationMinutes() == 0;
+        return getCurrent().getCurrentRound() == 0;
     }
 
     public CompetitionMode getMode() {

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.hits.attackdefenceplatform.core.flag.AdminFlagService;
+import ru.hits.attackdefenceplatform.core.flag.FlagManagementService;
 import ru.hits.attackdefenceplatform.public_interface.flag.FlagDto;
 
 import java.util.List;
@@ -22,9 +22,9 @@ import java.util.UUID;
 @RequestMapping("/api/admin/flags")
 @Tag(name = "Управление флагами команд для администратора")
 @RequiredArgsConstructor
-public class AdminFlagController {
+public class FlagManagementController {
 
-    private final AdminFlagService adminFlagService;
+    private final FlagManagementService flagManagementService;
 
     @GetMapping
     @Operation(summary = "Получить все флаги")
@@ -33,7 +33,7 @@ public class AdminFlagController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String search) {
 
-        var flags = adminFlagService.getAllFlags(page, size, search);
+        var flags = flagManagementService.getAllFlags(page, size, search);
 
         return ResponseEntity.ok(flags);
     }
@@ -41,35 +41,35 @@ public class AdminFlagController {
     @GetMapping("/{id}")
     @Operation(summary = "Получить информацию о флаге")
     public ResponseEntity<FlagDto> getFlagById(@PathVariable UUID id) {
-        var flagDto = adminFlagService.getFlagById(id);
+        var flagDto = flagManagementService.getFlagById(id);
         return ResponseEntity.ok(flagDto);
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Удалить флаг")
     public ResponseEntity<Void> deleteFlag(@PathVariable UUID id) {
-        adminFlagService.deleteFlag(id);
+        flagManagementService.deleteFlag(id);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Изменить статус флага")
     public ResponseEntity<FlagDto> changeFlagStatus(@PathVariable UUID id) {
-        var result = adminFlagService.changeFlagStatus(id);
+        var result = flagManagementService.changeFlagStatus(id);
         return ResponseEntity.ok(result);
     }
 
     @GetMapping("/service/{serviceId}")
     @Operation(summary = "Получить флаги всех команд для конкретного сервиса")
     public ResponseEntity<List<FlagDto>> getFlagsByService(@PathVariable UUID serviceId) {
-        var flags = adminFlagService.getFlagsByService(serviceId);
+        var flags = flagManagementService.getFlagsByService(serviceId);
         return ResponseEntity.ok(flags);
     }
 
     @GetMapping("/team/{teamId}")
     @Operation(summary = "Получить все флаги конкретной команды")
     public ResponseEntity<List<FlagDto>> getFlagsByTeam(@PathVariable UUID teamId) {
-        var flags = adminFlagService.getFlagsByTeam(teamId);
+        var flags = flagManagementService.getFlagsByTeam(teamId);
         return ResponseEntity.ok(flags);
     }
 }

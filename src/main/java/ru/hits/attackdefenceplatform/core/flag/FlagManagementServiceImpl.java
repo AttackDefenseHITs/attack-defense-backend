@@ -25,7 +25,7 @@ import java.util.UUID;
  */
 @Service
 @RequiredArgsConstructor
-public class AdminFlagServiceImpl implements AdminFlagService {
+public class FlagManagementServiceImpl implements FlagManagementService {
     private final FlagRepository flagRepository;
     private final TeamRepository teamRepository;
     private final VulnerableServiceRepository vulnerableServiceRepository;

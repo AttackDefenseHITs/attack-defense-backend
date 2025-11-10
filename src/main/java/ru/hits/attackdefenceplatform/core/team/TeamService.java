@@ -14,14 +14,10 @@ import java.util.List;
 import java.util.UUID;
 
 public interface TeamService {
-    CreatedTeamResponse createTeam(CreateTeamRequest request);
-    void deleteTeam(UUID id);
     void joinToTeam(UserEntity user, UUID teamId);
     void leftFromTeam(UserEntity user, UUID teamId);
     TeamInfoDto getTeamById(UUID teamId, UserEntity user);
     List<TeamListDto> getAllTeams(UserEntity user);
-    List<CreatedTeamResponse> createManyTeams(CreateManyTeamsRequest request);
-    void updateTeam(UUID teamId, CreateTeamRequest request);
     void removeMemberFromTeam(UUID teamId, UUID userId);
     TeamShortDataDto mapToTeamServiceStatusDto(TeamEntity team);
     List<UserTeamMemberDto> getTeamMemberRatings();

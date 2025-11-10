@@ -15,7 +15,8 @@ public class CompetitionMapper {
                 competition.getCurrentRound(),
                 competition.getFlagSendCost(),
                 competition.getFlagLostCost(),
-                competition.getRules()
+                competition.getRules(),
+                competition.getCompetitionMode().name()
         );
     }
 }

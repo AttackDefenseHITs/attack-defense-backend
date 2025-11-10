@@ -7,6 +7,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.stereotype.Component;
 import ru.hits.attackdefenceplatform.common.exception.CompetitionException;
+import ru.hits.attackdefenceplatform.core.competition.round.CompetitionRoundService;
 import ru.hits.attackdefenceplatform.modules.checker.CheckerExecutionService;
 import ru.hits.attackdefenceplatform.core.competition.CompetitionService;
 import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionStatus;
@@ -20,61 +21,16 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class CompetitionStartNextRoundJob implements Job {
-    private final CompetitionService competitionService;
-    private final CheckerExecutionService checkerExecutionService;
+
+    private final CompetitionRoundService roundService;
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         try {
-            var competition = competitionService.getCompetition();
-            if (!isCompetitionInProgress(competition)) {
-                return;
-            }
-
-            if (isCurrentRoundFinished(competition)) {
-                competitionService.startNextRound();
-                if (!isZeroRound()){
-                    checkerExecutionService.runAllCheckers(List.of("check", "put", "get", "get_flags"));
-                }
-            }
-
-        } catch (CompetitionException e) {
-            log.warn("Не удалось сменить раунд: {}", e.getMessage());
+            roundService.tryAdvanceRound();
         } catch (Exception e) {
-            log.error("Произошла ошибка при смене раунда:", e);
-            throw new JobExecutionException("Ошибка при смене раунда", e);
+            log.error("Ошибка при выполнении джобы смены раунда", e);
+            throw new JobExecutionException(e);
         }
-    }
-
-    /**
-     * Проверяет, находится ли соревнование в статусе IN_PROGRESS.
-     *
-     * @param competition текущий объект соревнования
-     * @return true, если статус IN_PROGRESS; false в противном случае
-     */
-    private boolean isCompetitionInProgress(Competition competition) {
-        return competition.getStatus() == CompetitionStatus.IN_PROGRESS;
-    }
-
-    /**
-     * Проверяет, завершился ли текущий раунд по времени.
-     *
-     * @param competition текущий объект соревнования
-     * @return true, если текущий раунд завершён; false в противном случае
-     */
-    private boolean isCurrentRoundFinished(Competition competition) {
-        var startDate = competition.getStartDate();
-        int roundDurationMinutes = competition.getRoundDurationMinutes();
-        int currentRound = competition.getCurrentRound();
-
-        var currentRoundEndTime = startDate.plusMinutes(
-                (long) roundDurationMinutes * currentRound + (long) roundDurationMinutes
-        );
-
-        return LocalDateTime.now(ZoneOffset.UTC).isAfter(currentRoundEndTime);
-    }
-
-    private boolean isZeroRound(){
-        return competitionService.getCurrentRound() == 0;
     }
 }

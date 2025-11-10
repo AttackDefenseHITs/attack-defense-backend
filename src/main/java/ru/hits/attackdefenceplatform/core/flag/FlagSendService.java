@@ -7,6 +7,7 @@ import ru.hits.attackdefenceplatform.common.exception.TeamException;
 import ru.hits.attackdefenceplatform.common.exception.flag.FlagExpiredException;
 import ru.hits.attackdefenceplatform.common.exception.flag.InvalidFlagException;
 import ru.hits.attackdefenceplatform.common.exception.flag.OwnFlagSubmissionException;
+import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionMode;
 import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionEntity;
 import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionRepository;
 import ru.hits.attackdefenceplatform.core.flag.repository.FlagEntity;
@@ -23,7 +24,7 @@ import java.util.Date;
  */
 @Service
 @RequiredArgsConstructor
-public class FlagServiceImpl implements FlagService {
+public class FlagSendService implements FlagService {
 
     private final CompetitionContext competitionContext;
 
@@ -57,6 +58,10 @@ public class FlagServiceImpl implements FlagService {
         var teamMember = teamMemberRepository.findByUser(user)
                 .orElseThrow(() -> new TeamException("Пользователь не является участником соревнований"));
         var userTeam = teamMember.getTeam();
+
+        if (competitionContext.getMode() != CompetitionMode.ATTACK_DEFENSE){
+            throw new CompetitionException("Флаг можно сдавать только во время Attack-Defense");
+        }
 
         if (competitionContext.currentRoundIsZero() || !competitionContext.isInProgress()) {
             throw new CompetitionException("Флаг сдавать в текущий момент нельзя");

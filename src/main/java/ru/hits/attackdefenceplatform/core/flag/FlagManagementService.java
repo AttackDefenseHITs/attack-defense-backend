@@ -7,7 +7,7 @@ import ru.hits.attackdefenceplatform.public_interface.flag.FlagDto;
 import java.util.List;
 import java.util.UUID;
 
-public interface AdminFlagService {
+public interface FlagManagementService {
     void createFlags(CreateFlagRequest request);
 
     Page<FlagDto> getAllFlags(int page, int size, String search);

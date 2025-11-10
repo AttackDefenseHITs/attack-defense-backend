@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.hits.attackdefenceplatform.common.DomainEventPublisher;
 import ru.hits.attackdefenceplatform.modules.checker.data.ScriptExecutionResult;
-import ru.hits.attackdefenceplatform.core.flag.AdminFlagService;
+import ru.hits.attackdefenceplatform.core.flag.FlagManagementService;
 import ru.hits.attackdefenceplatform.public_interface.flag.CreateFlagRequest;
 import ru.hits.attackdefenceplatform.publisher.ServiceStatusUpdatedEvent;
 
@@ -19,7 +19,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class CheckerResultHandler {
-    private final AdminFlagService adminFlagService;
+    private final FlagManagementService flagManagementService;
     private final DomainEventPublisher domainEventPublisher;
 
     private final static String FLAG_REGEX = "^[A-Z0-9]{31}=$";
@@ -71,9 +71,9 @@ public class CheckerResultHandler {
             return;
         }
 
-        adminFlagService.disableAllFlagsForTeam(serviceId, teamId);
+        flagManagementService.disableAllFlagsForTeam(serviceId, teamId);
         var request = new CreateFlagRequest(validFlags, serviceId, teamId);
-        adminFlagService.createFlags(request);
+        flagManagementService.createFlags(request);
     }
 }
 

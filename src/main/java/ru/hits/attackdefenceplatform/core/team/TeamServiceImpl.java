@@ -48,39 +48,6 @@ public class TeamServiceImpl implements TeamService {
     private final PointsService pointsService;
 
     /**
-     * Создает новую команду.
-     *
-     * @param request данные для создания команды
-     * @return DTO новой команды
-     */
-    @Transactional
-    @Override
-    public CreatedTeamResponse createTeam(CreateTeamRequest request) {
-        var team = new TeamEntity();
-        team.setName(request.name());
-        team.setMaxMembers(request.maxMembers());
-        team.setColor(ColorUtils.generateRandomColor());
-        var newTeam = teamRepository.save(team);
-        return new CreatedTeamResponse(
-                newTeam.getId(),
-                newTeam.getName(),
-                0L,
-                newTeam.getMaxMembers()
-        );
-    }
-
-    /**
-     * Удаляет команду по ID.
-     *
-     * @param id идентификатор команды
-     */
-    @Transactional
-    @Override
-    public void deleteTeam(UUID id) {
-        teamRepository.deleteById(id);
-    }
-
-    /**
      * Добавляет пользователя в команду.
      *
      * @param user пользователь, желающий присоединиться
@@ -193,47 +160,6 @@ public class TeamServiceImpl implements TeamService {
         return teamRepository.findAll().stream()
                 .map(team -> mapTeamEntityToTeamListDto(team, user, rankedTeams))
                 .toList();
-    }
-
-    /**
-     * Создает множество команд.
-     *
-     * @param request данные для создания команд
-     * @return список DTO созданных команд
-     */
-    @Transactional
-    @Override
-    public List<CreatedTeamResponse> createManyTeams(CreateManyTeamsRequest request) {
-        List<CreatedTeamResponse> teamListDtos = new ArrayList<>();
-        for (long i = 1; i <= request.teamsCount(); i++) {
-            var teamName = "Команда " + i;
-            var teamRequest = new CreateTeamRequest(teamName, request.maxMembers());
-            var teamDto = createTeam(teamRequest);
-            teamListDtos.add(teamDto);
-        }
-        return teamListDtos;
-    }
-
-    /**
-     * Обновляет данные команды.
-     *
-     * @param teamId идентификатор команды
-     * @param request новые данные для команды
-     */
-    @Transactional
-    @Override
-    public void updateTeam(UUID teamId, CreateTeamRequest request) {
-        var team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new TeamNotFoundException("Команда с ID " + teamId + " не найдена"));
-
-        Optional.ofNullable(request.name())
-                .filter(name -> !name.isBlank())
-                .ifPresent(team::setName);
-
-        Optional.ofNullable(request.maxMembers())
-                .ifPresent(team::setMaxMembers);
-
-        teamRepository.save(team);
     }
 
     /**

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.hits.attackdefenceplatform.core.team.TeamManagementService;
 import ru.hits.attackdefenceplatform.core.team.TeamService;
 import ru.hits.attackdefenceplatform.modules.user.repository.UserEntity;
 import ru.hits.attackdefenceplatform.public_interface.team.CreateManyTeamsRequest;
@@ -32,6 +33,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class TeamController {
     private final TeamService teamService;
+    private final TeamManagementService teamManagementService;
 
     @PostMapping("/{teamId}/join")
     @Operation(summary = "Присоединиться к команде")
@@ -65,7 +67,7 @@ public class TeamController {
     @PostMapping
     @Operation(summary = "Создать команду")
     public ResponseEntity<CreatedTeamResponse> createTeam(@RequestBody CreateTeamRequest request) {
-        var team = teamService.createTeam(request);
+        var team = teamManagementService.createTeam(request);
         return ResponseEntity.ok(team);
     }
 
@@ -73,7 +75,7 @@ public class TeamController {
     @DeleteMapping("/{id}")
     @Operation(summary = "Удалить команду")
     public ResponseEntity<Void> deleteTeam(@PathVariable UUID id) {
-        teamService.deleteTeam(id);
+        teamManagementService.deleteTeam(id);
         return ResponseEntity.ok().build();
     }
 
@@ -81,7 +83,7 @@ public class TeamController {
     @PostMapping("/bulk")
     @Operation(summary = "Создать несколько команд")
     public ResponseEntity<List<CreatedTeamResponse>> createManyTeams(@RequestBody CreateManyTeamsRequest request) {
-        var teams = teamService.createManyTeams(request);
+        var teams = teamManagementService.createManyTeams(request);
         return ResponseEntity.ok(teams);
     }
 
@@ -89,7 +91,7 @@ public class TeamController {
     @PutMapping("/{teamId}")
     @Operation(summary = "Обновить данные команды")
     public ResponseEntity<Void> updateTeam(@PathVariable UUID teamId, @RequestBody CreateTeamRequest request) {
-        teamService.updateTeam(teamId, request);
+        teamManagementService.updateTeam(teamId, request);
         return ResponseEntity.ok().build();
     }
 

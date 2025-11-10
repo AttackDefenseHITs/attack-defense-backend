@@ -8,12 +8,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import ru.hits.attackdefenceplatform.core.CompetitionContext;
 import ru.hits.attackdefenceplatform.core.competition.CompetitionService;
 import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionEntity;
 import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionRepository;
 import ru.hits.attackdefenceplatform.core.dashboard.repository.spec.FlagSubmissionSpecifications;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamRepository;
+import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionDto;
 import ru.hits.attackdefenceplatform.public_interface.dashboard.FlagSubmissionDto;
 import ru.hits.attackdefenceplatform.public_interface.dashboard.TeamScoreChangeDto;
 
@@ -34,8 +36,9 @@ import java.util.UUID;
 public class FlagSubmissionServiceImpl implements FlagSubmissionService {
 
     private final FlagSubmissionRepository flagSubmissionRepository;
-    private final CompetitionService competitionService;
     private final TeamRepository teamRepository;
+
+    private final CompetitionContext competitionContext;
 
     /**
      * Возвращает список изменений счета команд на основе сабмитов флагов, отфильтрованных по корректности и идентификатору команды.
@@ -71,14 +74,15 @@ public class FlagSubmissionServiceImpl implements FlagSubmissionService {
     private List<TeamScoreChangeDto> convertSubmissionsToDTO(List<FlagSubmissionEntity> submissions) {
         Map<String, Integer> teamPointsMap = new HashMap<>();
         List<TeamScoreChangeDto> result = new ArrayList<>();
+        var competition = competitionContext.getCompetitionDto();
 
         for (FlagSubmissionEntity submission : submissions) {
             var submittingTeam = submission.getTeam();
             var submittingTeamName = submittingTeam.getName();
             var submittingTeamColor = submittingTeam.getColor();
 
-            int pointsEarned = calculatePointsEarned(submission, submittingTeamName);
-            int pointsLost = calculatePointsLost(submission, submittingTeamName);
+            int pointsEarned = calculatePointsEarned(submission, submittingTeamName, competition);
+            int pointsLost = calculatePointsLost(submission, submittingTeamName, competition);
 
             updateTeamPoints(submittingTeamName, pointsEarned, teamPointsMap);
             updateTeamPoints(submission.getFlag().getFlagOwner().getName(), pointsLost, teamPointsMap);
@@ -100,7 +104,7 @@ public class FlagSubmissionServiceImpl implements FlagSubmissionService {
             );
         }
 
-        var startLocalTime = competitionService.getCompetitionDto().startDate();
+        var startLocalTime = competitionContext.getCurrent().getStartDate();
         if (startLocalTime != null) {
             var startTime = Timestamp.valueOf(startLocalTime);
             initializeTeamsWithZeroPoints(teamPointsMap, result, startTime);
@@ -140,8 +144,7 @@ public class FlagSubmissionServiceImpl implements FlagSubmissionService {
      * @param submittingTeam имя отправляющей команды
      * @return количество заработанных баллов, либо 0 если условия не соблюдены
      */
-    private int calculatePointsEarned(FlagSubmissionEntity submission, String submittingTeam) {
-        var competitionDto = competitionService.getCompetitionDto();
+    private int calculatePointsEarned(FlagSubmissionEntity submission, String submittingTeam, CompetitionDto competitionDto) {
         int pointsEarned = 0;
         if (submission.getIsCorrect() && submission.getFlag() != null) {
             String flagOwnerTeam = submission.getFlag().getFlagOwner().getName();
@@ -162,8 +165,7 @@ public class FlagSubmissionServiceImpl implements FlagSubmissionService {
      * @param submittingTeam имя отправляющей команды
      * @return количество потерянных баллов, либо 0 если условия не соблюдены
      */
-    private int calculatePointsLost(FlagSubmissionEntity submission, String submittingTeam) {
-        var competitionDto = competitionService.getCompetitionDto();
+    private int calculatePointsLost(FlagSubmissionEntity submission, String submittingTeam, CompetitionDto competitionDto) {
         int pointsLost = 0;
         if (submission.getIsCorrect() && submission.getFlag() != null) {
             String flagOwnerTeam = submission.getFlag().getFlagOwner().getName();

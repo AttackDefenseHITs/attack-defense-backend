@@ -46,8 +46,8 @@ public class ServiceStatusEventListener {
         eventBus.register(this);
     }
 
-    @Subscribe
     @SuppressWarnings("unused")
+    @Subscribe
     public void onServiceStatusUpdated(ServiceStatusUpdatedEvent event) {
         var team = findTeam(event.teamId());
         var service = findService(event.serviceId());
@@ -98,6 +98,7 @@ public class ServiceStatusEventListener {
                 .orElseThrow(() -> new IllegalArgumentException("Team with ID " + teamId + " not found"));
     }
 
+    //Избавиться от этого ужаса
     private List<String> getUserIdsList(){
         var users = userRepository.findAll();
         return users.stream()

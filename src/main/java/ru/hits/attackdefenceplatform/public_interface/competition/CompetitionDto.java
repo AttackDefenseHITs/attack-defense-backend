@@ -14,5 +14,6 @@ public record CompetitionDto(
         Integer currentRound,
         Integer flagSendCost,
         Integer flagLostCost,
-        String rules
+        String rules,
+        String competitionMode
 ) {}

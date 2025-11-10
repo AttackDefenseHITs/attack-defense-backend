@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.hits.attackdefenceplatform.common.exception.TeamNotFoundException;
+import ru.hits.attackdefenceplatform.core.CompetitionContext;
 import ru.hits.attackdefenceplatform.core.competition.CompetitionService;
 import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionRepository;
 import ru.hits.attackdefenceplatform.core.service_status.SlaService;
@@ -21,18 +22,18 @@ import java.math.RoundingMode;
 public class PointsService {
     private final TeamRepository teamRepository;
     private final FlagSubmissionRepository flagSubmissionRepository;
-    private final CompetitionService competitionService;
+    private final CompetitionContext competitionContext;
     private final SlaService slaService;
 
     public Double calculateTeamFlagPoints(TeamEntity team) {
-        var competitionDto = competitionService.getCompetitionDto();
+        var competition = competitionContext.getCurrent();
 
         var teamPointsDto = teamRepository.getTeamPointsById(team.getId())
                 .orElseThrow(() -> new TeamNotFoundException("Команда с ID " + team.getId() + " не найдена"));
 
         double totalPoints = teamPointsDto.points();
         long stolenFlags = flagSubmissionRepository.countByFlag_FlagOwner(team);
-        double stolenPoints = stolenFlags * competitionDto.flagLostCost();
+        double stolenPoints = stolenFlags * competition.getFlagLostCost();
 
         double netPoints = totalPoints - stolenPoints;
         if (netPoints < 0) {
@@ -50,12 +51,12 @@ public class PointsService {
     }
 
     public FlagPointsForServiceDto getFlagPointsForServiceAndTeam(TeamEntity team, VulnerableServiceEntity service) {
-        var competitionDto = competitionService.getCompetitionDto();
+        var competition = competitionContext.getCurrent();
         long plusPoints = flagSubmissionRepository.countByTeamAndFlag_VulnerableService(team, service)
-                * competitionDto.flagSendCost();
+                * competition.getFlagSendCost();
 
         long minusPoints = flagSubmissionRepository.countByFlag_FlagOwnerAndFlag_VulnerableService(team, service)
-                * competitionDto.flagLostCost();
+                * competition.getFlagLostCost();
 
         return new FlagPointsForServiceDto(plusPoints, minusPoints);
     }

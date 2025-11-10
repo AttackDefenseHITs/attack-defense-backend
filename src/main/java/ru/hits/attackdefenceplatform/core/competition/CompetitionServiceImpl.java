@@ -136,8 +136,8 @@ public class CompetitionServiceImpl implements CompetitionService {
         flagRepository.deleteAll();
         flagSubmissionRepository.deleteAll();
         teamMemberRepository.deleteAll();
-        competitionRepository.save(competition);
 
+        competitionRepository.save(competition);
         return CompetitionMapper.mapToCompetitionDto(competition);
     }
 
@@ -161,14 +161,5 @@ public class CompetitionServiceImpl implements CompetitionService {
 
         competitionRepository.save(competition);
         return CompetitionMapper.mapToCompetitionDto(competition);
-    }
-
-    /**
-     * Получение информации о текущем раунде.
-     */
-    @Transactional(readOnly = true)
-    public Integer getCurrentRound() {
-        var competition = getCompetition();
-        return competition.getCurrentRound();
     }
 }
