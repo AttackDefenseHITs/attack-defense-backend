@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.core.checker.script;
+package ru.hits.attackdefenceplatform.modules.checker.script;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

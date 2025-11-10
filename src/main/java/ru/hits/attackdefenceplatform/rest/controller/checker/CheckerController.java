@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.hits.attackdefenceplatform.core.checker.CheckerService;
+import ru.hits.attackdefenceplatform.modules.checker.CheckerExecutionService;
+import ru.hits.attackdefenceplatform.modules.checker.CheckerManagementService;
 import ru.hits.attackdefenceplatform.public_interface.checker.StartCheckerRequest;
 
 import java.io.IOException;
@@ -23,7 +24,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CheckerController {
 
-    private final CheckerService checkerService;
+    private final CheckerExecutionService checkerExecutionService;
+    private final CheckerManagementService checkerManagementService;
 
     @PostMapping("/{serviceId}/upload")
     @Operation(summary = "Загрузить чекер для уязвимого сервиса")
@@ -32,7 +34,7 @@ public class CheckerController {
             @RequestBody String scriptText)
     {
         try {
-            checkerService.uploadChecker(scriptText, serviceId);
+            checkerManagementService.uploadChecker(scriptText, serviceId);
             return ResponseEntity.ok("Checker uploaded successfully.");
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -44,7 +46,7 @@ public class CheckerController {
     public ResponseEntity<String> getCheckerCode(
             @PathVariable UUID serviceId
     ) throws IOException {
-        var code = checkerService.getCheckerScriptByServiceId(serviceId);
+        var code = checkerManagementService.getCheckerScript(serviceId);
         return ResponseEntity.ok(code);
     }
 
@@ -55,14 +57,14 @@ public class CheckerController {
             @PathVariable UUID teamId,
             @RequestBody StartCheckerRequest request)
     {
-        checkerService.runChecker(serviceId, teamId, request.commands());
+        checkerExecutionService.runChecker(serviceId, teamId, request.commands());
         return ResponseEntity.ok("Checker executed successfully.");
     }
 
     @PostMapping("/all")
     @Operation(summary = "Запустить все чекеры на полную проверку")
     public ResponseEntity<String> runAllCheckers(){
-        checkerService.runAllCheckers(List.of("check", "put", "get", "get_flags"));
+        checkerExecutionService.runAllCheckers(List.of("check", "put", "get", "get_flags"));
         return ResponseEntity.ok("Success");
     }
 }

@@ -7,7 +7,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.stereotype.Component;
 import ru.hits.attackdefenceplatform.common.exception.CompetitionException;
-import ru.hits.attackdefenceplatform.core.checker.CheckerService;
+import ru.hits.attackdefenceplatform.modules.checker.CheckerExecutionService;
 import ru.hits.attackdefenceplatform.core.competition.CompetitionService;
 import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionStatus;
 import ru.hits.attackdefenceplatform.core.competition.repository.Competition;
@@ -21,7 +21,7 @@ import java.util.List;
 @Slf4j
 public class CompetitionStartNextRoundJob implements Job {
     private final CompetitionService competitionService;
-    private final CheckerService checkerService;
+    private final CheckerExecutionService checkerExecutionService;
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
@@ -34,7 +34,7 @@ public class CompetitionStartNextRoundJob implements Job {
             if (isCurrentRoundFinished(competition)) {
                 competitionService.startNextRound();
                 if (!isZeroRound()){
-                    checkerService.runAllCheckers(List.of("check", "put", "get", "get_flags"));
+                    checkerExecutionService.runAllCheckers(List.of("check", "put", "get", "get_flags"));
                 }
             }
 

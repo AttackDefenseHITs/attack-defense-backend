@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.core.checker.enums;
+package ru.hits.attackdefenceplatform.modules.checker.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

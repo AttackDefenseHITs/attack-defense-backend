@@ -1,9 +1,9 @@
-package ru.hits.attackdefenceplatform.core.checker.script;
+package ru.hits.attackdefenceplatform.modules.checker.script;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.hits.attackdefenceplatform.core.checker.data.ScriptExecutionResult;
-import ru.hits.attackdefenceplatform.core.checker.enums.CheckerResult;
+import ru.hits.attackdefenceplatform.modules.checker.data.ScriptExecutionResult;
+import ru.hits.attackdefenceplatform.modules.checker.enums.CheckerResult;
 
 import java.io.BufferedReader;
 import java.io.IOException;

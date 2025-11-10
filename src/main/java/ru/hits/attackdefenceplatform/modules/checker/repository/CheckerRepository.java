@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.core.checker.repository;
+package ru.hits.attackdefenceplatform.modules.checker.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

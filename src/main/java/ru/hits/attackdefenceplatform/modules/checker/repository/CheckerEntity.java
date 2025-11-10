@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.core.checker.repository;
+package ru.hits.attackdefenceplatform.modules.checker.repository;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

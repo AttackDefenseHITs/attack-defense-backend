@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.core.checker;
+package ru.hits.attackdefenceplatform.modules.checker;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -6,21 +6,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import ru.hits.attackdefenceplatform.core.checker.handler.CheckerResultHandler;
-import ru.hits.attackdefenceplatform.core.checker.repository.CheckerEntity;
-import ru.hits.attackdefenceplatform.core.checker.repository.CheckerRepository;
-import ru.hits.attackdefenceplatform.core.checker.script.CheckerFileService;
-import ru.hits.attackdefenceplatform.core.checker.script.CheckerLinter;
-import ru.hits.attackdefenceplatform.core.checker.script.ScriptExecutor;
+import ru.hits.attackdefenceplatform.modules.checker.handler.CheckerResultHandler;
+import ru.hits.attackdefenceplatform.modules.checker.repository.CheckerEntity;
+import ru.hits.attackdefenceplatform.modules.checker.repository.CheckerRepository;
+import ru.hits.attackdefenceplatform.modules.checker.script.ScriptExecutor;
 import ru.hits.attackdefenceplatform.modules.virtual_machine.VirtualMachineService;
 import ru.hits.attackdefenceplatform.modules.vulnerable_service.repository.VulnerableServiceEntity;
 import ru.hits.attackdefenceplatform.modules.vulnerable_service.repository.VulnerableServiceRepository;
 import ru.hits.attackdefenceplatform.public_interface.vitrual_machine.VirtualMachineDto;
 
-import java.io.IOException;
-import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,9 +23,7 @@ import java.util.concurrent.Executors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CheckerServiceImpl implements CheckerService {
-    private final CheckerFileService checkerFileService;
-    private final CheckerLinter checkerLinter;
+public class CheckerExecutionServiceImpl implements CheckerExecutionService {
     private final CheckerResultHandler checkerResultHandler;
     private final ScriptExecutor scriptExecutor;
 
@@ -39,26 +32,6 @@ public class CheckerServiceImpl implements CheckerService {
     private final VirtualMachineService virtualMachineService;
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
-
-    @Override
-    public void uploadChecker(String scriptText, UUID serviceId) throws IOException {
-        var service = findServiceById(serviceId);
-        var existingCheckerOptional = checkerRepository.findByVulnerableServiceId(serviceId);
-
-        var scriptPath = checkerFileService.saveScriptToFile(scriptText);
-
-        if (!checkerLinter.validate(scriptPath.toFile())) {
-            throw new IllegalArgumentException("Скрипт чекера недействителен");
-        }
-
-        saveChecker(service, existingCheckerOptional, scriptPath);
-    }
-
-    @Override
-    public String getCheckerScriptByServiceId(UUID serviceId) throws IOException {
-        var checkerEntity = checkerRepository.findByVulnerableServiceId(serviceId).orElse(null);
-        return checkerEntity == null ? "" : checkerFileService.readScriptFromFilePath(checkerEntity.getScriptFilePath());
-    }
 
     @Override
     @Async("taskExecutor")
@@ -151,29 +124,6 @@ public class CheckerServiceImpl implements CheckerService {
         var command = String.join(" ", commands);
 
         return new ExecutionData(service, checkerEntity, virtualMachine, command);
-    }
-
-    private VulnerableServiceEntity findServiceById(UUID serviceId) {
-        return vulnerableServiceRepository.findById(serviceId)
-                .orElseThrow(() -> new IllegalArgumentException("Сервис не найден"));
-    }
-
-    private void saveChecker(VulnerableServiceEntity service,
-                             Optional<CheckerEntity> existingCheckerOptional,
-                             Path scriptPath) {
-        if (existingCheckerOptional.isPresent()) {
-            var existingChecker = existingCheckerOptional.get();
-            checkerFileService.deleteScriptFile(existingChecker.getScriptFilePath());
-            existingChecker.setScriptFilePath(scriptPath.toString());
-            checkerRepository.save(existingChecker);
-            log.info("Чекер для сервиса {} уже существует. Путь обновлён на {}", service.getName(), scriptPath);
-        } else {
-            var newChecker = new CheckerEntity();
-            newChecker.setVulnerableService(service);
-            newChecker.setScriptFilePath(scriptPath.toString());
-            checkerRepository.save(newChecker);
-            log.info("Новый скрипт чекера для сервиса {} успешно сохранён по пути {}", service.getName(), scriptPath);
-        }
     }
 
     @Data
