@@ -7,8 +7,6 @@ import org.springframework.stereotype.Service;
 import ru.hits.attackdefenceplatform.modules.deploy.repository.DeploymentStatusEntity;
 import ru.hits.attackdefenceplatform.modules.deploy.repository.DeploymentStatusRepository;
 import ru.hits.attackdefenceplatform.modules.deploy.status.mapper.DeploymentStatusInitializer;
-import ru.hits.attackdefenceplatform.modules.user.repository.Role;
-import ru.hits.attackdefenceplatform.modules.user.repository.UserRepository;
 import ru.hits.attackdefenceplatform.modules.virtual_machine.mapper.VirtualMachineMapper;
 import ru.hits.attackdefenceplatform.modules.vulnerable_service.mapper.VulnerableServiceMapper;
 import ru.hits.attackdefenceplatform.public_interface.deployment.DeploymentDataDto;
@@ -26,7 +24,6 @@ public class DeploymentStatusService {
     private final DeploymentStatusInitializer deploymentStatusInitializer;
     private final DeploymentStatusRepository deploymentStatusRepository;
     private final WebSocketClient<DeploymentResult> deploymentWebSocketClient;
-    private final UserRepository userRepository;
 
     /**
      * Заполняет таблицу с результатами деплоя при инициализации приложения
@@ -41,7 +38,7 @@ public class DeploymentStatusService {
      */
     public void updateAllStatusesBeforeAllDeployment(){
         deploymentStatusInitializer.setAllStatusesToPending();
-        deploymentWebSocketClient.sendNotification(getAllDeploymentResults(), getAdminsIds());
+        deploymentWebSocketClient.sendNotification(getAllDeploymentResults());
     }
 
     /**
@@ -88,8 +85,7 @@ public class DeploymentStatusService {
                 newEntity.getUpdatedAt()
         );
 
-        var adminIds = getAdminsIds();
-        deploymentWebSocketClient.sendNotification(getDeploymentResultFromDto(deploymentData), adminIds);
+        deploymentWebSocketClient.sendNotification(getDeploymentResultFromDto(deploymentData));
 
         log.info("Статус деплоя обновлен и отправлен по WebSocket");
     }
@@ -106,17 +102,6 @@ public class DeploymentStatusService {
                 entity.getMessage(),
                 entity.getUpdatedAt()
         );
-    }
-
-    /**
-     * Получает список id администраторов
-     */
-    private List<String> getAdminsIds() {
-        var admins = userRepository.findAllByRole(Role.ADMIN);
-
-        return admins.stream()
-                .map(admin -> admin.getId().toString())
-                .toList();
     }
 
     private DeploymentResult getDeploymentResultFromDto(DeploymentDataDto data){

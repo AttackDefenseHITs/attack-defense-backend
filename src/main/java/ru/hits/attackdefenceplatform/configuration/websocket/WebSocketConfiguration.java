@@ -14,9 +14,9 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
-import ru.hits.attackdefenceplatform.websocket.handler.CheckerStatusEventHandler;
-import ru.hits.attackdefenceplatform.websocket.handler.AnnouncementEventHandler;
-import ru.hits.attackdefenceplatform.websocket.handler.DeploymentEventHandler;
+import ru.hits.attackdefenceplatform.websocket.handler.CheckerStatusWebSocketEventHandler;
+import ru.hits.attackdefenceplatform.websocket.handler.AnnouncementWebSocketEventHandler;
+import ru.hits.attackdefenceplatform.websocket.handler.DeploymentWebSocketEventHandler;
 
 import java.util.List;
 
@@ -24,14 +24,14 @@ import java.util.List;
 @EnableWebSocket
 @EnableWebSocketMessageBroker
 public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer, WebSocketConfigurer {
-    private final AnnouncementEventHandler competitionEventHandler;
-    private final DeploymentEventHandler deploymentEventHandler;
-    private final CheckerStatusEventHandler checkerStatusEventHandler;
+    private final AnnouncementWebSocketEventHandler competitionEventHandler;
+    private final DeploymentWebSocketEventHandler deploymentEventHandler;
+    private final CheckerStatusWebSocketEventHandler checkerStatusEventHandler;
 
     public WebSocketConfiguration(
-            @Lazy AnnouncementEventHandler competitionEventHandler,
-            @Lazy DeploymentEventHandler deploymentEventHandler,
-            @Lazy CheckerStatusEventHandler checkerStatusEventHandler
+            @Lazy AnnouncementWebSocketEventHandler competitionEventHandler,
+            @Lazy DeploymentWebSocketEventHandler deploymentEventHandler,
+            @Lazy CheckerStatusWebSocketEventHandler checkerStatusEventHandler
     ) {
         this.competitionEventHandler = competitionEventHandler;
         this.deploymentEventHandler = deploymentEventHandler;

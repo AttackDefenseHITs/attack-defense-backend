@@ -20,34 +20,15 @@ import java.math.RoundingMode;
 @RequiredArgsConstructor
 @Slf4j
 public class PointsService {
-    private final TeamRepository teamRepository;
     private final FlagSubmissionRepository flagSubmissionRepository;
     private final CompetitionContext competitionContext;
-    private final SlaService slaService;
+    private final PointsCounterStrategyFactory pointsCounterStrategyFactory;
 
     public Double calculateTeamFlagPoints(TeamEntity team) {
         var competition = competitionContext.getCurrent();
 
-        var teamPointsDto = teamRepository.getTeamPointsById(team.getId())
-                .orElseThrow(() -> new TeamNotFoundException("Команда с ID " + team.getId() + " не найдена"));
-
-        double totalPoints = teamPointsDto.points();
-        long stolenFlags = flagSubmissionRepository.countByFlag_FlagOwner(team);
-        double stolenPoints = stolenFlags * competition.getFlagLostCost();
-
-        double netPoints = totalPoints - stolenPoints;
-        if (netPoints < 0) {
-            return roundToThreeDecimals(netPoints);
-        }
-
-        double result = netPoints * slaService.getTeamSla(team);
-        return roundToThreeDecimals(result);
-    }
-
-    private Double roundToThreeDecimals(double value) {
-        return new BigDecimal(value)
-                .setScale(3, RoundingMode.HALF_UP)
-                .doubleValue();
+        var strategy = pointsCounterStrategyFactory.getStrategy(competition.getCompetitionMode());
+        return strategy.getTeamPoints(team.getId());
     }
 
     public FlagPointsForServiceDto getFlagPointsForServiceAndTeam(TeamEntity team, VulnerableServiceEntity service) {

@@ -8,8 +8,8 @@ import ru.hits.attackdefenceplatform.modules.vulnerable_service.repository.Vulne
 import java.util.UUID;
 
 public interface FlagSubmissionRepository extends JpaRepository<FlagSubmissionEntity, UUID>, JpaSpecificationExecutor<FlagSubmissionEntity> {
-    long countByFlag_FlagOwner(TeamEntity team);
     long countByTeamAndFlag_VulnerableService(TeamEntity team, VulnerableServiceEntity service);
     long countByFlag_FlagOwnerAndFlag_VulnerableService(TeamEntity team, VulnerableServiceEntity service);
+    long countByFlag_FlagOwner_Id(UUID teamId);
 }
 

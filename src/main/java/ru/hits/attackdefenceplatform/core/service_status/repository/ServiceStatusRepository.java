@@ -10,5 +10,5 @@ import java.util.UUID;
 
 public interface ServiceStatusRepository extends JpaRepository<ServiceStatusEntity, UUID> {
     Optional<ServiceStatusEntity> findByServiceAndTeam(VulnerableServiceEntity service, TeamEntity team);
-    List<ServiceStatusEntity> findByTeam(TeamEntity team);
+    List<ServiceStatusEntity> findByTeamId(UUID teamId);
 }

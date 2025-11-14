@@ -5,14 +5,16 @@ import org.springframework.stereotype.Service;
 import ru.hits.attackdefenceplatform.core.service_status.repository.ServiceStatusRepository;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class SlaService {
     private final ServiceStatusRepository serviceStatusRepository;
     private final static Double DEFAULT_SLA = 100.0;
 
-    public Double getTeamSla(TeamEntity team) {
-        var teamStatuses = serviceStatusRepository.findByTeam(team);
+    public Double getTeamSla(UUID teamId) {
+        var teamStatuses = serviceStatusRepository.findByTeamId(teamId);
 
         if (teamStatuses.isEmpty()) {
             return 1.0;

@@ -12,8 +12,6 @@ import ru.hits.attackdefenceplatform.core.service_status.repository.ServiceStatu
 import ru.hits.attackdefenceplatform.core.team.TeamService;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamRepository;
-import ru.hits.attackdefenceplatform.modules.user.repository.UserEntity;
-import ru.hits.attackdefenceplatform.modules.user.repository.UserRepository;
 import ru.hits.attackdefenceplatform.modules.vulnerable_service.repository.VulnerableServiceEntity;
 import ru.hits.attackdefenceplatform.modules.vulnerable_service.repository.VulnerableServiceRepository;
 import ru.hits.attackdefenceplatform.public_interface.service_statuses.ServiceStatusInfo;
@@ -33,7 +31,6 @@ public class ServiceStatusEventListener {
 
     private final WebSocketClient<ServiceStatusInfo> webSocketClient;
     private final ServiceStatusRepository serviceStatusRepository;
-    private final UserRepository userRepository;
     private final TeamRepository teamRepository;
     private final VulnerableServiceRepository vulnerableServiceRepository;
     private final TeamService teamService;
@@ -85,7 +82,7 @@ public class ServiceStatusEventListener {
 
     private void sendNewServiceStatusToUsers(TeamServiceStatusDto serviceStatus){
         var serviceStatusInfo = new ServiceStatusInfo(List.of(serviceStatus));
-        webSocketClient.sendNotification(serviceStatusInfo, getUserIdsList());
+        webSocketClient.sendNotification(serviceStatusInfo);
     }
 
     private VulnerableServiceEntity findService(UUID serviceId) {
@@ -96,15 +93,6 @@ public class ServiceStatusEventListener {
     private TeamEntity findTeam(UUID teamId) {
         return teamRepository.findById(teamId)
                 .orElseThrow(() -> new IllegalArgumentException("Team with ID " + teamId + " not found"));
-    }
-
-    //Избавиться от этого ужаса
-    private List<String> getUserIdsList(){
-        var users = userRepository.findAll();
-        return users.stream()
-                .map(UserEntity::getId)
-                .map(UUID::toString)
-                .toList();
     }
 }
 

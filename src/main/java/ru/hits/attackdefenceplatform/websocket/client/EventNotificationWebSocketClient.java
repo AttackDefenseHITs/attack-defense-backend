@@ -14,15 +14,16 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class NotificationWebSocketClient implements WebSocketClient<NotificationEventModel> {
+public class EventNotificationWebSocketClient implements WebSocketClient<NotificationEventModel> {
     private final WebSocketStorage webSocketStorage;
     private final Gson gson;
 
     @Override
-    public void sendNotification(NotificationEventModel data, List<String> userIds) {
-        for (var userId : userIds) {
-            var sessionKey = new SessionKey(userId, WebSocketHandlerType.EVENT);
-            var message = gson.toJson(data);
+    public void sendNotification(NotificationEventModel data) {
+        var message = gson.toJson(data);
+
+        var sessionKeys = webSocketStorage.getSessionKeysByHandlerType(WebSocketHandlerType.EVENT);
+        for (var sessionKey : sessionKeys) {
             webSocketStorage.sendMessage(sessionKey, message);
         }
     }

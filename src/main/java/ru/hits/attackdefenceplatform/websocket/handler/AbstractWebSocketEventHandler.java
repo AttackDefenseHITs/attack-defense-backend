@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.AbstractWebSocketHandler;
+import ru.hits.attackdefenceplatform.public_interface.token.TokenUserData;
 import ru.hits.attackdefenceplatform.util.JwtTokenUtils;
 
 import java.io.IOException;
@@ -12,10 +13,10 @@ import java.util.Arrays;
 
 @Slf4j
 @RequiredArgsConstructor
-public abstract class AbstractEventHandler extends AbstractWebSocketHandler {
+public abstract class AbstractWebSocketEventHandler extends AbstractWebSocketHandler {
     private final JwtTokenUtils jwtTokenUtils;
 
-    protected String getUserId(WebSocketSession session) {
+    protected TokenUserData getUserData(WebSocketSession session) {
         var query = session.getUri().getQuery();
         if (query != null && query.contains("token")) {
             var token = Arrays.stream(query.split("&"))
@@ -26,7 +27,7 @@ public abstract class AbstractEventHandler extends AbstractWebSocketHandler {
 
             if (token != null) {
                 try {
-                    return jwtTokenUtils.getUserIdFromToken(token).toString();
+                    return jwtTokenUtils.getUserDataFromToken(token);
                 } catch (ExpiredJwtException ex) {
                     log.warn("JWT токен истёк: {}. Закрываем WebSocket-сессию {}", ex.getMessage(), session.getId());
                     closeSession(session);
@@ -40,7 +41,7 @@ public abstract class AbstractEventHandler extends AbstractWebSocketHandler {
             closeSession(session);
         }
 
-        return "";
+        return null;
     }
 
     private void closeSession(WebSocketSession session) {

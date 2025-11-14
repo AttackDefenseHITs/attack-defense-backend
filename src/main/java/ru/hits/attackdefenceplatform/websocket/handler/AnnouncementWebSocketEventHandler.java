@@ -14,10 +14,10 @@ import java.io.IOException;
 
 @Component
 @Slf4j
-public class AnnouncementEventHandler extends AbstractEventHandler {
+public class AnnouncementWebSocketEventHandler extends AbstractWebSocketEventHandler {
     private final WebSocketStorage webSocketStorage;
 
-    public AnnouncementEventHandler(JwtTokenUtils jwtTokenUtils, WebSocketStorage webSocketStorage) {
+    public AnnouncementWebSocketEventHandler(JwtTokenUtils jwtTokenUtils, WebSocketStorage webSocketStorage) {
         super(jwtTokenUtils);
         this.webSocketStorage = webSocketStorage;
     }
@@ -25,8 +25,11 @@ public class AnnouncementEventHandler extends AbstractEventHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
         try {
-            var userId = getUserId(session);
-            SessionKey sessionKey = new SessionKey(userId, WebSocketHandlerType.EVENT);
+            var userData = getUserData(session);
+            if (userData == null) {
+                return;
+            }
+            SessionKey sessionKey = new SessionKey(userData.userId(), userData.role(), WebSocketHandlerType.EVENT);
             webSocketStorage.add(sessionKey, session);
         } catch (Exception ex) {
             log.error("Ошибка при установлении WebSocket соединения: {}", ex.getMessage(), ex);

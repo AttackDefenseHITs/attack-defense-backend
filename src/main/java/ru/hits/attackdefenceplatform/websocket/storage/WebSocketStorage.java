@@ -9,11 +9,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import ru.hits.attackdefenceplatform.websocket.storage.key.SessionKey;
+import ru.hits.attackdefenceplatform.websocket.storage.key.WebSocketHandlerType;
 
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -51,5 +53,18 @@ public class WebSocketStorage {
 
     public Set<SessionKey> getAllSessionKeys() {
         return sessions.keySet();
+    }
+
+    public Set<SessionKey> getSessionKeysByHandlerType(WebSocketHandlerType type) {
+        return sessions.keySet().stream()
+                .filter(key -> key.getWebSocketHandlerType() == type)
+                .collect(Collectors.toSet());
+    }
+
+    public Set<SessionKey> getSessionKeysByRoleAndHandler(String role, WebSocketHandlerType type) {
+        return sessions.keySet().stream()
+                .filter(key -> role.equalsIgnoreCase(key.getRole()))
+                .filter(key -> key.getWebSocketHandlerType() == type)
+                .collect(Collectors.toSet());
     }
 }

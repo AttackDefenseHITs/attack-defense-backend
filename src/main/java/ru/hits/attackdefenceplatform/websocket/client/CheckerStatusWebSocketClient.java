@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.hits.attackdefenceplatform.public_interface.service_statuses.ServiceStatusInfo;
 import ru.hits.attackdefenceplatform.websocket.model.CheckerStatusEventModel;
 import ru.hits.attackdefenceplatform.websocket.model.DeploymentEventModel;
+import ru.hits.attackdefenceplatform.websocket.model.NotificationEventModel;
 import ru.hits.attackdefenceplatform.websocket.storage.WebSocketStorage;
 import ru.hits.attackdefenceplatform.websocket.storage.key.SessionKey;
 import ru.hits.attackdefenceplatform.websocket.storage.key.WebSocketHandlerType;
@@ -21,11 +22,12 @@ public class CheckerStatusWebSocketClient implements WebSocketClient<ServiceStat
     private final Gson gson;
 
     @Override
-    public void sendNotification(ServiceStatusInfo data, List<String> userIds) {
-        for (var userId : userIds) {
-            var sessionKey = new SessionKey(userId, WebSocketHandlerType.CHECKER);
-            var newData = new CheckerStatusEventModel(WebSocketHandlerType.CHECKER, data);
-            var message = gson.toJson(newData);
+    public void sendNotification(ServiceStatusInfo data) {
+        var newData = new CheckerStatusEventModel(WebSocketHandlerType.CHECKER, data);
+        var message = gson.toJson(newData);
+
+        var sessionKeys = webSocketStorage.getSessionKeysByHandlerType(WebSocketHandlerType.CHECKER);
+        for (var sessionKey : sessionKeys) {
             webSocketStorage.sendMessage(sessionKey, message);
         }
     }
