@@ -3,6 +3,7 @@ package ru.hits.attackdefenceplatform.core.competition;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.hits.attackdefenceplatform.common.DomainEventPublisher;
 import ru.hits.attackdefenceplatform.common.exception.CompetitionException;
 import ru.hits.attackdefenceplatform.configuration.properties.CompetitionDefaultsProperties;
 import ru.hits.attackdefenceplatform.core.competition.mapper.CompetitionMapper;
@@ -13,12 +14,12 @@ import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionStatus;
 import ru.hits.attackdefenceplatform.core.competition.state.CompetitionStateFactory;
 import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionRepository;
 import ru.hits.attackdefenceplatform.core.flag.repository.FlagRepository;
-import ru.hits.attackdefenceplatform.core.notification.NotificationService;
 import ru.hits.attackdefenceplatform.core.service_status.repository.ServiceStatusRepository;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberRepository;
 import ru.hits.attackdefenceplatform.public_interface.competition.UpdateCompetitionModeRequest;
 import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionDto;
 import ru.hits.attackdefenceplatform.public_interface.competition.UpdateCompetitionRequest;
+import ru.hits.attackdefenceplatform.publisher.CompetitionEvent;
 
 import java.util.List;
 
@@ -36,9 +37,9 @@ public class CompetitionServiceImpl implements CompetitionService {
     private final ServiceStatusRepository serviceStatusRepository;
     private final FlagRepository flagRepository;
 
-    private final NotificationService notificationService;
     private final CompetitionStateFactory stateFactory;
     private final CompetitionDefaultsProperties defaults;
+    private final DomainEventPublisher eventPublisher;
 
     /**
      * Метод для изменения статуса соревнования
@@ -52,8 +53,7 @@ public class CompetitionServiceImpl implements CompetitionService {
         state.handle(competition, action);
 
         competitionRepository.save(competition);
-        notificationService.notifyAllTeams(stateFactory.getMessage(action));
-
+        eventPublisher.publish(new CompetitionEvent(stateFactory.getMessage(action)));
         return CompetitionMapper.mapToCompetitionDto(competition);
     }
 
@@ -157,8 +157,6 @@ public class CompetitionServiceImpl implements CompetitionService {
         }
 
         competition.setCurrentRound(competition.getCurrentRound() + 1);
-        notificationService.notifyAllTeams("Начался раунд " + competition.getCurrentRound());
-
         competitionRepository.save(competition);
         return CompetitionMapper.mapToCompetitionDto(competition);
     }
