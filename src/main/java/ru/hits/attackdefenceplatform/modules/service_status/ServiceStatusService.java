@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.core.service_status;
+package ru.hits.attackdefenceplatform.modules.service_status;
 
 import ru.hits.attackdefenceplatform.public_interface.service_statuses.ServiceStatusInfo;
 

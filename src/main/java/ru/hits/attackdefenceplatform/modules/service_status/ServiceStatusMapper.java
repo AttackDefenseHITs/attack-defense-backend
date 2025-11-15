@@ -1,9 +1,9 @@
-package ru.hits.attackdefenceplatform.core.service_status;
+package ru.hits.attackdefenceplatform.modules.service_status;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.hits.attackdefenceplatform.core.points.PointsService;
-import ru.hits.attackdefenceplatform.core.service_status.repository.ServiceStatusEntity;
+import ru.hits.attackdefenceplatform.modules.points.PointsService;
+import ru.hits.attackdefenceplatform.modules.service_status.repository.ServiceStatusEntity;
 import ru.hits.attackdefenceplatform.public_interface.service_statuses.ServiceStatusSummary;
 
 import java.util.List;

@@ -1,8 +1,8 @@
-package ru.hits.attackdefenceplatform.core.service_status;
+package ru.hits.attackdefenceplatform.modules.service_status;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.hits.attackdefenceplatform.core.service_status.repository.ServiceStatusRepository;
+import ru.hits.attackdefenceplatform.modules.service_status.repository.ServiceStatusRepository;
 import ru.hits.attackdefenceplatform.core.team.TeamService;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamRepository;
 import ru.hits.attackdefenceplatform.public_interface.service_statuses.ServiceStatusInfo;

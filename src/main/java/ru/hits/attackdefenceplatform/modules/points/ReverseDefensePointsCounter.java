@@ -1,8 +1,8 @@
-package ru.hits.attackdefenceplatform.core.points;
+package ru.hits.attackdefenceplatform.modules.points;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.hits.attackdefenceplatform.core.service_status.SlaService;
+import ru.hits.attackdefenceplatform.modules.service_status.SlaService;
 
 import java.util.UUID;
 

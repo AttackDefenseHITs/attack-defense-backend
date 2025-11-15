@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.core.flag;
+package ru.hits.attackdefenceplatform.modules.flag;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -9,9 +9,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.hits.attackdefenceplatform.common.exception.TeamNotFoundException;
-import ru.hits.attackdefenceplatform.core.flag.mapper.FlagMapper;
-import ru.hits.attackdefenceplatform.core.flag.repository.FlagEntity;
-import ru.hits.attackdefenceplatform.core.flag.repository.FlagRepository;
+import ru.hits.attackdefenceplatform.modules.flag.mapper.FlagMapper;
+import ru.hits.attackdefenceplatform.modules.flag.repository.FlagEntity;
+import ru.hits.attackdefenceplatform.modules.flag.repository.FlagRepository;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamRepository;
 import ru.hits.attackdefenceplatform.modules.vulnerable_service.repository.VulnerableServiceRepository;
 import ru.hits.attackdefenceplatform.public_interface.flag.CreateFlagRequest;

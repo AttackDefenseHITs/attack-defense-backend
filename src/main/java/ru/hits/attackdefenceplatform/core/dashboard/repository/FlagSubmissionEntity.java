@@ -10,7 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
-import ru.hits.attackdefenceplatform.core.flag.repository.FlagEntity;
+import ru.hits.attackdefenceplatform.modules.flag.repository.FlagEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
 import ru.hits.attackdefenceplatform.modules.user.repository.UserEntity;
 

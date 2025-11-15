@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.core.flag;
+package ru.hits.attackdefenceplatform.modules.flag;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,8 +10,8 @@ import ru.hits.attackdefenceplatform.common.exception.flag.OwnFlagSubmissionExce
 import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionMode;
 import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionEntity;
 import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionRepository;
-import ru.hits.attackdefenceplatform.core.flag.repository.FlagEntity;
-import ru.hits.attackdefenceplatform.core.flag.repository.FlagRepository;
+import ru.hits.attackdefenceplatform.modules.flag.repository.FlagEntity;
+import ru.hits.attackdefenceplatform.modules.flag.repository.FlagRepository;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberRepository;
 import ru.hits.attackdefenceplatform.modules.user.repository.UserEntity;

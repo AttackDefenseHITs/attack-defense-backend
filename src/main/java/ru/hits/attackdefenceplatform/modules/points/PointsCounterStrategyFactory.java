@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.core.points;
+package ru.hits.attackdefenceplatform.modules.points;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

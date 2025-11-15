@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.core.notification;
+package ru.hits.attackdefenceplatform.modules.notification;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;

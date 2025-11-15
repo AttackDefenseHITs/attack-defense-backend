@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.hits.attackdefenceplatform.common.DomainEventPublisher;
 import ru.hits.attackdefenceplatform.modules.checker.data.ScriptExecutionResult;
-import ru.hits.attackdefenceplatform.core.flag.FlagManagementService;
+import ru.hits.attackdefenceplatform.modules.flag.FlagManagementService;
 import ru.hits.attackdefenceplatform.public_interface.flag.CreateFlagRequest;
 import ru.hits.attackdefenceplatform.publisher.ServiceStatusUpdatedEvent;
 

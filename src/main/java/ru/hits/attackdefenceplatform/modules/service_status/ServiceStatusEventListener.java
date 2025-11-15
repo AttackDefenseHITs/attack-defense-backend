@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.core.service_status;
+package ru.hits.attackdefenceplatform.modules.service_status;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.hits.attackdefenceplatform.modules.checker.enums.CheckerResult;
-import ru.hits.attackdefenceplatform.core.service_status.repository.ServiceStatusEntity;
-import ru.hits.attackdefenceplatform.core.service_status.repository.ServiceStatusRepository;
+import ru.hits.attackdefenceplatform.modules.service_status.repository.ServiceStatusEntity;
+import ru.hits.attackdefenceplatform.modules.service_status.repository.ServiceStatusRepository;
 import ru.hits.attackdefenceplatform.core.team.TeamService;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamRepository;

@@ -1,20 +1,13 @@
-package ru.hits.attackdefenceplatform.core.points;
+package ru.hits.attackdefenceplatform.modules.points;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.hits.attackdefenceplatform.common.exception.TeamNotFoundException;
 import ru.hits.attackdefenceplatform.core.CompetitionContext;
-import ru.hits.attackdefenceplatform.core.competition.CompetitionService;
 import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionRepository;
-import ru.hits.attackdefenceplatform.core.service_status.SlaService;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
-import ru.hits.attackdefenceplatform.core.team.repository.TeamRepository;
 import ru.hits.attackdefenceplatform.modules.vulnerable_service.repository.VulnerableServiceEntity;
 import ru.hits.attackdefenceplatform.public_interface.service_statuses.FlagPointsForServiceDto;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 @Service
 @RequiredArgsConstructor

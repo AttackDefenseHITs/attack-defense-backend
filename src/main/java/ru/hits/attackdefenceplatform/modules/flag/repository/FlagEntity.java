@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.core.flag.repository;
+package ru.hits.attackdefenceplatform.modules.flag.repository;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,6 +1,6 @@
-package ru.hits.attackdefenceplatform.core.flag.mapper;
+package ru.hits.attackdefenceplatform.modules.flag.mapper;
 
-import ru.hits.attackdefenceplatform.core.flag.repository.FlagEntity;
+import ru.hits.attackdefenceplatform.modules.flag.repository.FlagEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
 import ru.hits.attackdefenceplatform.modules.vulnerable_service.repository.VulnerableServiceEntity;
 import ru.hits.attackdefenceplatform.public_interface.flag.FlagDto;

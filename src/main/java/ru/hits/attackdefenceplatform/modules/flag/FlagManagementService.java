@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.core.flag;
+package ru.hits.attackdefenceplatform.modules.flag;
 
 import org.springframework.data.domain.Page;
 import ru.hits.attackdefenceplatform.public_interface.flag.CreateFlagRequest;

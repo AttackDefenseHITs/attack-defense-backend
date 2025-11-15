@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.core.flag.repository;
+package ru.hits.attackdefenceplatform.modules.flag.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;

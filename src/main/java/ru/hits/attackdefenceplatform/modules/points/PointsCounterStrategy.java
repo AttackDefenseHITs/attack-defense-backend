@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.core.points;
+package ru.hits.attackdefenceplatform.modules.points;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

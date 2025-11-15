@@ -13,8 +13,8 @@ import ru.hits.attackdefenceplatform.core.competition.repository.CompetitionRepo
 import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionStatus;
 import ru.hits.attackdefenceplatform.core.competition.state.CompetitionStateFactory;
 import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionRepository;
-import ru.hits.attackdefenceplatform.core.flag.repository.FlagRepository;
-import ru.hits.attackdefenceplatform.core.service_status.repository.ServiceStatusRepository;
+import ru.hits.attackdefenceplatform.modules.flag.repository.FlagRepository;
+import ru.hits.attackdefenceplatform.modules.service_status.repository.ServiceStatusRepository;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberRepository;
 import ru.hits.attackdefenceplatform.public_interface.competition.UpdateCompetitionModeRequest;
 import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionDto;

@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.core.service_status.repository;
+package ru.hits.attackdefenceplatform.modules.service_status.repository;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
