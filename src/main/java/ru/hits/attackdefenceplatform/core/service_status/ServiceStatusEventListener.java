@@ -54,8 +54,8 @@ public class ServiceStatusEventListener {
                 .orElseGet(() -> createServiceStatus(event.result(), team, service));
 
         serviceStatus.updateDuration(event.result());
-
         serviceStatusRepository.save(serviceStatus);
+        
         var serviceStatusDto = getServiceStatusByTeamAndService(service, team);
         sendNewServiceStatusToUsers(serviceStatusDto);
     }

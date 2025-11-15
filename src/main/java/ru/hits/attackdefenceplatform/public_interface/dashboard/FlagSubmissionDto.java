@@ -7,6 +7,7 @@ public record FlagSubmissionDto(
         String name,
         Date submissionTime,
         Boolean isCorrect,
+        String serviceName,
         String result
 ) {
 }
