@@ -1,6 +1,8 @@
 spring:
   application:
     name: attack-defence-platform
+  config:
+    import: optional:file:attack-defence-platform/.env[.properties]
   jpa:
     properties:
       hibernate:
