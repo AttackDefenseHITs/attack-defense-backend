@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class ReverseDefensePointsCounter extends PointsCounterStrategy {
+public class ReverseDefensePointsCounter implements PointsCounterStrategy {
     private static final double REVERSE_DEFENSE_POINTS = 30000.0;
 
     private final SlaService slaService;

@@ -30,6 +30,6 @@ public class TeamMemberEntity {
     private TeamEntity team;
 
     @Column(nullable = false)
-    private Integer points = 0;
+    private Double points = 0.0;
 }
 

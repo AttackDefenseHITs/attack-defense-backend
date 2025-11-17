@@ -9,5 +9,5 @@ public record UserTeamMemberDto (
         String login,
         String name,
         Role role,
-        Integer points
+        Double points
 ){}

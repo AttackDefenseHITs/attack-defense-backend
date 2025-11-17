@@ -2,6 +2,7 @@ package ru.hits.attackdefenceplatform.modules.flag;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.hits.attackdefenceplatform.common.DomainEventPublisher;
 import ru.hits.attackdefenceplatform.common.exception.CompetitionException;
 import ru.hits.attackdefenceplatform.common.exception.TeamException;
 import ru.hits.attackdefenceplatform.common.exception.flag.FlagExpiredException;
@@ -14,8 +15,11 @@ import ru.hits.attackdefenceplatform.modules.flag.repository.FlagEntity;
 import ru.hits.attackdefenceplatform.modules.flag.repository.FlagRepository;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberRepository;
+import ru.hits.attackdefenceplatform.modules.points.DynamicPointsCalculator;
 import ru.hits.attackdefenceplatform.modules.user.repository.UserEntity;
 import ru.hits.attackdefenceplatform.core.CompetitionContext;
+import ru.hits.attackdefenceplatform.publisher.FlagSubmittedEvent;
+import ru.hits.attackdefenceplatform.util.NumberUtils;
 
 import java.util.Date;
 
@@ -31,6 +35,8 @@ public class FlagSendService implements FlagService {
     private final FlagRepository flagRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final FlagSubmissionRepository flagSubmissionRepository;
+    private final DomainEventPublisher domainEventPublisher;
+    private final DynamicPointsCalculator dynamicPointsCalculator;
 
     private static final String FLAG_SUCCESS = "Успешно";
     private static final String FLAG_OWN = "Флаг команды";
@@ -69,26 +75,41 @@ public class FlagSendService implements FlagService {
 
         var currentFlag = flagRepository.findByValue(flagValue)
                 .orElseThrow(() -> {
-                    saveFlagSubmission(userTeam, user, null, flagValue, false, FLAG_INCORRECT);
+                    saveFlagSubmission(userTeam, user, null, flagValue, false, FLAG_INCORRECT, 0.0);
+                    domainEventPublisher.publish(
+                            new FlagSubmittedEvent(
+                                    userTeam.getId(),
+                                    null,
+                                    competitionContext.getCurrent().getCurrentRound(),
+                                    false
+                            )
+                    );
                     return new InvalidFlagException("Неправильное значение флага");
                 });
 
         if (!currentFlag.getIsActive()) {
-            saveFlagSubmission(userTeam, user, null, flagValue, false, FLAG_NOT_ACTIVE);
+            saveFlagSubmission(userTeam, user, null, flagValue, false, FLAG_NOT_ACTIVE, 0.0);
             throw new FlagExpiredException("Флаг больше не активен");
         }
 
         if (currentFlag.getFlagOwner().equals(userTeam)) {
-            saveFlagSubmission(userTeam, user, currentFlag, flagValue, false, FLAG_OWN);
+            saveFlagSubmission(userTeam, user, currentFlag, flagValue, false, FLAG_OWN, 0.0);
             throw new OwnFlagSubmissionException("Вы не можете отправить флаг своей команды");
         }
 
         currentFlag.setIsActive(false);
-        teamMember.setPoints(teamMember.getPoints() + competitionContext.getCurrent().getFlagSendCost());
 
-        saveFlagSubmission(userTeam, user, currentFlag, flagValue, true, FLAG_SUCCESS);
+        var teamId = userTeam.getId();
+        var serviceId = currentFlag.getVulnerableService().getId();
+        var currentRound = competitionContext.getCurrent().getCurrentRound();
+
+        var points = NumberUtils.roundToThreeDecimals(dynamicPointsCalculator.calculate(teamId, serviceId, currentRound));
+        teamMember.setPoints(teamMember.getPoints() + points);
+
+        saveFlagSubmission(userTeam, user, currentFlag, flagValue, true, FLAG_SUCCESS, points);
         teamMemberRepository.save(teamMember);
         flagRepository.save(currentFlag);
+        domainEventPublisher.publish(new FlagSubmittedEvent(teamId, serviceId, currentRound, true));
     }
 
 
@@ -110,7 +131,8 @@ public class FlagSendService implements FlagService {
             FlagEntity flag,
             String flagValue,
             boolean isCorrect,
-            String result
+            String result,
+            Double points
     ) {
         var flagSubmission = new FlagSubmissionEntity();
         flagSubmission.setTeam(team);
@@ -120,6 +142,7 @@ public class FlagSendService implements FlagService {
         flagSubmission.setIsCorrect(isCorrect);
         flagSubmission.setFlag(flag);
         flagSubmission.setResult(result);
+        flagSubmission.setPointsAwarded(points);
 
         flagSubmissionRepository.save(flagSubmission);
     }

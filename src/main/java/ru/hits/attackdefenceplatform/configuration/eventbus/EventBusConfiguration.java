@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.configuration;
+package ru.hits.attackdefenceplatform.configuration.eventbus;
 
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;

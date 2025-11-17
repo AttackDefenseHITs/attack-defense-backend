@@ -11,7 +11,7 @@ public class UserMapper {
         return new UserDto(user.getId(), user.getLogin(), user.getName(), user.getRole());
     }
 
-    public static UserTeamMemberDto mapUserEntityToMemberDto(UserEntity user, Integer points){
+    public static UserTeamMemberDto mapUserEntityToMemberDto(UserEntity user, Double points){
         return new UserTeamMemberDto(user.getId(), user.getLogin(), user.getName(), user.getRole(), points);
     }
 

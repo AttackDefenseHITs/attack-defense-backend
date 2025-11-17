@@ -276,7 +276,7 @@ public class TeamServiceImpl implements TeamService {
     public List<UserTeamMemberDto> getTeamMemberRatings() {
         return teamMemberRepository.findAll().stream()
                 .map(member -> mapUserEntityToMemberDto(member.getUser(), member.getPoints()))
-                .sorted(Comparator.comparingInt(UserTeamMemberDto::points).reversed())
+                .sorted(Comparator.comparingDouble(UserTeamMemberDto::points).reversed())
                 .toList();
     }
 

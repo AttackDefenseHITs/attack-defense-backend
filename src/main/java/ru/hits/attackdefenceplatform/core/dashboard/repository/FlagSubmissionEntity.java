@@ -48,6 +48,9 @@ public class FlagSubmissionEntity {
 
     @Column(name = "result", nullable = false)
     private String result;
+
+    @Column(name = "points_awarded", nullable = false)
+    private Double pointsAwarded = 0.0;
 }
 
 

@@ -1,0 +1,9 @@
+ALTER TABLE flag_submissions
+    ADD COLUMN points_awarded DOUBLE PRECISION NOT NULL DEFAULT 0.0;
+
+ALTER TABLE team_members
+ALTER COLUMN points TYPE DOUBLE PRECISION
+    USING points::DOUBLE PRECISION;
+
+ALTER TABLE team_members
+    ALTER COLUMN points SET DEFAULT 0.0;

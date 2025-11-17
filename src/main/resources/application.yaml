@@ -16,6 +16,12 @@ spring:
     enabled: true
     locations:
       - migration
+  data:
+    redis:
+      host: redis
+      port: 6379
+      database: 0
+      timeout: 2000
 springdoc:
   swagger-ui:
     enabled: true
@@ -29,6 +35,9 @@ competition:
     roundDurationMinutes: 3
     flagSendCost: 300
     flagLostCost: 150
+  scoring:
+    alpha: 0.05
+    gamma: 1.0
 checkers:
   directory: /var/lib/checkers/
 
