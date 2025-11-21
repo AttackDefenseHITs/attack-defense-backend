@@ -10,14 +10,22 @@ import ru.hits.attackdefenceplatform.modules.checker.repository.CheckerRepositor
 import ru.hits.attackdefenceplatform.modules.checker.script.CheckerFileService;
 import ru.hits.attackdefenceplatform.modules.checker.script.CheckerFileServiceNew;
 import ru.hits.attackdefenceplatform.modules.checker.script.CheckerLinter;
+import ru.hits.attackdefenceplatform.modules.repo.RepositoryAdapter;
+import ru.hits.attackdefenceplatform.modules.repo.model.RepoFileDto;
 import ru.hits.attackdefenceplatform.modules.vulnerable_service.repository.VulnerableServiceEntity;
 import ru.hits.attackdefenceplatform.modules.vulnerable_service.repository.VulnerableServiceRepository;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,9 +35,10 @@ public class CheckerManagementServiceImpl implements CheckerManagementService {
     private final CheckerRepository checkerRepository;
     private final VulnerableServiceRepository vulnerableServiceRepository;
     private final CheckerFileService checkerFileService;
-    private final CheckerFileServiceNew checkerFileServiceNew;
 
     private final CheckerLinter checkerLinter;
+    private final RepositoryAdapter repositoryAdapter;
+    private final CheckerFileServiceNew checkerFileServiceNew;
 
     /**
      * Загрузка или обновление чекера для сервиса.
@@ -50,17 +59,55 @@ public class CheckerManagementServiceImpl implements CheckerManagementService {
     }
 
     @Override
-    public void uploadChecker(MultipartFile scriptArchive, UUID serviceId) throws IOException {
-        var service = findServiceById(serviceId);
+    @Transactional
+    public void syncCheckersFromRepository(
+            String repoName,
+            String branch,
+            Map<String, List<RepoFileDto>> detected
+    ) throws IOException {
+        Map<String, CheckerEntity> existing = checkerRepository.findAll().stream()
+                .collect(Collectors.toMap(
+                        c -> c.getVulnerableService().getName().toLowerCase(),
+                        c -> c));
 
-        // 1. Распаковываем архив чекера во временную директорию
-        Path tempDir = checkerFileServiceNew.extractCheckerArchive(scriptArchive);
+        Set<String> processed = new HashSet<>();
 
-        // 3. Сохраняем файлы в платформу
-        Path storedFiles = checkerFileServiceNew.saveCheckerDirectory(tempDir, service.getName());
+        for (var entry : detected.entrySet()) {
 
-        log.info("Чекер для сервиса '{}' успешно загружен ({} файлов)",
-                service.getName(), storedFiles);
+            String serviceName = entry.getKey().toLowerCase();
+            List<RepoFileDto> files = entry.getValue();
+
+            VulnerableServiceEntity service = vulnerableServiceRepository.findByName(serviceName)
+                    .orElseThrow();
+
+            Path tempDir = Files.createTempDirectory("checker_sync_");
+
+            for (RepoFileDto file : files) {
+                byte[] content = repositoryAdapter.getFileContent(repoName, file.getPath(), branch);
+                Path relative = Paths.get(file.getPath()).subpath(2, Paths.get(file.getPath()).getNameCount());
+                Path out = tempDir.resolve(relative);
+
+                Files.createDirectories(out.getParent());
+                Files.write(out, content);
+            }
+
+            Path storedRoot = checkerFileServiceNew.saveCheckerDirectory(tempDir, serviceName);
+
+            CheckerEntity checker = existing.get(serviceName);
+            if (checker == null) {
+                checker = new CheckerEntity();
+                checker.setVulnerableService(service);
+            }
+            checker.setScriptFilePath(storedRoot.resolve("run.py").toString());
+
+            checkerRepository.save(checker);
+            processed.add(serviceName);
+        }
+
+        // cleanup
+        existing.values().stream()
+                .filter(c -> !processed.contains(c.getVulnerableService().getName().toLowerCase()))
+                .forEach(checkerRepository::delete);
     }
 
     /**

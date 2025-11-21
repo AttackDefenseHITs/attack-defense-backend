@@ -11,6 +11,8 @@ import ru.hits.attackdefenceplatform.modules.repo.RepositoryService;
 import ru.hits.attackdefenceplatform.modules.repo.RepositorySyncService;
 import ru.hits.attackdefenceplatform.modules.repo.model.RepositoryInfoDto;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/api/admin/repo")
 @Tag(name = "Управление репозиториями")
@@ -28,7 +30,7 @@ public class RepositoryController {
 
     @PostMapping("/sync")
     @Operation(summary = "Выполнить синхронизацию")
-    public ResponseEntity<Void> syncRepo() {
+    public ResponseEntity<Void> syncRepo() throws IOException {
         repositorySyncService.syncRepo();
         return ResponseEntity.ok().build();
     }
