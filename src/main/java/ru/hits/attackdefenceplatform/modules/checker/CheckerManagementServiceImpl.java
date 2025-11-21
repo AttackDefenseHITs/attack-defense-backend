@@ -4,15 +4,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import ru.hits.attackdefenceplatform.modules.checker.repository.CheckerEntity;
 import ru.hits.attackdefenceplatform.modules.checker.repository.CheckerRepository;
 import ru.hits.attackdefenceplatform.modules.checker.script.CheckerFileService;
+import ru.hits.attackdefenceplatform.modules.checker.script.CheckerFileServiceNew;
 import ru.hits.attackdefenceplatform.modules.checker.script.CheckerLinter;
 import ru.hits.attackdefenceplatform.modules.vulnerable_service.repository.VulnerableServiceEntity;
 import ru.hits.attackdefenceplatform.modules.vulnerable_service.repository.VulnerableServiceRepository;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -24,6 +27,8 @@ public class CheckerManagementServiceImpl implements CheckerManagementService {
     private final CheckerRepository checkerRepository;
     private final VulnerableServiceRepository vulnerableServiceRepository;
     private final CheckerFileService checkerFileService;
+    private final CheckerFileServiceNew checkerFileServiceNew;
+
     private final CheckerLinter checkerLinter;
 
     /**
@@ -42,6 +47,20 @@ public class CheckerManagementServiceImpl implements CheckerManagementService {
         }
 
         saveChecker(service, existingChecker, scriptPath);
+    }
+
+    @Override
+    public void uploadChecker(MultipartFile scriptArchive, UUID serviceId) throws IOException {
+        var service = findServiceById(serviceId);
+
+        // 1. Распаковываем архив чекера во временную директорию
+        Path tempDir = checkerFileServiceNew.extractCheckerArchive(scriptArchive);
+
+        // 3. Сохраняем файлы в платформу
+        Path storedFiles = checkerFileServiceNew.saveCheckerDirectory(tempDir, service.getName());
+
+        log.info("Чекер для сервиса '{}' успешно загружен ({} файлов)",
+                service.getName(), storedFiles);
     }
 
     /**

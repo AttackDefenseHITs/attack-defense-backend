@@ -63,6 +63,10 @@ public class DashboardServiceImpl implements DashboardService {
         var competition = competitionContext.getCompetitionDto();
 
         for (FlagSubmissionEntity submission : submissions) {
+            if (submission.getFlag() == null || submission.getFlag().getFlagOwner() == null) {
+                continue;
+            }
+
             var submittingTeam = submission.getTeam();
             var submittingTeamName = submittingTeam.getName();
             var submittingTeamColor = submittingTeam.getColor();

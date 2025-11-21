@@ -17,6 +17,7 @@ import ru.hits.attackdefenceplatform.modules.repo.model.RepoFileDto;
 import ru.hits.attackdefenceplatform.modules.repo.model.RepositoryInfoDto;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -173,11 +174,19 @@ public class GitHubRepositoryAdapter implements RepositoryAdapter {
     }
 
     @Override
-    public String getFileContent(String repoName, String filePath, String branch) {
+    public byte[] getFileContent(String repoName, String filePath, String branch) {
         try {
             GHRepository repo = gitHubClient.getRepository(repoName);
             GHContent content = repo.getFileContent(filePath, branch);
-            return new String(Base64.getDecoder().decode(content.getContent()), StandardCharsets.UTF_8);
+
+            if (!content.isFile()) {
+                throw new IllegalStateException("Путь " + filePath + " является директорией, а не файлом");
+            }
+
+            try (InputStream is = content.read()) {
+                return is.readAllBytes();
+            }
+
         } catch (IOException e) {
             log.error("Ошибка загрузки файла {} из {}: {}", filePath, repoName, e.getMessage());
             throw new IllegalStateException("Не удалось загрузить файл " + filePath, e);

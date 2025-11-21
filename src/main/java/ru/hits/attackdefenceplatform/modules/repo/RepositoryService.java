@@ -58,4 +58,12 @@ public class RepositoryService {
                 repo.getType()
         );
     }
+
+    @Transactional
+    public void updateLastCommit(String lastCommitSha) {
+        PlatformRepository repo = platformRepositoryRepository.findTopByOrderByCreatedAtDesc()
+                .orElseThrow(() -> new IllegalStateException("No platform repository configured"));
+        repo.setLastCommitSha(lastCommitSha);
+        platformRepositoryRepository.save(repo);
+    }
 }
