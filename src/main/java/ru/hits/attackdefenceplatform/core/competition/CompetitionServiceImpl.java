@@ -12,7 +12,7 @@ import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionAction;
 import ru.hits.attackdefenceplatform.core.competition.repository.CompetitionRepository;
 import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionStatus;
 import ru.hits.attackdefenceplatform.core.competition.state.CompetitionStateFactory;
-import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionRepository;
+import ru.hits.attackdefenceplatform.modules.dashboard.repository.FlagSubmissionRepository;
 import ru.hits.attackdefenceplatform.modules.flag.repository.FlagRepository;
 import ru.hits.attackdefenceplatform.modules.service_status.repository.ServiceStatusRepository;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberRepository;
@@ -20,6 +20,7 @@ import ru.hits.attackdefenceplatform.public_interface.competition.UpdateCompetit
 import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionDto;
 import ru.hits.attackdefenceplatform.public_interface.competition.UpdateCompetitionRequest;
 import ru.hits.attackdefenceplatform.publisher.CompetitionEvent;
+import ru.hits.attackdefenceplatform.publisher.CompetitionResetEvent;
 
 import java.util.List;
 
@@ -93,6 +94,9 @@ public class CompetitionServiceImpl implements CompetitionService {
     @Transactional
     public CompetitionDto updateCompetitionMode(UpdateCompetitionModeRequest request) {
         var competition = getCompetition();
+        if (competition.getStatus() != CompetitionStatus.NEW) {
+            throw new CompetitionException("Во время соревнования нельзя изменить режим");
+        }
         competition.setCompetitionMode(request.competitionMode());
         return CompetitionMapper.mapToCompetitionDto(competitionRepository.save(competition));
     }
@@ -136,6 +140,8 @@ public class CompetitionServiceImpl implements CompetitionService {
         flagRepository.deleteAll();
         flagSubmissionRepository.deleteAll();
         teamMemberRepository.deleteAll();
+
+        eventPublisher.publish(new CompetitionResetEvent());
 
         competitionRepository.save(competition);
         return CompetitionMapper.mapToCompetitionDto(competition);

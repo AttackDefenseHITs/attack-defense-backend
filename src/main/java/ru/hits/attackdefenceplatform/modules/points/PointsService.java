@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.hits.attackdefenceplatform.core.CompetitionContext;
-import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionRepository;
+import ru.hits.attackdefenceplatform.modules.dashboard.repository.FlagSubmissionRepository;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
 import ru.hits.attackdefenceplatform.modules.vulnerable_service.repository.VulnerableServiceEntity;
 import ru.hits.attackdefenceplatform.public_interface.service_statuses.FlagPointsForServiceDto;

@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.core.dashboard.repository;
+package ru.hits.attackdefenceplatform.modules.dashboard.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;

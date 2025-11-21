@@ -1,21 +1,16 @@
-package ru.hits.attackdefenceplatform.core.dashboard;
+package ru.hits.attackdefenceplatform.modules.dashboard;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import ru.hits.attackdefenceplatform.core.CompetitionContext;
-import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionEntity;
-import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionRepository;
-import ru.hits.attackdefenceplatform.core.dashboard.repository.spec.FlagSubmissionSpecifications;
+import ru.hits.attackdefenceplatform.modules.dashboard.repository.FlagSubmissionEntity;
+import ru.hits.attackdefenceplatform.modules.dashboard.repository.FlagSubmissionRepository;
+import ru.hits.attackdefenceplatform.modules.dashboard.repository.spec.FlagSubmissionSpecifications;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamRepository;
 import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionDto;
-import ru.hits.attackdefenceplatform.public_interface.dashboard.FlagSubmissionDto;
 import ru.hits.attackdefenceplatform.public_interface.dashboard.TeamScoreChangeDto;
 
 import java.sql.Timestamp;
@@ -63,7 +58,7 @@ public class DashboardServiceImpl implements DashboardService {
      * @return список DTO с информацией по изменению счета команды
      */
     private List<TeamScoreChangeDto> convertSubmissionsToDTO(List<FlagSubmissionEntity> submissions) {
-        Map<String, Integer> teamPointsMap = new HashMap<>();
+        Map<String, Double> teamPointsMap = new HashMap<>();
         List<TeamScoreChangeDto> result = new ArrayList<>();
         var competition = competitionContext.getCompetitionDto();
 
@@ -72,8 +67,8 @@ public class DashboardServiceImpl implements DashboardService {
             var submittingTeamName = submittingTeam.getName();
             var submittingTeamColor = submittingTeam.getColor();
 
-            int pointsEarned = calculatePointsEarned(submission, submittingTeamName, competition);
-            int pointsLost = calculatePointsLost(submission, submittingTeamName, competition);
+            double pointsEarned = calculatePointsEarned(submission, submittingTeamName, competition);
+            double pointsLost = calculatePointsLost(submission, submittingTeamName, competition);
 
             updateTeamPoints(submittingTeamName, pointsEarned, teamPointsMap);
             updateTeamPoints(submission.getFlag().getFlagOwner().getName(), pointsLost, teamPointsMap);
@@ -112,16 +107,16 @@ public class DashboardServiceImpl implements DashboardService {
      * @param result список DTO, который будет дополнен информацией по командам без сабмитов
      * @param startTime время начала соревнования в виде Timestamp
      */
-    private void initializeTeamsWithZeroPoints(Map<String, Integer> teamPointsMap,
+    private void initializeTeamsWithZeroPoints(Map<String, Double> teamPointsMap,
                                                List<TeamScoreChangeDto> result,
                                                Date startTime) {
         var allTeams = teamRepository.findAll();
         for (TeamEntity team : allTeams) {
             String teamName = team.getName();
             if (!teamPointsMap.containsKey(teamName)) {
-                teamPointsMap.put(teamName, 0);
+                teamPointsMap.put(teamName, 0.0);
             }
-            result.add(new TeamScoreChangeDto(teamName, startTime, 0, 0, team.getColor()));
+            result.add(new TeamScoreChangeDto(teamName, startTime, 0.0, 0.0, team.getColor()));
         }
     }
 
@@ -135,12 +130,12 @@ public class DashboardServiceImpl implements DashboardService {
      * @param submittingTeam имя отправляющей команды
      * @return количество заработанных баллов, либо 0 если условия не соблюдены
      */
-    private int calculatePointsEarned(FlagSubmissionEntity submission, String submittingTeam, CompetitionDto competitionDto) {
-        int pointsEarned = 0;
+    private double calculatePointsEarned(FlagSubmissionEntity submission, String submittingTeam, CompetitionDto competitionDto) {
+        double pointsEarned = 0.0;
         if (submission.getIsCorrect() && submission.getFlag() != null) {
             String flagOwnerTeam = submission.getFlag().getFlagOwner().getName();
             if (!submittingTeam.equals(flagOwnerTeam)) {
-                pointsEarned = competitionDto.flagSendCost();
+                pointsEarned = submission.getPointsAwarded();
             }
         }
         return pointsEarned;
@@ -156,8 +151,8 @@ public class DashboardServiceImpl implements DashboardService {
      * @param submittingTeam имя отправляющей команды
      * @return количество потерянных баллов, либо 0 если условия не соблюдены
      */
-    private int calculatePointsLost(FlagSubmissionEntity submission, String submittingTeam, CompetitionDto competitionDto) {
-        int pointsLost = 0;
+    private double calculatePointsLost(FlagSubmissionEntity submission, String submittingTeam, CompetitionDto competitionDto) {
+        double pointsLost = 0.0;
         if (submission.getIsCorrect() && submission.getFlag() != null) {
             String flagOwnerTeam = submission.getFlag().getFlagOwner().getName();
             if (!submittingTeam.equals(flagOwnerTeam)) {
@@ -177,8 +172,8 @@ public class DashboardServiceImpl implements DashboardService {
      * @param points количество баллов для добавления (или вычитания)
      * @param teamPointsMap карта, ассоциирующая имена команд с их баллами
      */
-    private void updateTeamPoints(String teamName, int points, Map<String, Integer> teamPointsMap) {
-        teamPointsMap.put(teamName, teamPointsMap.getOrDefault(teamName, 0) + points);
+    private void updateTeamPoints(String teamName, Double points, Map<String, Double> teamPointsMap) {
+        teamPointsMap.put(teamName, teamPointsMap.getOrDefault(teamName, 0.0) + points);
     }
 
     /**
@@ -195,8 +190,8 @@ public class DashboardServiceImpl implements DashboardService {
             String teamName,
             String teamColor,
             Date time,
-            int points,
-            Map<String, Integer> teamPointsMap
+            double points,
+            Map<String, Double> teamPointsMap
     ) {
         return new TeamScoreChangeDto(
                 teamName,

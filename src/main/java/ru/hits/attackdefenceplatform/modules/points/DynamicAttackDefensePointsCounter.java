@@ -2,11 +2,9 @@ package ru.hits.attackdefenceplatform.modules.points;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.hits.attackdefenceplatform.common.exception.TeamNotFoundException;
 import ru.hits.attackdefenceplatform.core.CompetitionContext;
-import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionEntity;
-import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionRepository;
-import ru.hits.attackdefenceplatform.core.team.repository.TeamRepository;
+import ru.hits.attackdefenceplatform.modules.dashboard.repository.FlagSubmissionEntity;
+import ru.hits.attackdefenceplatform.modules.dashboard.repository.FlagSubmissionRepository;
 import ru.hits.attackdefenceplatform.modules.service_status.SlaService;
 import ru.hits.attackdefenceplatform.util.NumberUtils;
 

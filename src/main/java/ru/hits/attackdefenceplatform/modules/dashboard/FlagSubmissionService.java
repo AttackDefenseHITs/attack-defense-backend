@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.core.dashboard;
+package ru.hits.attackdefenceplatform.modules.dashboard;
 
 import org.springframework.data.domain.Page;
 import ru.hits.attackdefenceplatform.public_interface.dashboard.FlagSubmissionDto;

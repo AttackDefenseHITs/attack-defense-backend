@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.core.dashboard;
+package ru.hits.attackdefenceplatform.modules.dashboard;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -6,8 +6,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionEntity;
-import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionRepository;
+import ru.hits.attackdefenceplatform.modules.dashboard.repository.FlagSubmissionEntity;
+import ru.hits.attackdefenceplatform.modules.dashboard.repository.FlagSubmissionRepository;
 import ru.hits.attackdefenceplatform.public_interface.dashboard.FlagSubmissionDto;
 
 @Service

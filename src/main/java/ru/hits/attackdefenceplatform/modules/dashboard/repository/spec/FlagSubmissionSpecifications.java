@@ -1,8 +1,8 @@
-package ru.hits.attackdefenceplatform.core.dashboard.repository.spec;
+package ru.hits.attackdefenceplatform.modules.dashboard.repository.spec;
 
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
-import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionEntity;
+import ru.hits.attackdefenceplatform.modules.dashboard.repository.FlagSubmissionEntity;
 
 import java.util.ArrayList;
 import java.util.List;

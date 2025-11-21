@@ -28,7 +28,7 @@ public class CompetitionRoundService {
      */
     @Transactional
     public void tryAdvanceRound() {
-        var competition = competitionService.getCompetition();
+        var competition = competitionContext.getCurrent();
 
         if (!competitionContext.isInProgress()) {
             log.debug("Соревнование не активно, пропускаем обновление раунда");

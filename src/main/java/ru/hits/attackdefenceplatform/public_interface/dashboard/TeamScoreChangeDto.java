@@ -6,8 +6,8 @@ import java.util.UUID;
 public record TeamScoreChangeDto(
         String teamName,
         Date submissionTime,
-        Integer pointsEarned,
-        Integer totalTeamPoints,
+        Double pointsEarned,
+        Double totalTeamPoints,
         String color
 ) {}
 

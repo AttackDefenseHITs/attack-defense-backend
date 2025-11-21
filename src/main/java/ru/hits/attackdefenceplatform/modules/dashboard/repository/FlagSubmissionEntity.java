@@ -1,4 +1,4 @@
-package ru.hits.attackdefenceplatform.core.dashboard.repository;
+package ru.hits.attackdefenceplatform.modules.dashboard.repository;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
