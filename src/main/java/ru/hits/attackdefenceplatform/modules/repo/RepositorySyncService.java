@@ -49,7 +49,7 @@ public class RepositorySyncService {
         vulnerableServiceManagementService.syncServices(services);
 
         var checkers = checkerDetector.detect(files);
-        checkerManagementService.syncCheckersFromRepository(
+        checkerManagementService.syncCheckers(
                 repoInfo.fullName(),
                 repoInfo.defaultBranch(),
                 checkers

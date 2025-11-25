@@ -1,6 +1,7 @@
 package ru.hits.attackdefenceplatform.modules.checker;
 
 import ru.hits.attackdefenceplatform.modules.repo.model.RepoFileDto;
+import ru.hits.attackdefenceplatform.public_interface.checker.FileNodeDto;
 
 import java.io.IOException;
 import java.util.List;
@@ -9,9 +10,12 @@ import java.util.UUID;
 
 public interface CheckerManagementService {
     void uploadChecker(String scriptText, UUID serviceId) throws IOException;
-    void syncCheckersFromRepository(
+    void syncCheckers(
             String repoFullName,
             String branch,
             Map<String, List<RepoFileDto>> checkers) throws IOException;
+    @Deprecated
     String getCheckerScript(UUID serviceId) throws IOException;
+    List<FileNodeDto> getCheckerFileTree(UUID serviceId) throws IOException;
+    String getCheckerFileContent(UUID serviceId, String relativePath) throws IOException;
 }

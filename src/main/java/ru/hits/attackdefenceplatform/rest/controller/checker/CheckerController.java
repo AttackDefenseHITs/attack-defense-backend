@@ -9,9 +9,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.hits.attackdefenceplatform.modules.checker.CheckerExecutionService;
 import ru.hits.attackdefenceplatform.modules.checker.CheckerManagementService;
+import ru.hits.attackdefenceplatform.public_interface.checker.FileNodeDto;
 import ru.hits.attackdefenceplatform.public_interface.checker.StartCheckerRequest;
 
 import java.io.IOException;
@@ -48,6 +50,25 @@ public class CheckerController {
     ) throws IOException {
         var code = checkerManagementService.getCheckerScript(serviceId);
         return ResponseEntity.ok(code);
+    }
+
+    @GetMapping("/{serviceId}/files")
+    @Operation(summary = "Получить дерево файлов чекера")
+    public ResponseEntity<List<FileNodeDto>> getCheckerFileTree(
+            @PathVariable UUID serviceId
+    ) throws IOException {
+        List<FileNodeDto> tree = checkerManagementService.getCheckerFileTree(serviceId);
+        return ResponseEntity.ok(tree);
+    }
+
+    @GetMapping("/{serviceId}/file")
+    @Operation(summary = "Получить содержимое конкретного файла чекера")
+    public ResponseEntity<String> getCheckerFile(
+            @PathVariable UUID serviceId,
+            @RequestParam String path
+    ) throws IOException {
+        String content = checkerManagementService.getCheckerFileContent(serviceId, path);
+        return ResponseEntity.ok(content);
     }
 
     @PostMapping("/{serviceId}/{teamId}/run")

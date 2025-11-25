@@ -98,7 +98,7 @@ public class CheckerExecutionServiceImpl implements CheckerExecutionService {
 
             log.info("Запуск чекера для сервиса: {} на виртуальной машине с IP: {}", service.getName(), targetIp);
             var result = scriptExecutor.executeScript(
-                    checkerEntity.getScriptFilePath(),
+                    checkerEntity.getScriptFilePath() + "/run.py",
                     command,
                     targetIp,
                     targetPort
