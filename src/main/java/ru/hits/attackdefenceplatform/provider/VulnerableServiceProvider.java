@@ -3,8 +3,8 @@ package ru.hits.attackdefenceplatform.provider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
-import ru.hits.attackdefenceplatform.business.vulnerable_service.repository.VulnerableServiceEntity;
-import ru.hits.attackdefenceplatform.business.vulnerable_service.repository.VulnerableServiceRepository;
+import ru.hits.attackdefenceplatform.modules.vulnerable_service.repository.VulnerableServiceEntity;
+import ru.hits.attackdefenceplatform.modules.vulnerable_service.repository.VulnerableServiceRepository;
 
 import java.util.Optional;
 import java.util.UUID;

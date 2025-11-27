@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.AbstractWebSocketHandler;
 import ru.hits.attackdefenceplatform.public_interface.token.TokenUserData;
-import ru.hits.attackdefenceplatform.common.util.JwtTokenUtils;
+import ru.hits.attackdefenceplatform.util.JwtTokenUtils;
 
 import java.io.IOException;
 import java.util.Arrays;

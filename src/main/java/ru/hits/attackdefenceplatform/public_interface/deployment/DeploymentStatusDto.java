@@ -1,6 +1,6 @@
 package ru.hits.attackdefenceplatform.public_interface.deployment;
 
-import ru.hits.attackdefenceplatform.business.deploy.enums.DeploymentStatus;
+import ru.hits.attackdefenceplatform.modules.deploy.enums.DeploymentStatus;
 
 import java.util.UUID;
 

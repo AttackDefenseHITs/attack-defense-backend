@@ -1,0 +1,37 @@
+package ru.hits.attackdefenceplatform.modules.flag.mapper;
+
+import ru.hits.attackdefenceplatform.modules.flag.repository.FlagEntity;
+import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
+import ru.hits.attackdefenceplatform.modules.vulnerable_service.repository.VulnerableServiceEntity;
+import ru.hits.attackdefenceplatform.public_interface.flag.FlagDto;
+
+public class FlagMapper {
+
+    private FlagMapper() {}
+
+    public static FlagEntity fromCreateFlagRequest(
+            String value,
+            TeamEntity team,
+            VulnerableServiceEntity service
+    ) {
+        var flagEntity = new FlagEntity();
+        flagEntity.setValue(value);
+        flagEntity.setFlagOwner(team);
+        flagEntity.setVulnerableService(service);
+        flagEntity.setIsActive(true);
+        return flagEntity;
+    }
+
+    public static FlagDto mapToFlagDto(FlagEntity flag) {
+        return new FlagDto(
+                flag.getId(),
+                flag.getFlagOwner().getId(),
+                flag.getFlagOwner().getName(),
+                flag.getVulnerableService().getId(),
+                flag.getVulnerableService().getName(),
+                flag.getValue(),
+                flag.getIsActive()
+        );
+    }
+}
+
