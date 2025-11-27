@@ -1,6 +1,6 @@
 package ru.hits.attackdefenceplatform.public_interface.user;
 
-import ru.hits.attackdefenceplatform.modules.user.repository.Role;
+import ru.hits.attackdefenceplatform.business.user.repository.Role;
 
 import java.util.UUID;
 

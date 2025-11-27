@@ -1,0 +1,46 @@
+package ru.hits.attackdefenceplatform.business.competition.repository;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
+import lombok.Data;
+import ru.hits.attackdefenceplatform.business.competition.enums.CompetitionMode;
+import ru.hits.attackdefenceplatform.business.competition.enums.CompetitionStatus;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "competitions")
+@Data
+public class Competition {
+    @Id
+    private Long id;
+
+    @Enumerated(EnumType.STRING)
+    private CompetitionStatus status;
+
+    private String name;
+
+    private LocalDateTime startDate;
+
+    private LocalDateTime endDate;
+
+    private Integer totalRounds;
+
+    private Integer roundDurationMinutes;
+
+    private Integer currentRound;
+
+    private Integer flagSendCost;
+
+    private Integer flagLostCost;
+
+    @Lob
+    private String rules;
+
+    @Enumerated(EnumType.STRING)
+    private CompetitionMode competitionMode;
+}

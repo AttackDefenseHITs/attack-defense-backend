@@ -1,0 +1,312 @@
+package ru.hits.attackdefenceplatform.business.team;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.hits.attackdefenceplatform.common.exception.TeamException;
+import ru.hits.attackdefenceplatform.common.exception.TeamNotFoundException;
+import ru.hits.attackdefenceplatform.common.exception.UserException;
+import ru.hits.attackdefenceplatform.business.competition.enums.CompetitionStatus;
+import ru.hits.attackdefenceplatform.business.points.PointsService;
+import ru.hits.attackdefenceplatform.business.team.repository.TeamMemberEntity;
+import ru.hits.attackdefenceplatform.business.team.repository.TeamEntity;
+import ru.hits.attackdefenceplatform.business.team.repository.TeamMemberRepository;
+import ru.hits.attackdefenceplatform.business.team.repository.model.TeamPointsDto;
+import ru.hits.attackdefenceplatform.business.team.repository.TeamRepository;
+import ru.hits.attackdefenceplatform.business.user.repository.UserEntity;
+import ru.hits.attackdefenceplatform.business.virtual_machine.VirtualMachineService;
+import ru.hits.attackdefenceplatform.business.CompetitionContext;
+import ru.hits.attackdefenceplatform.public_interface.team.TeamInfoDto;
+import ru.hits.attackdefenceplatform.public_interface.team.TeamListDto;
+import ru.hits.attackdefenceplatform.public_interface.team.TeamShortDataDto;
+import ru.hits.attackdefenceplatform.public_interface.user.UserTeamMemberDto;
+import ru.hits.attackdefenceplatform.public_interface.vitrual_machine.VirtualMachineDto;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static ru.hits.attackdefenceplatform.business.user.mapper.UserMapper.mapUserEntityToMemberDto;
+
+/**
+ * Сервис для работы с командами в соревнованиях.
+ */
+@Service
+@RequiredArgsConstructor
+public class TeamServiceImpl implements TeamService {
+    private final CompetitionContext context;
+
+    private final TeamRepository teamRepository;
+    private final TeamMemberRepository teamMemberRepository;
+    private final VirtualMachineService virtualMachineService;
+    private final PointsService pointsService;
+
+    /**
+     * Добавляет пользователя в команду.
+     *
+     * @param user пользователь, желающий присоединиться
+     * @param teamId идентификатор команды
+     */
+    @Transactional
+    @Override
+    public void joinToTeam(UserEntity user, UUID teamId) {
+        var competition = context.getCurrent();
+        if (competition.getStatus() != CompetitionStatus.NEW) {
+            throw new TeamException("Вы не можете зайти в команду после начала соревнования");
+        }
+
+        var team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new TeamNotFoundException("Команда с ID " + teamId + " не найдена"));
+
+        if (teamMemberRepository.existsByUser(user)) {
+            throw new UserException("Пользователь уже состоит в другой команде");
+        }
+
+        long currentMembersCount = teamMemberRepository.countByTeam(team);
+        if (currentMembersCount >= team.getMaxMembers()) {
+            throw new TeamException("В команде с ID " + teamId + " нет места для нового участника");
+        }
+
+        var teamMember = new TeamMemberEntity();
+        teamMember.setUser(user);
+        teamMember.setTeam(team);
+        teamMemberRepository.save(teamMember);
+    }
+
+    /**
+     * Удаляет пользователя из команды.
+     *
+     * @param user пользователь, покидающий команду
+     * @param teamId идентификатор команды
+     */
+    @Transactional
+    @Override
+    public void leftFromTeam(UserEntity user, UUID teamId) {
+        var competition = context.getCurrent();
+        if (competition.getStatus() != CompetitionStatus.NEW) {
+            throw new TeamException("Вы не можете выйти из команды после начала соревнования");
+        }
+
+        var team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new TeamNotFoundException("Команда с ID " + teamId + " не найдена"));
+
+        var teamMember = teamMemberRepository.findByUserAndTeam(user, team)
+                .orElseThrow(() -> new UserException("Пользователь не состоит в команде с ID " + teamId));
+
+        teamMemberRepository.delete(teamMember);
+    }
+
+    /**
+     * Возвращает информацию о команде.
+     *
+     * @param teamId идентификатор команды
+     * @param user пользователь, запрашивающий информацию
+     * @return DTO с информацией о команде
+     */
+    @Transactional(readOnly = true)
+    @Override
+    public TeamInfoDto getTeamById(UUID teamId, UserEntity user) {
+        var team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new TeamNotFoundException("Команда с ID " + teamId + " не найдена"));
+
+        var userCount = teamMemberRepository.countByTeam(team);
+        var membersCount = team.getMaxMembers();
+
+        var memberList = teamMemberRepository.findByTeam(team).stream()
+                .map(member -> mapUserEntityToMemberDto(member.getUser(), member.getPoints()))
+                .toList();
+
+        List<TeamPointsDto> rankedTeams = teamRepository.getTeamPointsRanked();
+
+        var canJoin = canUserJoinTeam(user, team);
+        var isMyTeam = isUserInTeam(user, team);
+        var canLeave = canLeaveFromTeam(user, team);
+
+        Integer place = calculateTeamPlace(team, rankedTeams);
+        Double points = calculateTeamPoints(team);
+        var virtualMachine = getFullTeamVirtualMachineInfo(teamId, isMyTeam);
+
+        return new TeamInfoDto(
+                team.getId(),
+                team.getName(),
+                userCount,
+                membersCount,
+                place,
+                points,
+                canJoin,
+                isMyTeam,
+                canLeave,
+                memberList,
+                virtualMachine
+        );
+    }
+
+    /**
+     * Возвращает список всех команд с информацией для отображения.
+     *
+     * @param user пользователь, запрашивающий список
+     * @return список DTO команд
+     */
+    @Transactional(readOnly = true)
+    @Override
+    public List<TeamListDto> getAllTeams(UserEntity user) {
+        List<TeamPointsDto> rankedTeams = teamRepository.getTeamPointsRanked();
+        return teamRepository.findAll().stream()
+                .map(team -> mapTeamEntityToTeamListDto(team, user, rankedTeams))
+                .toList();
+    }
+
+    /**
+     * Удаляет участника из команды.
+     *
+     * @param teamId идентификатор команды
+     * @param userId идентификатор пользователя
+     */
+    @Transactional
+    @Override
+    public void removeMemberFromTeam(UUID teamId, UUID userId) {
+        var teamMember = teamMemberRepository.findByUserIdAndTeamId(userId, teamId)
+                .orElseThrow(() -> new UserException("Участник с ID " + userId + " не найден в команде с ID " + teamId));
+        teamMemberRepository.delete(teamMember);
+    }
+
+    /**
+     * Проверяет, может ли пользователь присоединиться к команде.
+     *
+     * @param user пользователь
+     * @param team команда
+     * @return true, если возможно, иначе false
+     */
+    private boolean canUserJoinTeam(UserEntity user, TeamEntity team) {
+        boolean isUserInTeam = teamMemberRepository.existsByUser(user);
+        long userCount = teamMemberRepository.countByTeam(team);
+        var competition = context.getCurrent();
+        boolean competitionNotStarted = competition.getStatus().equals(CompetitionStatus.NEW);
+        return !isUserInTeam && userCount < team.getMaxMembers() && competitionNotStarted;
+    }
+
+    /**
+     * Проверяет, состоит ли пользователь в команде.
+     *
+     * @param user пользователь
+     * @param team команда
+     * @return true, если пользователь состоит в команде, иначе false
+     */
+    private boolean isUserInTeam(UserEntity user, TeamEntity team) {
+        return teamMemberRepository.existsByUserAndTeam(user, team);
+    }
+
+    /**
+     * Проверяет, может ли пользователь покинуть команду.
+     *
+     * @param user пользователь
+     * @param team команда
+     * @return true, если пользователь может выйти, иначе false
+     */
+    private boolean canLeaveFromTeam(UserEntity user, TeamEntity team) {
+        return isUserInTeam(user, team) && context.isInNew();
+    }
+
+    /**
+     * Вычисляет место команды в рейтинге.
+     *
+     * @param team команда
+     * @return место команды
+     */
+    public Integer calculateTeamPlace(TeamEntity team, List<TeamPointsDto> rankedTeams) {
+        for (int i = 0; i < rankedTeams.size(); i++) {
+            if (rankedTeams.get(i).teamId().equals(team.getId())) {
+                return i + 1;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Вычисляет баллы команды.
+     *
+     * @param team команда
+     * @return количество баллов
+     */
+    public Double calculateTeamPoints(TeamEntity team) {
+        return pointsService.calculateTeamFlagPoints(team);
+    }
+
+    /**
+     * Возвращает информацию о виртуальной машине команды.
+     *
+     * @param teamId идентификатор команды
+     * @param isMyTeam флаг, указывающий, является ли запрос от участника команды
+     * @return DTO виртуальной машины или null
+     */
+    private VirtualMachineDto getFullTeamVirtualMachineInfo(UUID teamId, boolean isMyTeam) {
+        boolean competitionStarted = !context.isInNew();
+        if (competitionStarted && isMyTeam) {
+            return virtualMachineService.getVirtualMachinesByTeam(teamId)
+                    .stream()
+                    .findFirst()
+                    .orElse(null);
+        }
+        return null;
+    }
+
+    @Override
+    public TeamShortDataDto mapToTeamServiceStatusDto(TeamEntity team){
+        List<TeamPointsDto> rankedTeams = teamRepository.getTeamPointsRanked();
+        var place = calculateTeamPlace(team, rankedTeams);
+        var points = calculateTeamPoints(team);
+        var virtualMachineIp = Optional.ofNullable(getFullTeamVirtualMachineInfo(team.getId(), true))
+                .map(VirtualMachineDto::ipAddress)
+                .orElse(null);
+
+        return new TeamShortDataDto(
+                team.getId(),
+                team.getName(),
+                place,
+                points,
+                virtualMachineIp
+        );
+    }
+
+    /**
+     * Отдает список участников команды с очками
+     */
+    @Override
+    public List<UserTeamMemberDto> getTeamMemberRatings() {
+        return teamMemberRepository.findAll().stream()
+                .map(member -> mapUserEntityToMemberDto(member.getUser(), member.getPoints()))
+                .sorted(Comparator.comparingDouble(UserTeamMemberDto::points).reversed())
+                .toList();
+    }
+
+    /**
+     * Преобразует сущность команды в DTO для списка.
+     *
+     * @param team сущность команды
+     * @param user пользователь, запрашивающий информацию (может быть null)
+     * @return DTO команды
+     */
+    private TeamListDto mapTeamEntityToTeamListDto(TeamEntity team, UserEntity user, List<TeamPointsDto> rankedTeams) {
+        var userCount = teamMemberRepository.countByTeam(team);
+        var membersCount = team.getMaxMembers();
+        var isMyTeam = Optional.ofNullable(user)
+                .map(u -> isUserInTeam(u, team))
+                .orElse(false);
+        var place = calculateTeamPlace(team, rankedTeams);
+        var points = calculateTeamPoints(team);
+        var virtualMachineIp = Optional.ofNullable(getFullTeamVirtualMachineInfo(team.getId(), true))
+                .map(VirtualMachineDto::ipAddress)
+                .orElse(null);
+        return new TeamListDto(
+                team.getId(),
+                team.getName(),
+                place,
+                points,
+                userCount,
+                membersCount,
+                isMyTeam,
+                virtualMachineIp
+        );
+    }
+}
