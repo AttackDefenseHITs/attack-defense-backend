@@ -24,8 +24,6 @@ import ru.hits.attackdefenceplatform.publisher.CompetitionResetEvent;
 
 import java.util.List;
 
-import static ru.hits.attackdefenceplatform.core.competition.mapper.CompetitionMapper.mapToCompetitionDto;
-
 /**
  * Сервис для управления процессом прохождения соревнования
  */

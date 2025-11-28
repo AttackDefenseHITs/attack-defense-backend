@@ -2,23 +2,20 @@ package ru.hits.attackdefenceplatform.core;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.hits.attackdefenceplatform.common.exception.CompetitionException;
+import ru.hits.attackdefenceplatform.core.competition.CompetitionInMemoryCache;
 import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionMode;
 import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionStatus;
 import ru.hits.attackdefenceplatform.core.competition.mapper.CompetitionMapper;
 import ru.hits.attackdefenceplatform.core.competition.repository.Competition;
-import ru.hits.attackdefenceplatform.core.competition.repository.CompetitionRepository;
 import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionDto;
 
 @Component
 @RequiredArgsConstructor
 public class CompetitionContext {
-    private final CompetitionRepository competitionRepository;
+    private final CompetitionInMemoryCache competitionCache;
 
     public Competition getCurrent() {
-        return competitionRepository.findAll().stream()
-                .findFirst()
-                .orElseThrow(() -> new CompetitionException("Нет активного соревнования"));
+        return competitionCache.get();
     }
 
     public CompetitionDto getCompetitionDto() {

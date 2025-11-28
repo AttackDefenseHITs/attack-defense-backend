@@ -15,6 +15,7 @@ import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionAction;
 import ru.hits.attackdefenceplatform.public_interface.competition.ChangeStatusRequest;
 import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionDto;
 import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionModeDto;
+import ru.hits.attackdefenceplatform.public_interface.competition.UpdateCompetitionModeRequest;
 import ru.hits.attackdefenceplatform.public_interface.competition.UpdateCompetitionRequest;
 
 import java.util.List;
@@ -65,5 +66,11 @@ public class CompetitionController {
     public ResponseEntity<CompetitionModeDto> getCompetitionMode(){
         var competitionMode = competitionService.getCompetition().getCompetitionMode().name();
         return ResponseEntity.ok(new CompetitionModeDto(competitionMode));
+    }
+
+    @PostMapping("/mode")
+    @Operation(summary = "Переключить режим соревнования")
+    public ResponseEntity<CompetitionDto> setCompetitionMode(@RequestBody UpdateCompetitionModeRequest dto){
+        return ResponseEntity.ok(competitionService.updateCompetitionMode(dto));
     }
 }
