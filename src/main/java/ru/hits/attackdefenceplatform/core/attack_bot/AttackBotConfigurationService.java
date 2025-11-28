@@ -43,10 +43,7 @@ public class AttackBotConfigurationService {
         entity.setRoundIntervalSeconds(dto.getRoundIntervalSeconds());
 
         repository.save(entity);
-
         this.cached = entity;
-
-        log.info("Attack bot settings updated: {}", entity);
         return map(entity);
     }
 

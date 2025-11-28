@@ -32,6 +32,7 @@ import static ru.hits.attackdefenceplatform.core.competition.mapper.CompetitionM
 @Service
 @RequiredArgsConstructor
 public class CompetitionServiceImpl implements CompetitionService {
+
     private final CompetitionRepository competitionRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final FlagSubmissionRepository flagSubmissionRepository;
@@ -42,24 +43,37 @@ public class CompetitionServiceImpl implements CompetitionService {
     private final CompetitionDefaultsProperties defaults;
     private final DomainEventPublisher eventPublisher;
 
+    private final CompetitionInMemoryCache competitionCache;
+
     /**
-     * Метод для изменения статуса соревнования
+     * Получить сущность соревнования (из кэша)
      */
-    @Transactional
     @Override
+    @Transactional(readOnly = true)
+    public Competition getCompetition() {
+        return competitionCache.get();
+    }
+
+    /**
+     * Изменение статуса соревнования
+     */
+    @Override
+    @Transactional
     public CompetitionDto changeCompetitionStatus(CompetitionAction action) {
         var competition = getCompetition();
 
         var state = stateFactory.getState(competition.getStatus());
         state.handle(competition, action);
 
-        competitionRepository.save(competition);
+        var saved = competitionRepository.save(competition);
+        competitionCache.update(saved);
+
         eventPublisher.publish(new CompetitionEvent(stateFactory.getMessage(action)));
-        return CompetitionMapper.mapToCompetitionDto(competition);
+        return CompetitionMapper.mapToCompetitionDto(saved);
     }
 
     /**
-     * Получить возможные действия в зависимости от текущего статуса соревнования
+     * Возможные действия в зависимости от статуса
      */
     @Override
     @Transactional(readOnly = true)
@@ -70,7 +84,7 @@ public class CompetitionServiceImpl implements CompetitionService {
     }
 
     /**
-     * Метод для обновления настроек соревнования
+     * Обновление настроек соревнования
      */
     @Override
     @Transactional
@@ -86,48 +100,49 @@ public class CompetitionServiceImpl implements CompetitionService {
         competition.setRoundDurationMinutes(request.roundDurationMinutes());
         competition.setRules(request.rules());
 
-        var updatedCompetition = competitionRepository.save(competition);
-        return CompetitionMapper.mapToCompetitionDto(updatedCompetition);
+        var saved = competitionRepository.save(competition);
+        competitionCache.update(saved);
+
+        return CompetitionMapper.mapToCompetitionDto(saved);
     }
 
+    /**
+     * Изменение режима соревнования
+     */
     @Override
     @Transactional
     public CompetitionDto updateCompetitionMode(UpdateCompetitionModeRequest request) {
         var competition = getCompetition();
+
         if (competition.getStatus() != CompetitionStatus.NEW) {
             throw new CompetitionException("Во время соревнования нельзя изменить режим");
         }
+
         competition.setCompetitionMode(request.competitionMode());
-        return CompetitionMapper.mapToCompetitionDto(competitionRepository.save(competition));
+
+        var saved = competitionRepository.save(competition);
+        competitionCache.update(saved);
+
+        return CompetitionMapper.mapToCompetitionDto(saved);
     }
 
     /**
-     * Получить информацию о текущем соревновании в формате DTO
+     * DTO текущего соревнования
      */
     @Override
     @Transactional(readOnly = true)
     public CompetitionDto getCompetitionDto() {
-        var competition = getCompetition();
-        return mapToCompetitionDto(competition);
+        return CompetitionMapper.mapToCompetitionDto(getCompetition());
     }
 
     /**
-     * Получить сущность соревнования (он всегда один)
-     */
-    @Override
-    @Transactional(readOnly = true)
-    public Competition getCompetition() {
-        return competitionRepository.findAll().stream()
-                .findFirst()
-                .orElseThrow(() -> new CompetitionException("Соревнование не найдено"));
-    }
-    /**
-     * Обновить соревнование
+     * Перезапуск соревнования
      */
     @Override
     @Transactional
     public CompetitionDto restartCompetition() {
         var competition = getCompetition();
+
         competition.setStatus(CompetitionStatus.NEW);
         competition.setTotalRounds(defaults.getTotalRounds());
         competition.setRoundDurationMinutes(defaults.getRoundDurationMinutes());
@@ -143,13 +158,16 @@ public class CompetitionServiceImpl implements CompetitionService {
 
         eventPublisher.publish(new CompetitionResetEvent());
 
-        competitionRepository.save(competition);
-        return CompetitionMapper.mapToCompetitionDto(competition);
+        var saved = competitionRepository.save(competition);
+        competitionCache.update(saved);
+
+        return CompetitionMapper.mapToCompetitionDto(saved);
     }
 
     /**
-     * Начало следующего раунда.
+     * Начало следующего раунда
      */
+    @Override
     @Transactional
     public CompetitionDto startNextRound() {
         var competition = getCompetition();
@@ -163,7 +181,10 @@ public class CompetitionServiceImpl implements CompetitionService {
         }
 
         competition.setCurrentRound(competition.getCurrentRound() + 1);
-        competitionRepository.save(competition);
-        return CompetitionMapper.mapToCompetitionDto(competition);
+
+        var saved = competitionRepository.save(competition);
+        competitionCache.update(saved);
+
+        return CompetitionMapper.mapToCompetitionDto(saved);
     }
 }
