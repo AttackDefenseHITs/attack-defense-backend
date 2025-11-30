@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.hits.attackdefenceplatform.core.attack_bot.mapper.AttackBotSettingsMapper;
 import ru.hits.attackdefenceplatform.core.attack_bot.repository.AttackBotSettingsEntity;
 import ru.hits.attackdefenceplatform.core.attack_bot.repository.AttackBotSettingsRepository;
 import ru.hits.attackdefenceplatform.public_interface.attack_bot.AttackBotSettingsDto;
@@ -26,7 +27,7 @@ public class AttackBotConfigurationService {
     }
 
     public AttackBotSettingsDto getSettings() {
-        return map(cached);
+        return AttackBotSettingsMapper.toDto(cached);
     }
 
     @Transactional
@@ -34,28 +35,10 @@ public class AttackBotConfigurationService {
         AttackBotSettingsEntity entity = repository.findById(cached.getId())
                 .orElseThrow();
 
-        entity.setEnabled(dto.isEnabled());
-        entity.setAttackProbability(dto.getAttackProbability());
-        entity.setMaxTargets(dto.getMaxTargets());
-        entity.setCooldownRounds(dto.getCooldownRounds());
-        entity.setPriorityScoreWeight(dto.getPriorityScoreWeight());
-        entity.setPrioritySlaWeight(dto.getPrioritySlaWeight());
-        entity.setRoundIntervalSeconds(dto.getRoundIntervalSeconds());
-
+        AttackBotSettingsMapper.updateEntity(entity, dto);
         repository.save(entity);
-        this.cached = entity;
-        return map(entity);
-    }
 
-    private AttackBotSettingsDto map(AttackBotSettingsEntity e) {
-        var dto = new AttackBotSettingsDto();
-        dto.setEnabled(e.isEnabled());
-        dto.setAttackProbability(e.getAttackProbability());
-        dto.setMaxTargets(e.getMaxTargets());
-        dto.setCooldownRounds(e.getCooldownRounds());
-        dto.setPriorityScoreWeight(e.getPriorityScoreWeight());
-        dto.setPrioritySlaWeight(e.getPrioritySlaWeight());
-        dto.setRoundIntervalSeconds(e.getRoundIntervalSeconds());
-        return dto;
+        cached = entity;
+        return AttackBotSettingsMapper.toDto(entity);
     }
 }
