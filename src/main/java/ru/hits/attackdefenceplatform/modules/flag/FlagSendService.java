@@ -9,6 +9,7 @@ import ru.hits.attackdefenceplatform.common.exception.flag.FlagExpiredException;
 import ru.hits.attackdefenceplatform.common.exception.flag.InvalidFlagException;
 import ru.hits.attackdefenceplatform.common.exception.flag.OwnFlagSubmissionException;
 import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionMode;
+import ru.hits.attackdefenceplatform.core.competition.mode.CompetitionModeRegistry;
 import ru.hits.attackdefenceplatform.modules.dashboard.repository.FlagSubmissionEntity;
 import ru.hits.attackdefenceplatform.modules.dashboard.repository.FlagSubmissionRepository;
 import ru.hits.attackdefenceplatform.modules.flag.repository.FlagEntity;
@@ -31,12 +32,12 @@ import java.util.Date;
 public class FlagSendService implements FlagService {
 
     private final CompetitionContext competitionContext;
+    private final CompetitionModeRegistry modeRegistry;
 
     private final FlagRepository flagRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final FlagSubmissionRepository flagSubmissionRepository;
     private final DomainEventPublisher domainEventPublisher;
-    private final DynamicPointsCalculator dynamicPointsCalculator;
 
     private static final String FLAG_SUCCESS = "Успешно";
     private static final String FLAG_OWN = "Флаг команды";
@@ -61,13 +62,15 @@ public class FlagSendService implements FlagService {
      */
     @Override
     public void sendFlag(String flagValue, UserEntity user) {
+        var competition = competitionContext.getCurrent();
+        var modeModule = modeRegistry.getModule(competition.getCompetitionMode());
+        var flagPolicy = modeModule.flagSubmissionPolicy();
+
         var teamMember = teamMemberRepository.findByUser(user)
                 .orElseThrow(() -> new TeamException("Пользователь не является участником соревнований"));
         var userTeam = teamMember.getTeam();
 
-        if (competitionContext.getMode() != CompetitionMode.ATTACK_DEFENSE){
-            throw new CompetitionException("Флаг можно сдавать только во время Attack-Defense");
-        }
+        flagPolicy.validateSubmissionAllowed(competition);
 
         if (competitionContext.currentRoundIsZero() || !competitionContext.isInProgress()) {
             throw new CompetitionException("Флаг сдавать в текущий момент нельзя");
@@ -93,7 +96,7 @@ public class FlagSendService implements FlagService {
         }
 
         if (currentFlag.getFlagOwner().equals(userTeam)) {
-            saveFlagSubmission(userTeam, user, currentFlag, flagValue, false, FLAG_OWN, 0.0);
+            //saveFlagSubmission(userTeam, user, currentFlag, flagValue, false, FLAG_OWN, 0.0);
             throw new OwnFlagSubmissionException("Вы не можете отправить флаг своей команды");
         }
 
@@ -103,7 +106,8 @@ public class FlagSendService implements FlagService {
         var serviceId = currentFlag.getVulnerableService().getId();
         var currentRound = competitionContext.getCurrent().getCurrentRound();
 
-        var points = NumberUtils.roundToThreeDecimals(dynamicPointsCalculator.calculate(teamId, serviceId, currentRound));
+        var points = NumberUtils.roundToThreeDecimals(
+                flagPolicy.calculatePoints(competition, teamId, serviceId, currentRound));
         teamMember.setPoints(teamMember.getPoints() + points);
 
         saveFlagSubmission(userTeam, user, currentFlag, flagValue, true, FLAG_SUCCESS, points);
