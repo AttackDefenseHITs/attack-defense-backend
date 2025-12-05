@@ -10,11 +10,14 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.hits.attackdefenceplatform.core.attack_bot.AttackBotConfigurationService;
 import ru.hits.attackdefenceplatform.core.competition.CompetitionService;
+import ru.hits.attackdefenceplatform.core.competition.CompetitionSettingsFacade;
 import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionAction;
 import ru.hits.attackdefenceplatform.public_interface.competition.ChangeStatusRequest;
 import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionDto;
 import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionModeDto;
+import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionSettingsDto;
 import ru.hits.attackdefenceplatform.public_interface.competition.UpdateCompetitionModeRequest;
 import ru.hits.attackdefenceplatform.public_interface.competition.UpdateCompetitionRequest;
 
@@ -26,6 +29,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CompetitionController {
     private final CompetitionService competitionService;
+    private final CompetitionSettingsFacade competitionSettingsFacade;
+    private final AttackBotConfigurationService configurationService;
 
     @PostMapping("/status")
     @Operation(summary = "Изменить статус соревнования")
@@ -44,13 +49,21 @@ public class CompetitionController {
     @Operation(summary = "Изменить настройки соревнования")
     public ResponseEntity<CompetitionDto> updateCompetition(@RequestBody UpdateCompetitionRequest request) {
         var competition = competitionService.updateCompetition(request);
+        configurationService.updateSettings(request.attackBotSettings());
         return ResponseEntity.ok(competition);
     }
 
     @GetMapping
-    @Operation(summary = "Получить настройки соревнования")
+    @Operation(summary = "Получить данные о соревновании")
     public ResponseEntity<CompetitionDto> getCompetition() {
         var competitionDto = competitionService.getCompetitionDto();
+        return ResponseEntity.ok(competitionDto);
+    }
+
+    @GetMapping("/settings")
+    @Operation(summary = "Получить полные настройки соревнования")
+    public ResponseEntity<CompetitionSettingsDto> getCompetitionSettings() {
+        var competitionDto = competitionSettingsFacade.getCurrentSettings();
         return ResponseEntity.ok(competitionDto);
     }
 
