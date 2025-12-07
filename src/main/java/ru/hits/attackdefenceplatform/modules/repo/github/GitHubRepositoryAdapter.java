@@ -44,7 +44,8 @@ public class GitHubRepositoryAdapter implements RepositoryAdapter {
             Map.entry("checkers/web/requirements.txt", "requests\npyyaml"),
             Map.entry("exploits/web/main.py",
                     "# Example exploit\nprint('Exploit started')"),
-            Map.entry("results/.gitkeep", "")
+            Map.entry("results/.gitkeep", ""),
+            Map.entry(".gitignore", ".idea")
     );
 
     public GitHubRepositoryAdapter(
