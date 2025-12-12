@@ -2,9 +2,8 @@ package ru.hits.attackdefenceplatform.modules.checker.script;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import ru.hits.attackdefenceplatform.configuration.properties.CheckersProperties;
+import ru.hits.attackdefenceplatform.configuration.properties.DirectoryProperties;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -19,7 +18,7 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 public class CheckerFileService {
-    private final CheckersProperties properties;
+    private final DirectoryProperties properties;
 
     /**
      * Сохраняет текст скрипта в новый файл в директории чекеров.
@@ -33,7 +32,7 @@ public class CheckerFileService {
     public Path saveScriptToFile(String scriptText) throws IOException {
         ensureCheckersDirectoryExists();
         var fileName = UUID.randomUUID() + "_checker.py";
-        var scriptPath = Paths.get(properties.getDirectory(), fileName);
+        var scriptPath = Paths.get(properties.getCheckers(), fileName);
         Files.writeString(scriptPath, scriptText);
         return scriptPath;
     }
@@ -80,10 +79,10 @@ public class CheckerFileService {
      * @throws IOException если не удалось создать директорию
      */
     private void ensureCheckersDirectoryExists() throws IOException {
-        Path checkersDirPath = Paths.get(properties.getDirectory());
+        Path checkersDirPath = Paths.get(properties.getCheckers());
         if (!Files.exists(checkersDirPath)) {
             Files.createDirectories(checkersDirPath);
-            log.info("Создана директория для чекеров: {}", properties.getDirectory());
+            log.info("Создана директория для чекеров: {}", properties.getCheckers());
         }
     }
 }

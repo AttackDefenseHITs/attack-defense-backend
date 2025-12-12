@@ -4,9 +4,10 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
-@ConfigurationProperties(prefix = "checkers")
+@ConfigurationProperties(prefix = "directory")
 @Configuration
 @Data
-public class CheckersProperties {
-    private String directory;
+public class DirectoryProperties {
+    private String checkers;
+    private String exploits;
 }

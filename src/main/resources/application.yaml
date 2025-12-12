@@ -38,8 +38,9 @@ competition:
   scoring:
     alpha: 0.05
     gamma: 1.0
-checkers:
-  directory: /var/lib/checkers/
+directory:
+  checkers: /var/lib/checkers/
+  exploits: /var/lib/exploits/
 
 jwt:
   secret: ${JWT_SECRET:r1Wq3Y7Ql8ivrpC4A6vEgBg1kllCKCrFkwhbZUNZ6Y8=}
