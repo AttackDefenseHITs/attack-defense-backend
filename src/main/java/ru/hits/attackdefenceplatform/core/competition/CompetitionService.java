@@ -3,6 +3,7 @@ package ru.hits.attackdefenceplatform.core.competition;
 import ru.hits.attackdefenceplatform.core.competition.repository.Competition;
 import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionAction;
 import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionDto;
+import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionShortDto;
 import ru.hits.attackdefenceplatform.public_interface.competition.UpdateCompetitionModeRequest;
 import ru.hits.attackdefenceplatform.public_interface.competition.UpdateCompetitionRequest;
 
@@ -14,6 +15,7 @@ public interface CompetitionService {
     CompetitionDto updateCompetition(UpdateCompetitionRequest request);
     CompetitionDto updateCompetitionMode(UpdateCompetitionModeRequest request);
     CompetitionDto getCompetitionDto();
+    CompetitionShortDto getCompetitionShortDto();
     Competition getCompetition();
     CompetitionDto restartCompetition();
     CompetitionDto startNextRound();

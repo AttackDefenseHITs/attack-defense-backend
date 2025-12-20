@@ -18,6 +18,7 @@ import ru.hits.attackdefenceplatform.public_interface.competition.ChangeStatusRe
 import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionDto;
 import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionModeDto;
 import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionSettingsDto;
+import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionShortDto;
 import ru.hits.attackdefenceplatform.public_interface.competition.UpdateCompetitionModeRequest;
 import ru.hits.attackdefenceplatform.public_interface.competition.UpdateCompetitionRequest;
 
@@ -55,8 +56,8 @@ public class CompetitionController {
 
     @GetMapping
     @Operation(summary = "Получить данные о соревновании")
-    public ResponseEntity<CompetitionDto> getCompetition() {
-        var competitionDto = competitionService.getCompetitionDto();
+    public ResponseEntity<CompetitionShortDto> getCompetition() {
+        var competitionDto = competitionService.getCompetitionShortDto();
         return ResponseEntity.ok(competitionDto);
     }
 

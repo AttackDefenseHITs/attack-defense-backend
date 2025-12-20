@@ -16,6 +16,7 @@ import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionRep
 import ru.hits.attackdefenceplatform.core.flag.repository.FlagRepository;
 import ru.hits.attackdefenceplatform.core.service_status.repository.ServiceStatusRepository;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberRepository;
+import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionShortDto;
 import ru.hits.attackdefenceplatform.public_interface.competition.UpdateCompetitionModeRequest;
 import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionDto;
 import ru.hits.attackdefenceplatform.public_interface.competition.UpdateCompetitionRequest;
@@ -131,6 +132,15 @@ public class CompetitionServiceImpl implements CompetitionService {
     @Transactional(readOnly = true)
     public CompetitionDto getCompetitionDto() {
         return CompetitionMapper.mapToCompetitionDto(getCompetition());
+    }
+
+    /**
+     * Краткое DTO текущего соревнования
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public CompetitionShortDto getCompetitionShortDto() {
+        return CompetitionMapper.mapToCompetitionShortDto(getCompetition());
     }
 
     /**
