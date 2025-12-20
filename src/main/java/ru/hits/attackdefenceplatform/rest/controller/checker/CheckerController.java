@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.hits.attackdefenceplatform.modules.checker.CheckerExecutionService;
-import ru.hits.attackdefenceplatform.modules.checker.CheckerManagementService;
+import ru.hits.attackdefenceplatform.core.checker.CheckerExecutionService;
+import ru.hits.attackdefenceplatform.core.checker.CheckerManagementService;
 import ru.hits.attackdefenceplatform.public_interface.checker.FileNodeDto;
 import ru.hits.attackdefenceplatform.public_interface.checker.StartCheckerRequest;
 

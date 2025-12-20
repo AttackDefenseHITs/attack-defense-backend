@@ -8,8 +8,8 @@ import ru.hits.attackdefenceplatform.core.competition.mode.CompetitionModeModule
 import ru.hits.attackdefenceplatform.core.competition.mode.FlagSubmissionPolicy;
 import ru.hits.attackdefenceplatform.core.competition.mode.RoundPolicy;
 import ru.hits.attackdefenceplatform.core.competition.mode.ScoringPolicy;
-import ru.hits.attackdefenceplatform.modules.checker.CheckerExecutionService;
-import ru.hits.attackdefenceplatform.modules.points.ReverseDefensePointsCounter;
+import ru.hits.attackdefenceplatform.core.checker.CheckerExecutionService;
+import ru.hits.attackdefenceplatform.core.points.ReverseDefensePointsCounter;
 
 import java.util.List;
 

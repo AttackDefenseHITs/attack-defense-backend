@@ -11,8 +11,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
-import ru.hits.attackdefenceplatform.modules.user.repository.UserEntity;
-import ru.hits.attackdefenceplatform.modules.user.repository.UserRepository;
+import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
+import ru.hits.attackdefenceplatform.core.user.repository.UserRepository;
 import ru.hits.attackdefenceplatform.util.JwtTokenUtils;
 
 import java.io.IOException;

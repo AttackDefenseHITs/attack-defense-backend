@@ -7,7 +7,7 @@ import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionMode;
 import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionStatus;
 import ru.hits.attackdefenceplatform.core.competition.mode.FlagSubmissionPolicy;
 import ru.hits.attackdefenceplatform.core.competition.repository.Competition;
-import ru.hits.attackdefenceplatform.modules.points.DynamicPointsCalculator;
+import ru.hits.attackdefenceplatform.core.points.DynamicPointsCalculator;
 
 import java.util.UUID;
 

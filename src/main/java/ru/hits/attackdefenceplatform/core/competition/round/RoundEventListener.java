@@ -8,10 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.hits.attackdefenceplatform.core.CompetitionContext;
 import ru.hits.attackdefenceplatform.core.competition.mode.CompetitionModeRegistry;
-import ru.hits.attackdefenceplatform.modules.checker.CheckerExecutionService;
 import ru.hits.attackdefenceplatform.publisher.RoundStartedEvent;
-
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor

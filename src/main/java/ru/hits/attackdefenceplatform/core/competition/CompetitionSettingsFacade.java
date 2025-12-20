@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.hits.attackdefenceplatform.core.CompetitionContext;
 import ru.hits.attackdefenceplatform.core.attack_bot.AttackBotConfigurationService;
-import ru.hits.attackdefenceplatform.modules.repo.RepositoryService;
+import ru.hits.attackdefenceplatform.core.repo.RepositoryService;
 import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionSettingsDto;
 
 @Service

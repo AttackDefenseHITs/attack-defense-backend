@@ -1,10 +1,7 @@
 package ru.hits.attackdefenceplatform.core.team;
 
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
-import ru.hits.attackdefenceplatform.modules.user.repository.UserEntity;
-import ru.hits.attackdefenceplatform.public_interface.team.CreateManyTeamsRequest;
-import ru.hits.attackdefenceplatform.public_interface.team.CreateTeamRequest;
-import ru.hits.attackdefenceplatform.public_interface.team.CreatedTeamResponse;
+import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
 import ru.hits.attackdefenceplatform.public_interface.team.TeamInfoDto;
 import ru.hits.attackdefenceplatform.public_interface.team.TeamListDto;
 import ru.hits.attackdefenceplatform.public_interface.team.TeamShortDataDto;

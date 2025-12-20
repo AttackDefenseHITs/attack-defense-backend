@@ -4,16 +4,11 @@ import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.hits.attackdefenceplatform.modules.user.repository.Role;
+import ru.hits.attackdefenceplatform.core.user.repository.Role;
 import ru.hits.attackdefenceplatform.public_interface.deployment.DeploymentResult;
-import ru.hits.attackdefenceplatform.public_interface.service_statuses.ServiceStatusInfo;
-import ru.hits.attackdefenceplatform.websocket.model.CheckerStatusEventModel;
 import ru.hits.attackdefenceplatform.websocket.model.DeploymentEventModel;
 import ru.hits.attackdefenceplatform.websocket.storage.WebSocketStorage;
-import ru.hits.attackdefenceplatform.websocket.storage.key.SessionKey;
 import ru.hits.attackdefenceplatform.websocket.storage.key.WebSocketHandlerType;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

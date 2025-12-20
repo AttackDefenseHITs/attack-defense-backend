@@ -18,7 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import ru.hits.attackdefenceplatform.modules.user.repository.UserRepository;
+import ru.hits.attackdefenceplatform.core.user.repository.UserRepository;
 import ru.hits.attackdefenceplatform.util.JwtTokenUtils;
 
 import java.util.List;

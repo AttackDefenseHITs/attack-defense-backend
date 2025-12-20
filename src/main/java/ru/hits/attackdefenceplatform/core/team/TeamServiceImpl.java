@@ -7,14 +7,14 @@ import ru.hits.attackdefenceplatform.common.exception.TeamException;
 import ru.hits.attackdefenceplatform.common.exception.TeamNotFoundException;
 import ru.hits.attackdefenceplatform.common.exception.UserException;
 import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionStatus;
-import ru.hits.attackdefenceplatform.modules.points.PointsService;
+import ru.hits.attackdefenceplatform.core.points.PointsService;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberRepository;
 import ru.hits.attackdefenceplatform.core.team.repository.model.TeamPointsDto;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamRepository;
-import ru.hits.attackdefenceplatform.modules.user.repository.UserEntity;
-import ru.hits.attackdefenceplatform.modules.virtual_machine.VirtualMachineService;
+import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
+import ru.hits.attackdefenceplatform.core.virtual_machine.VirtualMachineService;
 import ru.hits.attackdefenceplatform.core.CompetitionContext;
 import ru.hits.attackdefenceplatform.public_interface.team.TeamInfoDto;
 import ru.hits.attackdefenceplatform.public_interface.team.TeamListDto;
@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static ru.hits.attackdefenceplatform.modules.user.mapper.UserMapper.mapUserEntityToMemberDto;
+import static ru.hits.attackdefenceplatform.core.user.mapper.UserMapper.mapUserEntityToMemberDto;
 
 /**
  * Сервис для работы с командами в соревнованиях.

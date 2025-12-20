@@ -6,16 +6,7 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.stereotype.Component;
-import ru.hits.attackdefenceplatform.common.exception.CompetitionException;
 import ru.hits.attackdefenceplatform.core.competition.round.CompetitionRoundService;
-import ru.hits.attackdefenceplatform.modules.checker.CheckerExecutionService;
-import ru.hits.attackdefenceplatform.core.competition.CompetitionService;
-import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionStatus;
-import ru.hits.attackdefenceplatform.core.competition.repository.Competition;
-
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor

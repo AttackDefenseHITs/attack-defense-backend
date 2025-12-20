@@ -1,6 +1,6 @@
 package ru.hits.attackdefenceplatform.public_interface.token;
 
-import ru.hits.attackdefenceplatform.modules.user.repository.Role;
+import ru.hits.attackdefenceplatform.core.user.repository.Role;
 
 public record TokenResponse(
     String name,

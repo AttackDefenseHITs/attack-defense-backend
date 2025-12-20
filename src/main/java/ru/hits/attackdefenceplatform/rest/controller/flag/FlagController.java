@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.hits.attackdefenceplatform.modules.flag.FlagService;
-import ru.hits.attackdefenceplatform.modules.user.repository.UserEntity;
+import ru.hits.attackdefenceplatform.core.flag.FlagService;
+import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
 import ru.hits.attackdefenceplatform.public_interface.flag.SendFlagRequest;
 
 @RestController
