@@ -44,25 +44,23 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
-          BRANCH_NAME: ${{ github.ref_name }}
         run: |
-          ssh -t $VPS_USER@$VPS_HOST << 'EOF'
+          ssh -t $VPS_USER@$VPS_HOST << EOF
             set -euo pipefail
 
-            cd ~/attack-defense-backend/
+            BRANCH_NAME="${{ github.ref_name }}"
 
+            cd ~/attack-defense-backend/
             git fetch --all --prune
-            git checkout "$BRANCH_NAME"
-            git reset --hard "origin/$BRANCH_NAME"
+            git checkout -B "\$BRANCH_NAME" "origin/\$BRANCH_NAME"
+            git reset --hard "origin/\$BRANCH_NAME"
 
             printf "POSTGRES_USER=%s\n" "$POSTGRES_USER" > .env
             printf "POSTGRES_PASSWORD=%s\n" "$POSTGRES_PASSWORD" >> .env
             printf "DOCKER_USERNAME=%s\n" "$DOCKER_USERNAME" >> .env
             printf "REPO_TOKEN=%s\n" "$REPO_TOKEN" >> .env
 
-            # тянем образ приложения
             docker pull "docker.io/$DOCKER_USERNAME/webapi:latest"
-
             docker-compose down
             docker-compose up -d --force-recreate
           EOF
