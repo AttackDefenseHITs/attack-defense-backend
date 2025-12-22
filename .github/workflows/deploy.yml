@@ -46,7 +46,6 @@ jobs:
           REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
         run: |
           ssh -t $VPS_USER@$VPS_HOST << EOF
-            set -euo pipefail
 
             BRANCH_NAME="${{ github.ref_name }}"
 
