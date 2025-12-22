@@ -44,21 +44,25 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
+          BRANCH_NAME: ${{ github.ref_name }}
         run: |
-          ssh -t $VPS_USER@$VPS_HOST << EOF
-            cd attack-defense-backend/
-          
-            git pull
-          
-            echo "POSTGRES_USER=${POSTGRES_USER}" > .env
-            echo "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" >> .env
-            echo "DOCKER_USERNAME=${DOCKER_USERNAME}" >> .env
-            echo "REPO_TOKEN=${REPO_TOKEN}" >> .env
-          
-            docker pull docker.io/${{ secrets.DOCKER_USERNAME }}/webapi:latest
-            
-            cat .env
-            
+          ssh -t $VPS_USER@$VPS_HOST << 'EOF'
+            set -euo pipefail
+
+            cd ~/attack-defense-backend/
+
+            git fetch --all --prune
+            git checkout "$BRANCH_NAME"
+            git reset --hard "origin/$BRANCH_NAME"
+
+            printf "POSTGRES_USER=%s\n" "$POSTGRES_USER" > .env
+            printf "POSTGRES_PASSWORD=%s\n" "$POSTGRES_PASSWORD" >> .env
+            printf "DOCKER_USERNAME=%s\n" "$DOCKER_USERNAME" >> .env
+            printf "REPO_TOKEN=%s\n" "$REPO_TOKEN" >> .env
+
+            # тянем образ приложения
+            docker pull "docker.io/$DOCKER_USERNAME/webapi:latest"
+
             docker-compose down
-            docker-compose up -d
+            docker-compose up -d --force-recreate
           EOF
