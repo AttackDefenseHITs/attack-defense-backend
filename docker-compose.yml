@@ -44,8 +44,9 @@ services:
       - "8080"
     depends_on:
       - postgres
+    env_file:
+      - .env
     environment:
-      - REPO_TOKEN=${REPO_TOKEN}
       - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/attackdefencedb
       - POSTGRES_USER=${POSTGRES_USER:-attackdefencedb}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-attackdefencedb}
