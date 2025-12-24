@@ -40,7 +40,7 @@ public class SpringSecurityConfiguration {
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/checkers/**").hasRole("ADMIN")
                         .requestMatchers("/api/team/**").authenticated()
-                        .requestMatchers("/api/competition/**").hasRole("ADMIN")
+                        //.requestMatchers("/api/competition/**").hasRole("ADMIN")
                         .requestMatchers("/api/dashboard/submissions").hasRole("ADMIN")
                         .requestMatchers("/api/users/**").authenticated()
                         .requestMatchers("/api/flags/**").authenticated()
