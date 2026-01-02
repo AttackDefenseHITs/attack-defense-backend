@@ -5,7 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.hits.attackdefenceplatform.core.checker.CheckerManagementService;
+import ru.hits.attackdefenceplatform.core.exploit.ExploitManagementService;
 import ru.hits.attackdefenceplatform.core.repo.detector.CheckerDetector;
+import ru.hits.attackdefenceplatform.core.repo.detector.ExploitDetector;
 import ru.hits.attackdefenceplatform.core.repo.detector.ServiceDetector;
 import ru.hits.attackdefenceplatform.core.vulnerable_service.VulnerableServiceManagementService;
 import ru.hits.attackdefenceplatform.core.repo.model.RepoFileDto;
@@ -25,9 +27,11 @@ public class RepositorySyncService {
 
     private final CheckerManagementService checkerManagementService;
     private final VulnerableServiceManagementService vulnerableServiceManagementService;
+    private final ExploitManagementService exploitManagementService;
 
     private final ServiceDetector serviceDetector;
     private final CheckerDetector checkerDetector;
+    private final ExploitDetector exploitDetector;
 
     /**
      * Основная точка синхронизации репозитория платформы.
@@ -53,6 +57,13 @@ public class RepositorySyncService {
                 repoInfo.fullName(),
                 repoInfo.defaultBranch(),
                 checkers
+        );
+
+        var exploits = exploitDetector.detect(files);
+        exploitManagementService.syncExploits(
+                repoInfo.fullName(),
+                repoInfo.defaultBranch(),
+                exploits
         );
 
         repositoryService.updateLastCommit(repoData.lastCommitSha());

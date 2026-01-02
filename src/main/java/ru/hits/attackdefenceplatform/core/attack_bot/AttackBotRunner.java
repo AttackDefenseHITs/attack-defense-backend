@@ -1,17 +1,16 @@
 package ru.hits.attackdefenceplatform.core.attack_bot;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import ru.hits.attackdefenceplatform.core.attack_bot.exploit.ExploitExecutor;
+import ru.hits.attackdefenceplatform.core.exploit.executor.ExploitExecutor;
 import ru.hits.attackdefenceplatform.core.attack_bot.metric.AttackBotStateStore;
 import ru.hits.attackdefenceplatform.core.attack_bot.model.TeamInfo;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class AttackBotRunner {
 
@@ -22,6 +21,18 @@ public class AttackBotRunner {
     private final TargetTeamSelector targetTeamSelector;
     private final ExploitExecutor exploitExecutor;
     private final AttackBotStateStore stateStore;
+
+    public AttackBotRunner(
+            AttackBotContextBuilder contextBuilder,
+            TargetTeamSelector targetTeamSelector,
+            @Qualifier("fakeExploitExecutor") ExploitExecutor exploitExecutor,
+            AttackBotStateStore stateStore
+    ) {
+        this.contextBuilder = contextBuilder;
+        this.targetTeamSelector = targetTeamSelector;
+        this.exploitExecutor = exploitExecutor;
+        this.stateStore = stateStore;
+    }
 
     public boolean isRunning() {
         return running.get();
