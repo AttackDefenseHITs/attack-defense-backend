@@ -7,8 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.hits.attackdefenceplatform.core.checker.repository.CheckerEntity;
 import ru.hits.attackdefenceplatform.core.checker.repository.CheckerRepository;
 import ru.hits.attackdefenceplatform.core.checker.script.CheckerFileService;
-import ru.hits.attackdefenceplatform.core.checker.script.CheckerFileServiceNew;
-import ru.hits.attackdefenceplatform.core.checker.script.CheckerLinter;
 import ru.hits.attackdefenceplatform.core.repo.RepositoryAdapter;
 import ru.hits.attackdefenceplatform.core.repo.model.RepoFileDto;
 import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.VulnerableServiceEntity;
@@ -26,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -39,29 +36,9 @@ public class CheckerManagementServiceImpl implements CheckerManagementService {
 
     private final CheckerRepository checkerRepository;
     private final VulnerableServiceRepository vulnerableServiceRepository;
-    private final CheckerLinter checkerLinter;
 
     private final RepositoryAdapter repositoryAdapter;
     private final CheckerFileService checkerFileService;
-    private final CheckerFileServiceNew checkerFileServiceNew;
-
-    /**
-     * Загрузка или обновление чекера для сервиса.
-     */
-    @Override
-    @Transactional
-    public void uploadChecker(String scriptText, UUID serviceId) throws IOException {
-        var service = findServiceById(serviceId);
-        var existingChecker = checkerRepository.findByVulnerableServiceId(serviceId);
-
-        var scriptPath = checkerFileService.saveScriptToFile(scriptText);
-
-        if (!checkerLinter.validate(scriptPath.toFile())) {
-            throw new IllegalArgumentException("Скрипт чекера недействителен");
-        }
-
-        saveChecker(service, existingChecker, scriptPath);
-    }
 
     @Override
     @Transactional
@@ -96,7 +73,7 @@ public class CheckerManagementServiceImpl implements CheckerManagementService {
                 Files.write(out, content);
             }
 
-            Path storedRoot = checkerFileServiceNew.saveCheckerDirectory(tempDir, serviceName);
+            Path storedRoot = checkerFileService.saveCheckerDirectory(tempDir, serviceName);
             installRequirements(storedRoot);
 
             CheckerEntity checker = existing.get(serviceName);
@@ -116,9 +93,6 @@ public class CheckerManagementServiceImpl implements CheckerManagementService {
                 .forEach(checkerRepository::delete);
     }
 
-    /**
-     * Получить текст скрипта чекера.
-     */
     @Override
     @Transactional(readOnly = true)
     public String getCheckerScript(UUID serviceId) throws IOException {
@@ -161,29 +135,6 @@ public class CheckerManagementServiceImpl implements CheckerManagementService {
         }
 
         return Files.readString(file);
-    }
-
-    private VulnerableServiceEntity findServiceById(UUID serviceId) {
-        return vulnerableServiceRepository.findById(serviceId)
-                .orElseThrow(() -> new IllegalArgumentException("Сервис не найден"));
-    }
-
-    private void saveChecker(VulnerableServiceEntity service,
-                             Optional<CheckerEntity> existingCheckerOptional,
-                             Path scriptPath) {
-        if (existingCheckerOptional.isPresent()) {
-            var existingChecker = existingCheckerOptional.get();
-            checkerFileService.deleteScriptFile(existingChecker.getScriptFilePath());
-            existingChecker.setScriptFilePath(scriptPath.toString());
-            checkerRepository.save(existingChecker);
-            log.info("Чекер для сервиса {} обновлён", service.getName());
-        } else {
-            var newChecker = new CheckerEntity();
-            newChecker.setVulnerableService(service);
-            newChecker.setScriptFilePath(scriptPath.toString());
-            checkerRepository.save(newChecker);
-            log.info("Чекер для сервиса {} добавлен", service.getName());
-        }
     }
 
     private List<FileNodeDto> buildTree(Path root, Path current) throws IOException {

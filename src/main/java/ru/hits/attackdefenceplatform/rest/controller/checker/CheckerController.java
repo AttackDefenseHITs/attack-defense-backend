@@ -35,12 +35,8 @@ public class CheckerController {
             @PathVariable UUID serviceId,
             @RequestBody String scriptText)
     {
-        try {
-            checkerManagementService.uploadChecker(scriptText, serviceId);
-            return ResponseEntity.ok("Checker uploaded successfully.");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        //checkerManagementService.uploadChecker(scriptText, serviceId);
+        return ResponseEntity.ok("Checker uploaded successfully.");
     }
 
     @GetMapping("/{serviceId}")

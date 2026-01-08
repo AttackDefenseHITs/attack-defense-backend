@@ -3,46 +3,25 @@ package ru.hits.attackdefenceplatform.core.checker.script;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.hits.attackdefenceplatform.configuration.properties.DirectoryProperties;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.UUID;
+import java.nio.file.StandardCopyOption;
+import java.util.Comparator;
+import java.util.stream.Stream;
 
-/**
- * Сервис для работы с файлами скриптов чекеров.
- */
 @Service
-@Slf4j
 @RequiredArgsConstructor
+@Slf4j
 public class CheckerFileService {
-    private final DirectoryProperties properties;
+
+    private static final Path STORAGE_ROOT = Paths.get("/var/lib/checkers");
 
     /**
-     * Сохраняет текст скрипта в новый файл в директории чекеров.
-     *
-     * <p>Метод генерирует уникальное имя файла с суффиксом "_checker.py" и записывает переданный текст в него.</p>
-     *
-     * @param scriptText текст скрипта, который необходимо сохранить
-     * @return путь к созданному файлу скрипта
-     * @throws IOException если произошла ошибка ввода-вывода или не удалось создать директорию
-     */
-    public Path saveScriptToFile(String scriptText) throws IOException {
-        ensureCheckersDirectoryExists();
-        var fileName = UUID.randomUUID() + "_checker.py";
-        var scriptPath = Paths.get(properties.getCheckers(), fileName);
-        Files.writeString(scriptPath, scriptText);
-        return scriptPath;
-    }
-
-    /**
-     * Считывает содержимое файла скрипта по заданному пути.
-     *
-     * @param scriptFilePath строковое представление пути к файлу скрипта
-     * @return содержимое файла скрипта в виде строки
-     * @throws IOException если файл не найден или произошла ошибка чтения
+     * Чтение файла по директории
      */
     public String readScriptFromFilePath(String scriptFilePath) throws IOException {
         var scriptPath = Paths.get(scriptFilePath);
@@ -50,42 +29,49 @@ public class CheckerFileService {
     }
 
     /**
-     * Удаляет файл скрипта по заданному пути.
-     *
-     * <p>Если файл существует, производится его удаление. В случае ошибки удаление выбрасывается RuntimeException.</p>
-     *
-     * @param scriptFilePath строковое представление пути к файлу скрипта
+     * Сохранение распакованной директории чекера в /var/lib/checkers/<serviceName>
      */
-    public void deleteScriptFile(String scriptFilePath) {
-        Path scriptPath = Paths.get(scriptFilePath);
-        if (Files.exists(scriptPath)) {
-            try {
-                Files.delete(scriptPath);
-                log.info("Чекер удален успешно: {}", scriptPath);
-            } catch (IOException e) {
-                log.error("Ошибка удаления чекера: {}", scriptPath, e);
-                throw new RuntimeException("Ошибка удаления чекера: " + scriptPath, e);
-            }
-        } else {
-            log.warn("Файл чекера не найден: {}", scriptPath);
+    public Path saveCheckerDirectory(Path tempDir, String serviceName) throws IOException {
+
+        Path serviceDir = STORAGE_ROOT.resolve(serviceName);
+
+        // Удаляем старые файлы, если директория существует
+        if (Files.exists(serviceDir)) {
+            deleteDirectoryRecursive(serviceDir);
         }
+
+        Files.createDirectories(serviceDir);
+
+        try (Stream<Path> walk = Files.walk(tempDir)) {
+            walk.forEach(src -> {
+                try {
+                    if (!Files.isDirectory(src)) {
+                        Path relative = tempDir.relativize(src);
+                        Path dest = serviceDir.resolve(relative);
+                        Files.createDirectories(dest.getParent());
+                        Files.copy(src, dest, StandardCopyOption.REPLACE_EXISTING);
+                    }
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            });
+        }
+
+        return serviceDir;
     }
 
-    /**
-     * Обеспечивает наличие директории для хранения чекеров.
-     *
-     * <p>Если директория не существует, она будет создана.</p>
-     *
-     * @throws IOException если не удалось создать директорию
-     */
-    private void ensureCheckersDirectoryExists() throws IOException {
-        Path checkersDirPath = Paths.get(properties.getCheckers());
-        if (!Files.exists(checkersDirPath)) {
-            Files.createDirectories(checkersDirPath);
-            log.info("Создана директория для чекеров: {}", properties.getCheckers());
+    private void deleteDirectoryRecursive(Path path) throws IOException {
+        if (!Files.exists(path)) return;
+
+        try (Stream<Path> walk = Files.walk(path)) {
+            walk.sorted(Comparator.reverseOrder())
+                    .forEach(p -> {
+                        try {
+                            Files.deleteIfExists(p);
+                        } catch (IOException e) {
+                            log.warn("Не удалось удалить {}", p, e);
+                        }
+                    });
         }
     }
 }
-
-
-

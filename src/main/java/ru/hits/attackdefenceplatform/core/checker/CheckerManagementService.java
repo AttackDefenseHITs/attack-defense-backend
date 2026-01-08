@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.UUID;
 
 public interface CheckerManagementService {
-    void uploadChecker(String scriptText, UUID serviceId) throws IOException;
     void syncCheckers(
             String repoFullName,
             String branch,
