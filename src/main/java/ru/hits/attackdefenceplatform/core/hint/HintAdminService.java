@@ -10,6 +10,7 @@ import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.Vulnerab
 import ru.hits.attackdefenceplatform.public_interface.hint.GetAllAdminHintsResponse;
 import ru.hits.attackdefenceplatform.public_interface.hint.ServiceHintTemplateDto;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -76,5 +77,12 @@ public class HintAdminService {
                 ));
 
         return new GetAllAdminHintsResponse(data);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ServiceHintTemplateDto> getHintsByServiceId(UUID serviceId) {
+        return templateRepo.findAllByService_IdOrderByLevelAsc(serviceId).stream()
+                .map(ServiceHintTemplateMapper::toDto)
+                .toList();
     }
 }

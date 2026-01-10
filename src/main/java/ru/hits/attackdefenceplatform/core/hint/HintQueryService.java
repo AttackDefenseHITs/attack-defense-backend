@@ -3,7 +3,6 @@ package ru.hits.attackdefenceplatform.core.hint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.hits.attackdefenceplatform.common.exception.TeamException;
 import ru.hits.attackdefenceplatform.core.hint.repository.ServiceHintPurchaseRepository;
 import ru.hits.attackdefenceplatform.core.hint.repository.ServiceHintTemplateEntity;
 import ru.hits.attackdefenceplatform.core.hint.repository.ServiceHintTemplateRepository;

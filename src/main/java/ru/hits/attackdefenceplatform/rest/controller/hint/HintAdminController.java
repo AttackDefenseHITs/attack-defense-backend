@@ -17,6 +17,7 @@ import ru.hits.attackdefenceplatform.public_interface.hint.GetAllAdminHintsRespo
 import ru.hits.attackdefenceplatform.public_interface.hint.ServiceHintTemplateDto;
 import ru.hits.attackdefenceplatform.public_interface.hint.SetHintEnabledRequest;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -31,6 +32,12 @@ public class HintAdminController {
     @GetMapping
     public GetAllAdminHintsResponse getAll() {
         return adminService.getAllHints();
+    }
+
+    @Operation(summary = "Получить подсказки по определенному сервису")
+    @GetMapping("/service/{serviceId}")
+    public List<ServiceHintTemplateDto> getHintsByServiceId(@PathVariable UUID serviceId) {
+        return adminService.getHintsByServiceId(serviceId);
     }
 
     @Operation(summary = "Создать подсказку (level будет присвоен автоматически как \"номер подсказки\")")
