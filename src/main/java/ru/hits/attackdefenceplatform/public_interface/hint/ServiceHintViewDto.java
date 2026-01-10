@@ -7,6 +7,5 @@ public record ServiceHintViewDto(
         int level,
         String text,
         double multiplier,
-        boolean enabled,
         boolean purchased
 ) {}

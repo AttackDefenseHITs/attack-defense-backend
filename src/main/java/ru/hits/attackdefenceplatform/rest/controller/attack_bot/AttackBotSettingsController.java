@@ -1,5 +1,6 @@
 package ru.hits.attackdefenceplatform.rest.controller.attack_bot;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +13,7 @@ import ru.hits.attackdefenceplatform.public_interface.attack_bot.AttackBotSettin
 @RestController
 @RequestMapping("/api/admin/attack-bot")
 @RequiredArgsConstructor
+@Tag(name = "Управление настройками атакующего бота")
 public class AttackBotSettingsController {
 
     private final AttackBotConfigurationService service;
@@ -25,6 +27,4 @@ public class AttackBotSettingsController {
     public AttackBotSettingsDto update(@RequestBody AttackBotSettingsDto dto) {
         return service.updateSettings(dto);
     }
-
-
 }

@@ -7,9 +7,11 @@ import ru.hits.attackdefenceplatform.core.hint.mapper.ServiceHintTemplateMapper;
 import ru.hits.attackdefenceplatform.core.hint.repository.ServiceHintTemplateEntity;
 import ru.hits.attackdefenceplatform.core.hint.repository.ServiceHintTemplateRepository;
 import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.VulnerableServiceRepository;
+import ru.hits.attackdefenceplatform.public_interface.hint.GetAllAdminHintsResponse;
 import ru.hits.attackdefenceplatform.public_interface.hint.ServiceHintTemplateDto;
 
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -61,5 +63,18 @@ public class HintAdminService {
             lvl++;
         }
         templateRepo.saveAll(all);
+    }
+
+    @Transactional(readOnly = true)
+    public GetAllAdminHintsResponse getAllHints() {
+
+        var data = templateRepo.findAllByOrderByService_IdAscLevelAsc().stream()
+                .map(ServiceHintTemplateMapper::toDto)
+                .collect(Collectors.groupingBy(
+                        ServiceHintTemplateDto::serviceId,
+                        Collectors.toList()
+                ));
+
+        return new GetAllAdminHintsResponse(data);
     }
 }

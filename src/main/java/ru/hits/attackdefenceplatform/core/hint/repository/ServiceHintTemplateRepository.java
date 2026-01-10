@@ -12,5 +12,6 @@ public interface ServiceHintTemplateRepository extends JpaRepository<ServiceHint
     int findMaxLevelByServiceId(@Param("serviceId") UUID serviceId);
 
     List<ServiceHintTemplateEntity> findAllByService_IdOrderByLevelAsc(UUID serviceId);
+    List<ServiceHintTemplateEntity> findAllByOrderByService_IdAscLevelAsc();
 }
 
