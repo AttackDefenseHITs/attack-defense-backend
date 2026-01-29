@@ -13,5 +13,6 @@ public interface FlagSubmissionRepository extends JpaRepository<FlagSubmissionEn
     long countByFlag_FlagOwnerAndFlag_VulnerableService(TeamEntity team, VulnerableServiceEntity service);
     long countByFlag_FlagOwner_Id(UUID teamId);
     List<FlagSubmissionEntity> findAllByTeamIdAndIsCorrectTrue(UUID teamId);
+    long countByIsCorrectTrue();
 }
 

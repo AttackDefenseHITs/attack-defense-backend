@@ -21,7 +21,7 @@ public class CompetitionMapper {
         );
     }
 
-    public static CompetitionShortDto mapToCompetitionShortDto(Competition competition){
+    public static CompetitionShortDto mapToCompetitionShortDto(Competition competition, Long flagCounts, Long servicesCount){
         return new CompetitionShortDto(
                 competition.getName(),
                 competition.getStatus(),
@@ -29,6 +29,9 @@ public class CompetitionMapper {
                 competition.getEndDate(),
                 competition.getRoundDurationMinutes(),
                 competition.getCurrentRound(),
+                competition.getTotalRounds(),
+                flagCounts,
+                servicesCount,
                 competition.getRules(),
                 competition.getCompetitionMode().name()
         );

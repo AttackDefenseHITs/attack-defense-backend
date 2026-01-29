@@ -140,7 +140,9 @@ public class CompetitionServiceImpl implements CompetitionService {
     @Override
     @Transactional(readOnly = true)
     public CompetitionShortDto getCompetitionShortDto() {
-        return CompetitionMapper.mapToCompetitionShortDto(getCompetition());
+        Long flagCounts = flagSubmissionRepository.countByIsCorrectTrue();
+        Long servicesCount = serviceStatusRepository.countDistinctServices();
+        return CompetitionMapper.mapToCompetitionShortDto(getCompetition(), flagCounts, servicesCount);
     }
 
     /**
@@ -158,6 +160,7 @@ public class CompetitionServiceImpl implements CompetitionService {
         competition.setEndDate(null);
         competition.setFlagSendCost(defaults.getFlagSendCost());
         competition.setFlagLostCost(defaults.getFlagLostCost());
+        competition.setCurrentRound(0);
 
         serviceStatusRepository.deleteAll();
         flagRepository.deleteAll();

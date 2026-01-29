@@ -11,6 +11,9 @@ public record CompetitionShortDto(
         LocalDateTime endDate,
         Integer roundDurationMinutes,
         Integer currentRound,
+        Integer totalRounds,
+        Long flagsSubmitted,
+        Long servicesCount,
         String rules,
         String competitionMode
 ) {}
