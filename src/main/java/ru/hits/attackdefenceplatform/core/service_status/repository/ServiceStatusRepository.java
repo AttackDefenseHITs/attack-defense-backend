@@ -14,4 +14,5 @@ public interface ServiceStatusRepository extends JpaRepository<ServiceStatusEnti
     List<ServiceStatusEntity> findByTeamId(UUID teamId);
     @Query("select count(distinct ss.service.id) from ServiceStatusEntity ss")
     long countDistinctServices();
+    List<ServiceStatusEntity> findByTeam_Id(UUID teamId);
 }

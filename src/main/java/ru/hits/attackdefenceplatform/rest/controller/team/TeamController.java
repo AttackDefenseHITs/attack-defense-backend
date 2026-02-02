@@ -16,12 +16,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.hits.attackdefenceplatform.core.team.TeamManagementService;
 import ru.hits.attackdefenceplatform.core.team.TeamService;
+import ru.hits.attackdefenceplatform.core.team_stats.TeamStatsServiceFacade;
 import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
 import ru.hits.attackdefenceplatform.public_interface.team.CreateManyTeamsRequest;
 import ru.hits.attackdefenceplatform.public_interface.team.CreateTeamRequest;
 import ru.hits.attackdefenceplatform.public_interface.team.CreatedTeamResponse;
 import ru.hits.attackdefenceplatform.public_interface.team.TeamInfoDto;
 import ru.hits.attackdefenceplatform.public_interface.team.TeamListDto;
+import ru.hits.attackdefenceplatform.public_interface.team_stats.TeamStatsDto;
 import ru.hits.attackdefenceplatform.public_interface.user.UserTeamMemberDto;
 
 import java.util.List;
@@ -34,6 +36,7 @@ import java.util.UUID;
 public class TeamController {
     private final TeamService teamService;
     private final TeamManagementService teamManagementService;
+    private final TeamStatsServiceFacade teamStatsServiceFacade;
 
     @PostMapping("/{teamId}/join")
     @Operation(summary = "Присоединиться к команде")
@@ -111,6 +114,13 @@ public class TeamController {
     public ResponseEntity<List<UserTeamMemberDto>> getMemberRating() {
         var membersList = teamService.getTeamMemberRatings();
         return ResponseEntity.ok(membersList);
+    }
+
+    @GetMapping("/my/stats")
+    @Operation(summary = "Получить статистику по своей команде")
+    public ResponseEntity<TeamStatsDto> getMyStats(@AuthenticationPrincipal UserEntity user) {
+        var stats = teamStatsServiceFacade.getTeamStats(user);
+        return ResponseEntity.ok(stats);
     }
 }
 

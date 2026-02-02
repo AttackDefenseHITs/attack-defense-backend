@@ -13,6 +13,7 @@ import ru.hits.attackdefenceplatform.core.hint.HintPurchaseService;
 import ru.hits.attackdefenceplatform.core.hint.HintQueryService;
 import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
 import ru.hits.attackdefenceplatform.public_interface.hint.GetAllHintsResponse;
+import ru.hits.attackdefenceplatform.public_interface.hint.GetHintsByServiceIdResponse;
 import ru.hits.attackdefenceplatform.public_interface.hint.ServiceHintTemplateDto;
 
 import java.util.UUID;
@@ -32,6 +33,15 @@ public class HintController {
             @AuthenticationPrincipal UserEntity user
     ) {
         return queryService.getHints(user);
+    }
+
+    @Operation(summary = "Получить список подсказок для конкретного сервиса")
+    @GetMapping("/service/{serviceId}")
+    public GetHintsByServiceIdResponse getServiceHints(
+            @AuthenticationPrincipal UserEntity user,
+            @PathVariable UUID serviceId
+    ) {
+        return queryService.getByServiceId(user, serviceId);
     }
 
     @Operation(summary = "Купить подсказку по templateId (id шаблона)")

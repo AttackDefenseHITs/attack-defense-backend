@@ -9,9 +9,12 @@ import ru.hits.attackdefenceplatform.core.hint.repository.ServiceHintTemplateRep
 import ru.hits.attackdefenceplatform.core.team.repository.TeamMemberRepository;
 import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
 import ru.hits.attackdefenceplatform.public_interface.hint.GetAllHintsResponse;
+import ru.hits.attackdefenceplatform.public_interface.hint.GetHintsByServiceIdResponse;
 import ru.hits.attackdefenceplatform.public_interface.hint.ServiceHintViewDto;
 
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,5 +60,43 @@ public class HintQueryService {
                 ));
 
         return new GetAllHintsResponse(data);
+    }
+
+    @Transactional(readOnly = true)
+    public GetHintsByServiceIdResponse getByServiceId(UserEntity user, UUID serviceId) {
+        if (user == null || serviceId == null) {
+            return new GetHintsByServiceIdResponse(Collections.emptyList());
+        }
+
+        var memberOpt = teamMemberRepo.findByUser(user);
+        if (memberOpt.isEmpty() || memberOpt.get().getTeam() == null) {
+            return new GetHintsByServiceIdResponse(Collections.emptyList());
+        }
+
+        var teamId = memberOpt.get().getTeam().getId();
+
+        var purchasedIds = purchaseRepo.findAllByTeam_Id(teamId).stream()
+                .map(p -> p.getTemplate().getId())
+                .collect(Collectors.toSet());
+
+        var hints = templateRepo.findAllByOrderByService_IdAscLevelAsc().stream()
+                .filter(ServiceHintTemplateEntity::isEnabled)
+                .filter(t -> t.getService() != null && serviceId.equals(t.getService().getId()))
+                .map(t -> {
+                    boolean purchased = purchasedIds.contains(t.getId());
+                    String text = purchased ? t.getText() : null;
+
+                    return new ServiceHintViewDto(
+                            t.getId(),
+                            t.getLevel(),
+                            text,
+                            t.getMultiplier(),
+                            purchased
+                    );
+                })
+                .sorted(Comparator.comparingInt(ServiceHintViewDto::level))
+                .toList();
+
+        return new GetHintsByServiceIdResponse(hints);
     }
 }
