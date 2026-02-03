@@ -21,7 +21,7 @@ public class VulnerableServiceManagementServiceImpl implements VulnerableService
 
     @Override
     @Transactional
-    public void syncServices(Map<String, VulnerableServiceEntity> detected) {
+    public void syncServices(Map<String, VulnerableServiceEntity> detected, String gitRepositoryUrl) {
 
         List<VulnerableServiceEntity> existing = serviceRepository.findAll();
 
@@ -29,6 +29,8 @@ public class VulnerableServiceManagementServiceImpl implements VulnerableService
         for (VulnerableServiceEntity s : detected.values()) {
             boolean exists = existing.stream().anyMatch(e -> e.getName().equals(s.getName()));
             if (!exists) {
+                s.setPort(1111);
+                s.setGitRepositoryUrl(gitRepositoryUrl);
                 var newService = serviceRepository.save(s);
                 deploymentStatusInitializer.initializeStatusesForNewService(newService.getId());
                 log.info("Добавлен новый сервис: {}", s.getName());

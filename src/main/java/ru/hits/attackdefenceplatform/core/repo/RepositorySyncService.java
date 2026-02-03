@@ -54,7 +54,7 @@ public class RepositorySyncService {
         List<RepoFileDto> files = repositoryAdapter.getRepositoryTree(repoInfo.fullName(), repoInfo.defaultBranch());
 
         var services = serviceDetector.detect(files);
-        vulnerableServiceManagementService.syncServices(services);
+        vulnerableServiceManagementService.syncServices(services, repoInfo.htmlUrl());
 
         var checkers = checkerDetector.detect(files);
         checkerManagementService.syncCheckers(

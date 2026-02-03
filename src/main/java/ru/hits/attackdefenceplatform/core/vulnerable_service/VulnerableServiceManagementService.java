@@ -5,5 +5,5 @@ import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.Vulnerab
 import java.util.Map;
 
 public interface VulnerableServiceManagementService {
-    void syncServices(Map<String, VulnerableServiceEntity> detected);
+    void syncServices(Map<String, VulnerableServiceEntity> detected, String gitRepositoryUrl);
 }
