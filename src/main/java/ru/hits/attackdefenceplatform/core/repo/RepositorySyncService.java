@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import ru.hits.attackdefenceplatform.core.checker.CheckerManagementService;
 import ru.hits.attackdefenceplatform.core.exploit.ExploitManagementService;
 import ru.hits.attackdefenceplatform.core.repo.detector.CheckerDetector;
@@ -40,7 +41,7 @@ public class RepositorySyncService {
     public void syncRepo() throws IOException {
 
         RepositoryInfoDto repoInfo = repositoryService.getCurrentRepositoryFromDB();
-        if (repoInfo == null) {
+        if (repoInfo == null || !StringUtils.hasText(repoInfo.name())) {
             return;
         }
         var repoData = repositoryAdapter.getRepositoryInfo(repoInfo.fullName());
