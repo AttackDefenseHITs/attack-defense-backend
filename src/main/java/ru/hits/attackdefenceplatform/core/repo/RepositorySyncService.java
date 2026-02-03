@@ -40,6 +40,9 @@ public class RepositorySyncService {
     public void syncRepo() throws IOException {
 
         RepositoryInfoDto repoInfo = repositoryService.getCurrentRepositoryFromDB();
+        if (repoInfo == null) {
+            return;
+        }
         var repoData = repositoryAdapter.getRepositoryInfo(repoInfo.fullName());
 
         if (Objects.equals(repoInfo.lastCommitSha(), repoData.lastCommitSha())) {

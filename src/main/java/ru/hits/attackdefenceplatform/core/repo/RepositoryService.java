@@ -44,26 +44,38 @@ public class RepositoryService {
      */
     @Transactional(readOnly = true)
     public RepositoryInfoDto getCurrentRepositoryFromDB() {
-        PlatformRepository repo = platformRepositoryRepository.findTopByOrderByCreatedAtDesc()
-                .orElseThrow(() -> new IllegalStateException("No platform repository configured"));
-
-        return new RepositoryInfoDto(
-                repo.getFullName().substring(repo.getFullName().indexOf("/") + 1),
-                repo.getFullName(),
-                repo.getUrl(),
-                repo.getBranch(),
-                repo.isPrivate(),
-                repo.getLastCommitSha(),
-                repo.getCreatedAt(),
-                repo.getType()
-        );
+        return platformRepositoryRepository.findTopByOrderByCreatedAtDesc()
+                .map(repo -> new RepositoryInfoDto(
+                        repo.getFullName().substring(repo.getFullName().indexOf("/") + 1),
+                        repo.getFullName(),
+                        repo.getUrl(),
+                        repo.getBranch(),
+                        repo.isPrivate(),
+                        repo.getLastCommitSha(),
+                        repo.getCreatedAt(),
+                        repo.getType()
+                ))
+                .orElseGet(RepositoryService::emptyRepositoryInfo);
     }
 
     @Transactional
     public void updateLastCommit(String lastCommitSha) {
-        PlatformRepository repo = platformRepositoryRepository.findTopByOrderByCreatedAtDesc()
-                .orElseThrow(() -> new IllegalStateException("No platform repository configured"));
-        repo.setLastCommitSha(lastCommitSha);
-        platformRepositoryRepository.save(repo);
+        platformRepositoryRepository.findTopByOrderByCreatedAtDesc().ifPresent(repo -> {
+            repo.setLastCommitSha(lastCommitSha);
+            platformRepositoryRepository.save(repo);
+        });
+    }
+
+    private static RepositoryInfoDto emptyRepositoryInfo() {
+        return new RepositoryInfoDto(
+                "",         // name
+                "",         // fullName
+                "",         // htmlUrl
+                "",         // branch
+                false,      // isPrivate
+                "",         // lastCommitSha
+                null,       // createdAt
+                null        // type (если enum/строка — ок)
+        );
     }
 }
