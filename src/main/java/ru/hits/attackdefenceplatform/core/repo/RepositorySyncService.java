@@ -46,10 +46,10 @@ public class RepositorySyncService {
         }
         var repoData = repositoryAdapter.getRepositoryInfo(repoInfo.fullName());
 
-        if (Objects.equals(repoInfo.lastCommitSha(), repoData.lastCommitSha())) {
-            log.info("Синхронизация не требуется — коммиты совпадают");
-            return;
-        }
+//        if (Objects.equals(repoInfo.lastCommitSha(), repoData.lastCommitSha())) {
+//            log.info("Синхронизация не требуется — коммиты совпадают");
+//            return;
+//        }
 
         List<RepoFileDto> files = repositoryAdapter.getRepositoryTree(repoInfo.fullName(), repoInfo.defaultBranch());
 
