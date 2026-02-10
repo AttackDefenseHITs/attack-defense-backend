@@ -57,9 +57,7 @@ public class VulnerableServiceImpl implements VulnerableService {
         var service = serviceRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Сервис с ID " + id + " не найден"));
 
-        service.setName(request.name());
-        service.setGitRepositoryUrl(request.gitRepositoryUrl());
-
+        service.setPort(request.port());
         serviceRepository.save(service);
     }
 
