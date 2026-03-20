@@ -2,6 +2,7 @@ package ru.hits.attackdefenceplatform.core.dashboard;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -20,12 +21,17 @@ public class FlagSubmissionServiceImpl implements FlagSubmissionService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "submissionTime"));
 
         Page<FlagSubmissionEntity> submissionPage = flagSubmissionRepository.findAll(pageable);
-        return submissionPage.map(this::createFlagSubmissionDto);
+
+        var filtered = submissionPage.getContent().stream()
+                .filter(entity -> !Boolean.TRUE.equals(entity.getUser().getIsSystem()))
+                .filter(entity -> !Boolean.TRUE.equals(entity.getTeam().getIsSystem()))
+                .map(this::createFlagSubmissionDto)
+                .toList();
+
+        return new PageImpl<>(filtered, pageable, filtered.size());
     }
 
-    private FlagSubmissionDto createFlagSubmissionDto(
-            FlagSubmissionEntity entity
-    ) {
+    private FlagSubmissionDto createFlagSubmissionDto(FlagSubmissionEntity entity) {
         var serviceName = entity.getIsCorrect() ? entity.getFlag().getVulnerableService().getName() : null;
 
         return new FlagSubmissionDto(

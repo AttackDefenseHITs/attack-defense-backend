@@ -1,6 +1,7 @@
 package ru.hits.attackdefenceplatform.core.team.repository;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,6 +27,9 @@ public class TeamEntity {
     private Long maxMembers;
 
     private String color;
+
+    @Column(name = "is_system", nullable = false)
+    private Boolean isSystem = false;
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TeamMemberEntity> members = new ArrayList<>();

@@ -8,6 +8,7 @@ import ru.hits.attackdefenceplatform.core.team.repository.TeamRepository;
 import ru.hits.attackdefenceplatform.public_interface.service_statuses.ServiceStatusInfo;
 import ru.hits.attackdefenceplatform.public_interface.service_statuses.ServiceStatusSummary;
 import ru.hits.attackdefenceplatform.public_interface.service_statuses.TeamServiceStatusDto;
+import ru.hits.attackdefenceplatform.public_interface.team.TeamShortDataDto;
 
 import java.util.Map;
 
@@ -21,7 +22,7 @@ public class ServiceStatusServiceImpl implements ServiceStatusService {
 
     @Override
     public ServiceStatusInfo getAllServiceStatuses() {
-        var teams = teamRepository.findAll();
+        var teams = teamRepository.findAllByIsSystemFalse();
         var serviceStatuses = serviceStatusRepository.findAll();
 
         var data = teams.stream().map(team -> {
@@ -31,8 +32,10 @@ public class ServiceStatusServiceImpl implements ServiceStatusService {
 
             Map<String, ServiceStatusSummary> services = serviceStatusMapper.mapStatusesToServiceSummaries(statusesForTeam);
 
+            TeamShortDataDto teamDto = teamService.mapToTeamServiceStatusDto(team);
+
             return new TeamServiceStatusDto(
-                    teamService.mapToTeamServiceStatusDto(team),
+                    teamDto,
                     services
             );
         }).toList();
@@ -40,5 +43,4 @@ public class ServiceStatusServiceImpl implements ServiceStatusService {
         return new ServiceStatusInfo(data);
     }
 }
-
 

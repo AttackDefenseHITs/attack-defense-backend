@@ -4,9 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import ru.hits.attackdefenceplatform.core.attack_bot.model.TeamInfo;
 import ru.hits.attackdefenceplatform.core.exploit.executor.ExploitExecutor;
 import ru.hits.attackdefenceplatform.core.attack_bot.metric.AttackBotStateStore;
-import ru.hits.attackdefenceplatform.core.attack_bot.model.TeamInfo;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -25,7 +25,7 @@ public class AttackBotRunner {
     public AttackBotRunner(
             AttackBotContextBuilder contextBuilder,
             TargetTeamSelector targetTeamSelector,
-            @Qualifier("fakeExploitExecutor") ExploitExecutor exploitExecutor,
+            @Qualifier("scriptedExploitExecutor") ExploitExecutor exploitExecutor,
             AttackBotStateStore stateStore
     ) {
         this.contextBuilder = contextBuilder;
@@ -64,14 +64,12 @@ public class AttackBotRunner {
             return;
         }
 
-        // 1) решаем, будут ли атаки в этом раунде
         double r = Math.random();
         if (r > settings.getAttackProbability()) {
             log.info("В этом раунде атаки не выполняются (r={} > p={})", r, settings.getAttackProbability());
             return;
         }
 
-        // 2) выбираем цели
         var targets = targetTeamSelector.selectTargets(ctx);
         if (targets.isEmpty()) {
             log.info("Нет команд-целей для атаки в этом раунде");
@@ -81,12 +79,10 @@ public class AttackBotRunner {
         log.info("Выбрано {} команд-целей: {}", targets.size(),
                 targets.stream().map(TeamInfo::getName).toList());
 
-        // 3) запускаем эксплойты
         exploitExecutor.execute(targets);
 
-        // 4) обновляем cooldown
         long currentRound = ctx.getRoundTimestamp();
-        for (TeamInfo t : targets) {
+        for (var t : targets) {
             stateStore.updateLastAttackRound(t.getId(), currentRound);
         }
 

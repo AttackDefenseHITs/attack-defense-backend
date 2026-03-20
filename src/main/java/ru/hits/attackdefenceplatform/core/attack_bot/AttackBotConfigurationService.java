@@ -19,11 +19,11 @@ public class AttackBotConfigurationService {
 
     private final AttackBotSettingsRepository repository;
     private volatile AttackBotSettingsEntity cached;
-    private static final String settingsUUID = "00000000-0000-0000-0000-000000000001";
+    private static final String SETTINGS_UUID = "00000000-0000-0000-0000-000000000001";
 
     @PostConstruct
     public void init() {
-        this.cached = repository.findById(UUID.fromString(settingsUUID))
+        this.cached = repository.findById(UUID.fromString(SETTINGS_UUID))
                 .orElseThrow(() -> new IllegalStateException("Attack bot settings missing in DB"));
     }
 

@@ -26,7 +26,7 @@ public class AttackBotContextBuilder {
 
     public AttackBotContext build(long roundNumber) {
         var settings = settingsService.getSettings();
-        var teams = teamRepository.findAll();
+        var teams = teamRepository.findAllByIsSystemFalse();
 
         List<TeamInfo> teamInfos = teams.stream()
                 .map(t -> new TeamInfo(t.getId(), t.getName()))

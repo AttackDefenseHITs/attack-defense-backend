@@ -1,5 +1,6 @@
 package ru.hits.attackdefenceplatform.core.team;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,6 +60,10 @@ public class TeamServiceImpl implements TeamService {
         var team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new TeamNotFoundException("Команда с ID " + teamId + " не найдена"));
 
+        if (Boolean.TRUE.equals(team.getIsSystem())) {
+            throw new TeamException("Нельзя вступить в системную команду");
+        }
+
         if (teamMemberRepository.existsByUser(user)) {
             throw new UserException("Пользователь уже состоит в другой команде");
         }
@@ -91,6 +96,10 @@ public class TeamServiceImpl implements TeamService {
         var team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new TeamNotFoundException("Команда с ID " + teamId + " не найдена"));
 
+        if (Boolean.TRUE.equals(team.getIsSystem())) {
+            throw new TeamException("Нельзя выйти из системной команды таким способом");
+        }
+
         var teamMember = teamMemberRepository.findByUserAndTeam(user, team)
                 .orElseThrow(() -> new UserException("Пользователь не состоит в команде с ID " + teamId));
 
@@ -108,12 +117,14 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public TeamInfoDto getTeamById(UUID teamId, UserEntity user) {
         var team = teamRepository.findById(teamId)
+                .filter(t -> !Boolean.TRUE.equals(t.getIsSystem()))
                 .orElseThrow(() -> new TeamNotFoundException("Команда с ID " + teamId + " не найдена"));
 
         var userCount = teamMemberRepository.countByTeam(team);
         var membersCount = team.getMaxMembers();
 
         var memberList = teamMemberRepository.findByTeam(team).stream()
+                .filter(member -> !Boolean.TRUE.equals(member.getUser().getIsSystem()))
                 .map(member -> mapUserEntityToMemberDto(member.getUser(), member.getPoints()))
                 .toList();
 
@@ -152,7 +163,7 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public List<TeamListDto> getAllTeams(UserEntity user) {
         List<TeamPointsDto> rankedTeams = teamRepository.getTeamPointsRanked();
-        return teamRepository.findAll().stream()
+        return teamRepository.findAllByIsSystemFalse().stream()
                 .map(team -> mapTeamEntityToTeamListDto(team, user, rankedTeams))
                 .toList();
     }
@@ -166,6 +177,13 @@ public class TeamServiceImpl implements TeamService {
     @Transactional
     @Override
     public void removeMemberFromTeam(UUID teamId, UUID userId) {
+        var team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new EntityNotFoundException("Команда не найдена"));
+
+        if (Boolean.TRUE.equals(team.getIsSystem())) {
+            throw new TeamException("Нельзя удалять участников из системной команды");
+        }
+
         var teamMember = teamMemberRepository.findByUserIdAndTeamId(userId, teamId)
                 .orElseThrow(() -> new UserException("Участник с ID " + userId + " не найден в команде с ID " + teamId));
         teamMemberRepository.delete(teamMember);
@@ -179,6 +197,10 @@ public class TeamServiceImpl implements TeamService {
      * @return true, если возможно, иначе false
      */
     private boolean canUserJoinTeam(UserEntity user, TeamEntity team) {
+        if (Boolean.TRUE.equals(team.getIsSystem())) {
+            return false;
+        }
+
         boolean isUserInTeam = teamMemberRepository.existsByUser(user);
         long userCount = teamMemberRepository.countByTeam(team);
         var competition = context.getCurrent();
@@ -205,7 +227,7 @@ public class TeamServiceImpl implements TeamService {
      * @return true, если пользователь может выйти, иначе false
      */
     private boolean canLeaveFromTeam(UserEntity user, TeamEntity team) {
-        return isUserInTeam(user, team) && context.isInNew();
+        return !Boolean.TRUE.equals(team.getIsSystem()) && isUserInTeam(user, team) && context.isInNew();
     }
 
     /**
@@ -275,6 +297,8 @@ public class TeamServiceImpl implements TeamService {
     @Override
     public List<UserTeamMemberDto> getTeamMemberRatings() {
         return teamMemberRepository.findAll().stream()
+                .filter(member -> !Boolean.TRUE.equals(member.getTeam().getIsSystem()))
+                .filter(member -> !Boolean.TRUE.equals(member.getUser().getIsSystem()))
                 .map(member -> mapUserEntityToMemberDto(member.getUser(), member.getPoints()))
                 .sorted(Comparator.comparingDouble(UserTeamMemberDto::points).reversed())
                 .toList();

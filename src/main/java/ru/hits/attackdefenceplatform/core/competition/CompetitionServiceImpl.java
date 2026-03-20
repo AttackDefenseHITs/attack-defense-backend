@@ -41,21 +41,14 @@ public class CompetitionServiceImpl implements CompetitionService {
     private final CompetitionStateFactory stateFactory;
     private final CompetitionDefaultsProperties defaults;
     private final DomainEventPublisher eventPublisher;
-
     private final CompetitionInMemoryCache competitionCache;
 
-    /**
-     * Получить сущность соревнования (из кэша)
-     */
     @Override
     @Transactional(readOnly = true)
     public Competition getCompetition() {
         return competitionCache.get();
     }
 
-    /**
-     * Изменение статуса соревнования
-     */
     @Override
     @Transactional
     public CompetitionDto changeCompetitionStatus(CompetitionAction action) {
@@ -71,9 +64,6 @@ public class CompetitionServiceImpl implements CompetitionService {
         return CompetitionMapper.mapToCompetitionDto(saved);
     }
 
-    /**
-     * Возможные действия в зависимости от статуса
-     */
     @Override
     @Transactional(readOnly = true)
     public List<CompetitionAction> getAvailableActions() {
@@ -82,9 +72,6 @@ public class CompetitionServiceImpl implements CompetitionService {
         return state.getAvailableActions();
     }
 
-    /**
-     * Обновление настроек соревнования
-     */
     @Override
     @Transactional
     public CompetitionDto updateCompetition(UpdateCompetitionRequest request) {
@@ -105,9 +92,6 @@ public class CompetitionServiceImpl implements CompetitionService {
         return CompetitionMapper.mapToCompetitionDto(saved);
     }
 
-    /**
-     * Изменение режима соревнования
-     */
     @Override
     @Transactional
     public CompetitionDto updateCompetitionMode(UpdateCompetitionModeRequest request) {
@@ -125,18 +109,12 @@ public class CompetitionServiceImpl implements CompetitionService {
         return CompetitionMapper.mapToCompetitionDto(saved);
     }
 
-    /**
-     * DTO текущего соревнования
-     */
     @Override
     @Transactional(readOnly = true)
     public CompetitionDto getCompetitionDto() {
         return CompetitionMapper.mapToCompetitionDto(getCompetition());
     }
 
-    /**
-     * Краткое DTO текущего соревнования
-     */
     @Override
     @Transactional(readOnly = true)
     public CompetitionShortDto getCompetitionShortDto() {
@@ -145,9 +123,6 @@ public class CompetitionServiceImpl implements CompetitionService {
         return CompetitionMapper.mapToCompetitionShortDto(getCompetition(), flagCounts, servicesCount);
     }
 
-    /**
-     * Перезапуск соревнования
-     */
     @Override
     @Transactional
     public CompetitionDto restartCompetition() {
@@ -165,7 +140,7 @@ public class CompetitionServiceImpl implements CompetitionService {
         serviceStatusRepository.deleteAll();
         flagRepository.deleteAll();
         flagSubmissionRepository.deleteAll();
-        teamMemberRepository.deleteAll();
+        teamMemberRepository.deleteAllNonSystem();
 
         eventPublisher.publish(new CompetitionResetEvent());
 
@@ -175,9 +150,6 @@ public class CompetitionServiceImpl implements CompetitionService {
         return CompetitionMapper.mapToCompetitionDto(saved);
     }
 
-    /**
-     * Начало следующего раунда
-     */
     @Override
     @Transactional
     public CompetitionDto startNextRound() {

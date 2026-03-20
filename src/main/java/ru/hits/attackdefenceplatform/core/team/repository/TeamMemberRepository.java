@@ -1,6 +1,7 @@
 package ru.hits.attackdefenceplatform.core.team.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import ru.hits.attackdefenceplatform.core.user.repository.UserEntity;
@@ -24,5 +25,8 @@ public interface TeamMemberRepository extends JpaRepository<TeamMemberEntity, UU
     Optional<TeamMemberEntity> findByUserAndTeam(UserEntity user, TeamEntity team);
 
     boolean existsByUserAndTeam(UserEntity user, TeamEntity team);
-}
 
+    @Modifying
+    @Query("DELETE FROM TeamMemberEntity tm WHERE tm.team.isSystem = false")
+    void deleteAllNonSystem();
+}

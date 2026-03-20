@@ -31,16 +31,8 @@ public class DashboardServiceImpl implements DashboardService {
 
     private final FlagSubmissionRepository flagSubmissionRepository;
     private final TeamRepository teamRepository;
-
     private final CompetitionContext competitionContext;
 
-    /**
-     * Возвращает список изменений счета команд на основе сабмитов флагов, отфильтрованных по корректности и идентификатору команды.
-     *
-     * @param isCorrect флаг, указывающий, следует ли фильтровать сабмиты по корректности (true - корректные, false - некорректные)
-     * @param teamId идентификатор команды, для которой необходимо получить сабмиты; если null, возвращаются сабмиты для всех команд
-     * @return список DTO, описывающих изменения счета команд
-     */
     @Override
     public List<TeamScoreChangeDto> getFilteredSubmissions(Boolean isCorrect, UUID teamId) {
         Specification<FlagSubmissionEntity> spec = FlagSubmissionSpecifications.createSpecification(isCorrect, teamId);
@@ -48,22 +40,21 @@ public class DashboardServiceImpl implements DashboardService {
         return convertSubmissionsToDTO(submissions);
     }
 
-    /**
-     * Преобразует список сущностей сабмитов флагов в список DTO, отражающих изменения счета команд.
-     *
-     * <p>Для каждого сабмита вычисляются очки, заработанные командой, которая отправила флаг, и очки, потерянные командой-владельцем флага.</p>
-     * <p>Также инициализируются команды, отсутствующие в карте очков со значением равным нулю.</p>
-     *
-     * @param submissions список сущностей сабмитов флагов
-     * @return список DTO с информацией по изменению счета команды
-     */
     private List<TeamScoreChangeDto> convertSubmissionsToDTO(List<FlagSubmissionEntity> submissions) {
         Map<String, Double> teamPointsMap = new HashMap<>();
         List<TeamScoreChangeDto> result = new ArrayList<>();
-        var competition = competitionContext.getCompetitionDto();
+        CompetitionDto competition = competitionContext.getCompetitionDto();
 
         for (FlagSubmissionEntity submission : submissions) {
             if (submission.getFlag() == null || submission.getFlag().getFlagOwner() == null) {
+                continue;
+            }
+
+            if (Boolean.TRUE.equals(submission.getTeam().getIsSystem())) {
+                continue;
+            }
+
+            if (Boolean.TRUE.equals(submission.getFlag().getFlagOwner().getIsSystem())) {
                 continue;
             }
 
@@ -103,18 +94,10 @@ public class DashboardServiceImpl implements DashboardService {
         return result;
     }
 
-    /**
-     * Инициализирует в карте команд те команды, которые отсутствуют, устанавливая для них 0 баллов,
-     * и добавляет соответствующие DTO с изменением счета с нулевыми значениями.
-     *
-     * @param teamPointsMap карта, содержащая текущие баллы команд
-     * @param result список DTO, который будет дополнен информацией по командам без сабмитов
-     * @param startTime время начала соревнования в виде Timestamp
-     */
     private void initializeTeamsWithZeroPoints(Map<String, Double> teamPointsMap,
                                                List<TeamScoreChangeDto> result,
                                                Date startTime) {
-        var allTeams = teamRepository.findAll();
+        var allTeams = teamRepository.findAllByIsSystemFalse();
         for (TeamEntity team : allTeams) {
             String teamName = team.getName();
             if (!teamPointsMap.containsKey(teamName)) {
@@ -124,16 +107,6 @@ public class DashboardServiceImpl implements DashboardService {
         }
     }
 
-    /**
-     * Вычисляет количество баллов, заработанных отправляющей командой по сабмиту.
-     *
-     * <p>Если сабмит корректный и флаг существует, и отправляющая команда не совпадает с владельцем флага,
-     * возвращается стоимость отправки флага согласно данным соревнования.</p>
-     *
-     * @param submission сущность сабмита флага
-     * @param submittingTeam имя отправляющей команды
-     * @return количество заработанных баллов, либо 0 если условия не соблюдены
-     */
     private double calculatePointsEarned(FlagSubmissionEntity submission, String submittingTeam, CompetitionDto competitionDto) {
         double pointsEarned = 0.0;
         if (submission.getIsCorrect() && submission.getFlag() != null) {
@@ -145,16 +118,6 @@ public class DashboardServiceImpl implements DashboardService {
         return pointsEarned;
     }
 
-    /**
-     * Вычисляет количество баллов, потерянных владельцем флага по сабмиту.
-     *
-     * <p>Если сабмит корректный и флаг существует, и отправляющая команда не совпадает с владельцем флага,
-     * возвращается отрицательное значение стоимости потери флага согласно данным соревнования.</p>
-     *
-     * @param submission сущность сабмита флага
-     * @param submittingTeam имя отправляющей команды
-     * @return количество потерянных баллов, либо 0 если условия не соблюдены
-     */
     private double calculatePointsLost(FlagSubmissionEntity submission, String submittingTeam, CompetitionDto competitionDto) {
         double pointsLost = 0.0;
         if (submission.getIsCorrect() && submission.getFlag() != null) {
@@ -166,30 +129,10 @@ public class DashboardServiceImpl implements DashboardService {
         return pointsLost;
     }
 
-    /**
-     * Обновляет счет команды в карте баллов.
-     *
-     * <p>Если для заданной команды уже присутствует значение баллов, то к нему прибавляется указанное количество;
-     * иначе команда добавляется в карту с начальным значением.</p>
-     *
-     * @param teamName имя команды
-     * @param points количество баллов для добавления (или вычитания)
-     * @param teamPointsMap карта, ассоциирующая имена команд с их баллами
-     */
     private void updateTeamPoints(String teamName, Double points, Map<String, Double> teamPointsMap) {
         teamPointsMap.put(teamName, teamPointsMap.getOrDefault(teamName, 0.0) + points);
     }
 
-    /**
-     * Создает объект DTO, описывающий изменение счета для команды.
-     *
-     * @param teamName имя команды
-     * @param teamColor цвет команды
-     * @param time время сабмита
-     * @param points изменение баллов (может быть положительным или отрицательным)
-     * @param teamPointsMap карта, содержащая накопленные баллы для команды
-     * @return объект TeamScoreChangeDto, содержащий данные по изменению счета команды
-     */
     private TeamScoreChangeDto createScoreChangeDto(
             String teamName,
             String teamColor,

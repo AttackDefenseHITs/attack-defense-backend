@@ -21,18 +21,14 @@ import java.util.UUID;
 public class TeamManagementService {
     private final TeamRepository teamRepository;
 
-    /**
-     * Создает новую команду.
-     *
-     * @param request данные для создания команды
-     * @return DTO новой команды
-     */
     @Transactional
     public CreatedTeamResponse createTeam(CreateTeamRequest request) {
         var team = new TeamEntity();
         team.setName(request.name());
         team.setMaxMembers(request.maxMembers());
         team.setColor(ColorUtils.generateRandomColor());
+        team.setIsSystem(false);
+
         var newTeam = teamRepository.save(team);
         return new CreatedTeamResponse(
                 newTeam.getId(),
@@ -42,37 +38,32 @@ public class TeamManagementService {
         );
     }
 
-    /**
-     * Обновляет данные команды.
-     *
-     * @param teamId идентификатор команды
-     * @param request новые данные для команды
-     */
     @Transactional
     public void updateTeam(UUID teamId, CreateTeamRequest request) {
         var team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new TeamNotFoundException("Команда не найдена"));
+
+        if (Boolean.TRUE.equals(team.getIsSystem())) {
+            throw new TeamNotFoundException("Команда не найдена");
+        }
+
         Optional.ofNullable(request.name()).filter(n -> !n.isBlank()).ifPresent(team::setName);
         Optional.ofNullable(request.maxMembers()).ifPresent(team::setMaxMembers);
         teamRepository.save(team);
     }
 
-    /**
-     * Удаляет команду по ID.
-     *
-     * @param id идентификатор команды
-     */
     @Transactional
     public void deleteTeam(UUID id) {
+        var team = teamRepository.findById(id)
+                .orElseThrow(() -> new TeamNotFoundException("Команда не найдена"));
+
+        if (Boolean.TRUE.equals(team.getIsSystem())) {
+            throw new TeamNotFoundException("Команда не найдена");
+        }
+
         teamRepository.deleteById(id);
     }
 
-    /**
-     * Создает множество команд.
-     *
-     * @param request данные для создания команд
-     * @return список DTO созданных команд
-     */
     @Transactional
     public List<CreatedTeamResponse> createManyTeams(CreateManyTeamsRequest request) {
         var responses = new ArrayList<CreatedTeamResponse>();

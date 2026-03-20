@@ -10,6 +10,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface TeamRepository extends JpaRepository<TeamEntity, UUID> {
+    Optional<TeamEntity> findByName(String name);
+
+    List<TeamEntity> findAllByIsSystemFalse();
+
     @Query("""
     SELECT new ru.hits.attackdefenceplatform.core.team.repository.model.TeamPointsDto(team.id, COALESCE(SUM(member.points), 0))
     FROM TeamEntity team

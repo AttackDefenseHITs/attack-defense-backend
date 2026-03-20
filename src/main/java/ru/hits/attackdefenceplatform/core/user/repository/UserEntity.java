@@ -33,4 +33,7 @@ public class UserEntity {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @Column(name = "is_system", nullable = false)
+    private Boolean isSystem = false;
 }

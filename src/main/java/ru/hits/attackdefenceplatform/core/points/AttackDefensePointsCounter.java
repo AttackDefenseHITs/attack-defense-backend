@@ -13,6 +13,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Deprecated
 public class AttackDefensePointsCounter implements PointsCounterStrategy {
     private final CompetitionContext competitionContext;
 
