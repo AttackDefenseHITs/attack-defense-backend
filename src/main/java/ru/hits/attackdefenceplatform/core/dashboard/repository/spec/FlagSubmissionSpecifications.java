@@ -19,7 +19,7 @@ public class FlagSubmissionSpecifications {
             }
 
             if (teamId != null) {
-                predicates.add(criteriaBuilder.equal(root.get("teamMember").get("team").get("id"), teamId));
+                predicates.add(criteriaBuilder.equal(root.get("team").get("id"), teamId));
             }
 
             query.orderBy(criteriaBuilder.asc(root.get("submissionTime")));

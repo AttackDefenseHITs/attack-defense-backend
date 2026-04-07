@@ -42,6 +42,7 @@ public class RepositorySyncService {
 
         RepositoryInfoDto repoInfo = repositoryService.getCurrentRepositoryFromDB();
         if (repoInfo == null || !StringUtils.hasText(repoInfo.name())) {
+            log.error("Репозиторий для синхронизации не найден");
             return;
         }
         var repoData = repositoryAdapter.getRepositoryInfo(repoInfo.fullName());

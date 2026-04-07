@@ -27,7 +27,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class DashboardServiceImpl implements DashboardService {
+public class SubmissionDashboardServiceImpl implements DashboardService {
 
     private final FlagSubmissionRepository flagSubmissionRepository;
     private final TeamRepository teamRepository;

@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.UUID;
 
 public record AttackBotCapturedFlagsEvent(
-        UUID attackerTeamId,
-        UUID attackerUserId,
         UUID targetTeamId,
         UUID serviceId,
         long round,

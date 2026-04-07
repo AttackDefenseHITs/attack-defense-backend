@@ -9,6 +9,8 @@ import ru.hits.attackdefenceplatform.common.exception.CompetitionException;
 import ru.hits.attackdefenceplatform.core.CompetitionContext;
 import ru.hits.attackdefenceplatform.core.competition.CompetitionService;
 import ru.hits.attackdefenceplatform.core.competition.repository.Competition;
+import ru.hits.attackdefenceplatform.core.points.sla.metric.SlaRoundSnapshotService;
+import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionDto;
 import ru.hits.attackdefenceplatform.publisher.RoundStartedEvent;
 
 import java.time.LocalDateTime;
@@ -22,10 +24,8 @@ public class CompetitionRoundService {
     private final CompetitionService competitionService;
     private final CompetitionContext competitionContext;
     private final DomainEventPublisher eventPublisher;
+    private final SlaRoundSnapshotService slaRoundSnapshotService;
 
-    /**
-     * Проверяет, можно ли перейти к следующему раунду, и делает это.
-     */
     @Transactional
     public void tryAdvanceRound() {
         var competition = competitionContext.getCurrent();
@@ -40,11 +40,18 @@ public class CompetitionRoundService {
             return;
         }
 
+        long finishedRound = competition.getCurrentRound();
+        slaRoundSnapshotService.captureFinishedRound(finishedRound);
+
         log.info("Текущий раунд завершен. Запускаем следующий...");
         var updatedCompetition = competitionService.startNextRound();
 
-        // Публикуем событие о начале нового раунда
-        eventPublisher.publish(new RoundStartedEvent(updatedCompetition.currentRound()));
+        var newRoundStartTime = calculateRoundStartTime(updatedCompetition);
+
+        eventPublisher.publish(new RoundStartedEvent(
+                updatedCompetition.currentRound(),
+                newRoundStartTime
+        ));
     }
 
     private boolean isCurrentRoundFinished(Competition competition) {
@@ -58,5 +65,17 @@ public class CompetitionRoundService {
 
         var roundEndTime = startDate.plusMinutes((long) (currentRound + 1) * roundDuration);
         return LocalDateTime.now(ZoneOffset.UTC).isAfter(roundEndTime);
+    }
+
+    private LocalDateTime calculateRoundStartTime(CompetitionDto competition) {
+        var startDate = competition.startDate();
+        if (startDate == null) {
+            throw new CompetitionException("Дата начала соревнования не задана");
+        }
+
+        int roundDuration = competition.roundDurationMinutes();
+        int currentRound = competition.currentRound();
+
+        return startDate.plusMinutes((long) currentRound * roundDuration);
     }
 }

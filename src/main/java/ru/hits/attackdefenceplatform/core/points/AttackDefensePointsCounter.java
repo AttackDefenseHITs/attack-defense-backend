@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.hits.attackdefenceplatform.common.exception.TeamNotFoundException;
 import ru.hits.attackdefenceplatform.core.CompetitionContext;
 import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionRepository;
-import ru.hits.attackdefenceplatform.core.service_status.SlaService;
+import ru.hits.attackdefenceplatform.core.points.sla.SlaService;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamRepository;
 import ru.hits.attackdefenceplatform.util.NumberUtils;
 

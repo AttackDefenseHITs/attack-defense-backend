@@ -36,11 +36,7 @@ public class AttackBotBootstrap {
 
         Optional<TeamMemberEntity> existingMember = teamMemberRepository.findByUserAndTeam(botUser, botTeam);
         if (existingMember.isEmpty()) {
-            var teamMember = new TeamMemberEntity();
-            teamMember.setUser(botUser);
-            teamMember.setTeam(botTeam);
-            teamMember.setPoints(0.0);
-            teamMemberRepository.save(teamMember);
+            createBotTeamMember(botTeam, botUser);
         }
     }
 
@@ -61,5 +57,13 @@ public class AttackBotBootstrap {
         user.setIsSystem(true);
         user.setPassword(bCryptPasswordEncoder.encode("__attack_bot_password__"));
         return userRepository.save(user);
+    }
+
+    private TeamMemberEntity createBotTeamMember(TeamEntity botTeam, UserEntity botUser) {
+        var teamMember = new TeamMemberEntity();
+        teamMember.setUser(botUser);
+        teamMember.setTeam(botTeam);
+        teamMember.setPoints(0.0);
+        return teamMemberRepository.save(teamMember);
     }
 }

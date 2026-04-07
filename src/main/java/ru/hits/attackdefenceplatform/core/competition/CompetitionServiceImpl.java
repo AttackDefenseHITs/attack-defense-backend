@@ -42,6 +42,7 @@ public class CompetitionServiceImpl implements CompetitionService {
     private final CompetitionDefaultsProperties defaults;
     private final DomainEventPublisher eventPublisher;
     private final CompetitionInMemoryCache competitionCache;
+    private final RedisCleanupService redisCleanupService;
 
     @Override
     @Transactional(readOnly = true)
@@ -146,6 +147,8 @@ public class CompetitionServiceImpl implements CompetitionService {
 
         var saved = competitionRepository.save(competition);
         competitionCache.update(saved);
+
+        redisCleanupService.clearAllGameData();
 
         return CompetitionMapper.mapToCompetitionDto(saved);
     }

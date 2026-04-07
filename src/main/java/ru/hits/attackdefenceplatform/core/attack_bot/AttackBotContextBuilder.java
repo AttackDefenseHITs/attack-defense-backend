@@ -7,7 +7,7 @@ import ru.hits.attackdefenceplatform.core.attack_bot.model.TeamInfo;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamRepository;
 import ru.hits.attackdefenceplatform.core.points.PointsService;
-import ru.hits.attackdefenceplatform.core.service_status.SlaService;
+import ru.hits.attackdefenceplatform.core.points.sla.SlaService;
 
 import java.util.HashMap;
 import java.util.List;
