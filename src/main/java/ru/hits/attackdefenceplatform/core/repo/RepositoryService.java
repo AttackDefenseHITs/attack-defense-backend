@@ -34,6 +34,7 @@ public class RepositoryService {
                 .lastSyncedAt(LocalDateTime.now())
                 .build();
 
+        platformRepositoryRepository.deleteAll();
         platformRepositoryRepository.save(entity);
 
         return repositoryDto;
