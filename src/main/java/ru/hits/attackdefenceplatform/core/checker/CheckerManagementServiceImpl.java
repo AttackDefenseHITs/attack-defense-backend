@@ -47,15 +47,10 @@ public class CheckerManagementServiceImpl implements CheckerManagementService {
             String branch,
             Map<String, List<RepoFileDto>> detected
     ) throws IOException {
-        Map<String, CheckerEntity> existing = checkerRepository.findAll().stream()
-                .collect(Collectors.toMap(
-                        c -> c.getVulnerableService().getName().toLowerCase(),
-                        c -> c));
 
         Set<String> processed = new HashSet<>();
 
         for (var entry : detected.entrySet()) {
-
             String serviceName = entry.getKey().toLowerCase();
             List<RepoFileDto> files = entry.getValue();
 
@@ -76,19 +71,20 @@ public class CheckerManagementServiceImpl implements CheckerManagementService {
             Path storedRoot = checkerFileService.saveCheckerDirectory(tempDir, serviceName);
             installRequirements(storedRoot);
 
-            CheckerEntity checker = existing.get(serviceName);
-            if (checker == null) {
-                checker = new CheckerEntity();
-                checker.setVulnerableService(service);
-            }
+            CheckerEntity checker = checkerRepository.findByVulnerableServiceId(service.getId())
+                    .orElseGet(() -> {
+                        CheckerEntity c = new CheckerEntity();
+                        c.setVulnerableService(service);
+                        return c;
+                    });
+
             checker.setScriptFilePath(storedRoot.toString());
 
             checkerRepository.save(checker);
             processed.add(serviceName);
         }
 
-        // cleanup
-        existing.values().stream()
+        checkerRepository.findAll().stream()
                 .filter(c -> !processed.contains(c.getVulnerableService().getName().toLowerCase()))
                 .forEach(checkerRepository::delete);
     }
