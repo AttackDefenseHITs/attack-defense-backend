@@ -6,66 +6,69 @@ import ru.hits.attackdefenceplatform.core.vulnerable_service.repository.Vulnerab
 @Component
 public class ScriptBuilder {
     public String buildDeploymentScript(VulnerableServiceEntity service) {
-
         String serviceName = service.getName();
         String repoUrl = service.getGitRepositoryUrl();
 
         return String.format("""
-            #!/bin/bash
-            set -e
+                #!/bin/bash
+                set -ex
 
-            exec > /opt/deploy.log 2>&1
-            REPO_URL="%s"
-            ROOT_DIR="/opt/services"
-            SERVICE_NAME="%s"
-            SERVICE_DIR="$ROOT_DIR/services/$SERVICE_NAME"
+                exec > >(tee -a /opt/deploy.log) 2>&1
+                REPO_URL="%s"
+                ROOT_DIR="/opt/services"
+                SERVICE_NAME="%s"
+                SERVICE_DIR="$ROOT_DIR/services/$SERVICE_NAME"
 
-            echo "Deploying service: $SERVICE_NAME"
-            echo "Repository: $REPO_URL"
+                echo "Deploying service: $SERVICE_NAME"
+                echo "Repository: $REPO_URL"
 
-            sudo mkdir -p "$ROOT_DIR"
-            cd "$ROOT_DIR"
+                sudo mkdir -p "$ROOT_DIR"
+                cd "$ROOT_DIR"
 
-            if [ ! -d ".git" ]; then
-                echo "Первый деплой — sparse clone только каталога services..."
+                if [ ! -d ".git" ]; then
+                    echo "Первый деплой — sparse clone..."
 
-                sudo git clone --filter=blob:none --no-checkout "$REPO_URL" .
+                    sudo env GIT_TERMINAL_PROMPT=0 git clone --progress --filter=blob:none --no-checkout "$REPO_URL" .
 
-                sudo git sparse-checkout init --cone
-                sudo git sparse-checkout set "services"
-                sudo git checkout main
-            else
-                echo "Обновление сервиса: pulling latest changes..."
-            
-                sudo git fetch --all
-                sudo git sparse-checkout set "services/$SERVICE_NAME"
-            
-                echo "Сброс локальных изменений..."
-                sudo git reset --hard HEAD
-                sudo git clean -fd
-            
-                sudo git checkout main
-                sudo git pull
-            fi
+                    sudo git sparse-checkout init --cone
+                    sudo git sparse-checkout set "services/$SERVICE_NAME"
+                    sudo git checkout -B main origin/main
+                else
+                    echo "Обновление сервиса..."
 
-            echo "Проверяем директорию сервиса: $SERVICE_DIR"
+                    sudo env GIT_TERMINAL_PROMPT=0 git fetch origin main --progress
+                    sudo git sparse-checkout set "services/$SERVICE_NAME"
 
-            if [ ! -d "$SERVICE_DIR" ]; then
-                echo "❌ Ошибка: сервис '$SERVICE_NAME' не найден в репозитории!"
-                exit 1
-            fi
+                    if ! sudo git rev-parse --verify HEAD >/dev/null 2>&1; then
+                        echo "HEAD отсутствует, выполняем первый checkout ветки main..."
+                        sudo git checkout -B main origin/main
+                    else
+                        echo "Сброс локальных изменений..."
+                        sudo git reset --hard HEAD
+                        sudo git clean -fd
+                        sudo git checkout main
+                        sudo env GIT_TERMINAL_PROMPT=0 git pull --progress origin main
+                    fi
+                fi
 
-            sudo chmod -R 777 "$SERVICE_DIR"
+                echo "Проверяем директорию сервиса: $SERVICE_DIR"
 
-            echo "Переход в директорию сервиса"
-            cd "$SERVICE_DIR"
+                if [ ! -d "$SERVICE_DIR" ]; then
+                    echo "❌ Ошибка: сервис '$SERVICE_NAME' не найден в репозитории!"
+                    exit 1
+                fi
 
-            echo "Перезапуск docker compose..."
-            sudo docker compose down || true
-            sudo docker compose up -d --build
+                sudo chmod -R 777 "$SERVICE_DIR"
 
-            echo "✔ Деплой сервиса '$SERVICE_NAME' завершён."
-            """,
+                echo "Переход в директорию сервиса"
+                cd "$SERVICE_DIR"
+
+                echo "Перезапуск docker compose..."
+                sudo docker compose down || true
+                sudo docker compose up -d --build
+
+                echo "✔ Деплой сервиса '$SERVICE_NAME' завершён."
+                """,
                 repoUrl,
                 serviceName
         );
