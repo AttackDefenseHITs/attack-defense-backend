@@ -60,13 +60,10 @@ public class DeploymentStatusInitializer {
     }
 
     public List<DeploymentStatusEntity> initializeStatusesForNewService(UUID serviceId) {
-        var service = vulnerableServiceRepository.findById(serviceId)
-                .orElseThrow(() -> new IllegalArgumentException("Service not found2"));
-
         var virtualMachines = virtualMachineRepository.findAll();
 
         return virtualMachines.stream()
-                .map(vm -> mapAndSaveIfNotExists(vm.getId(), service.getId()))
+                .map(vm -> mapAndSaveIfNotExists(vm.getId(), serviceId))
                 .toList();
     }
 

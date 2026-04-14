@@ -40,8 +40,8 @@ public class VulnerableServiceManagementServiceImpl implements VulnerableService
         // Удаляем отсутствующие
         for (VulnerableServiceEntity s : existing) {
             if (!detected.containsKey(s.getName())) {
-                serviceRepository.delete(s);
                 deploymentStatusInitializer.deleteStatusesForService(s.getId());
+                serviceRepository.delete(s);
                 log.info("Удалён сервис: {}", s.getName());
             }
         }
