@@ -171,22 +171,35 @@ public class DeploymentServiceImpl implements DeploymentService {
         Session session = jsch.getSession(username, host, 22);
         session.setPassword(password);
         session.setConfig("StrictHostKeyChecking", "no");
-        session.connect();
+
+        session.connect(10_000);
 
         try {
+            String preparedScript = """
+                set -ex
+                echo "USER: $(whoami)"
+                echo "PWD: $(pwd)"
+                echo "PATH: $PATH"
+                """ + "\n" + scriptContent;
+
+            log.info("Начало выполнения скрипта на '{}'", host);
+            log.info("Скрипт для '{}':\n{}", host, preparedScript);
+
             var channelSftp = (ChannelSftp) session.openChannel("sftp");
-            channelSftp.connect();
+            channelSftp.connect(10_000);
 
-            var scriptPath = "/tmp/deploy_services.sh";
+            String scriptPath = "/tmp/deploy_services.sh";
 
-            try (var inputStream = new ByteArrayInputStream(scriptContent.getBytes(StandardCharsets.UTF_8))) {
+            try (var inputStream = new ByteArrayInputStream(preparedScript.getBytes(StandardCharsets.UTF_8))) {
                 channelSftp.put(inputStream, scriptPath);
+            } finally {
+                channelSftp.disconnect();
             }
 
-            channelSftp.disconnect();
             log.info("Скрипт деплоя успешно отправлен на '{}'.", host);
 
             var channelExec = (ChannelExec) session.openChannel("exec");
+            channelExec.setPty(true);
             channelExec.setCommand("bash " + scriptPath);
 
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -195,7 +208,7 @@ public class DeploymentServiceImpl implements DeploymentService {
             channelExec.setOutputStream(outputStream);
             channelExec.setErrStream(errorStream);
 
-            channelExec.connect();
+            channelExec.connect(10_000);
 
             while (!channelExec.isClosed()) {
                 Thread.sleep(100);
@@ -216,12 +229,18 @@ public class DeploymentServiceImpl implements DeploymentService {
             }
 
             if (exitStatus != 0) {
-                throw new RuntimeException("Скрипт завершился с ошибкой, код: " + exitStatus);
+                throw new RuntimeException(
+                        "Скрипт завершился с ошибкой, код: " + exitStatus +
+                                "\nSTDERR:\n" + errors +
+                                "\nSTDOUT:\n" + output
+                );
             }
 
             log.info("Скрипт успешно выполнен на '{}'.", host);
         } finally {
-            session.disconnect();
+            if (session.isConnected()) {
+                session.disconnect();
+            }
         }
     }
 
