@@ -31,7 +31,7 @@ public class DeploymentStatusInitializer {
                 .orElseThrow(() -> new IllegalArgumentException("Virtual machine not found"));
 
         var service = vulnerableServiceRepository.findById(vulnerableServiceId)
-                .orElseThrow(() -> new IllegalArgumentException("Service not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Service not found1"));
 
         if (!deploymentStatusRepository.existsByVirtualMachineIdAndVulnerableServiceId(vm.getId(), service.getId())) {
             var statusEntity = new DeploymentStatusEntity();
@@ -61,7 +61,7 @@ public class DeploymentStatusInitializer {
 
     public List<DeploymentStatusEntity> initializeStatusesForNewService(UUID serviceId) {
         var service = vulnerableServiceRepository.findById(serviceId)
-                .orElseThrow(() -> new IllegalArgumentException("Service not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Service not found2"));
 
         var virtualMachines = virtualMachineRepository.findAll();
 
@@ -90,7 +90,7 @@ public class DeploymentStatusInitializer {
      */
     public void deleteStatusesForService(UUID serviceId) {
         if (!vulnerableServiceRepository.existsById(serviceId)) {
-            throw new IllegalArgumentException("Service not found");
+            throw new IllegalArgumentException("Service not found3");
         }
 
         deploymentStatusRepository.deleteByVulnerableServiceId(serviceId);
