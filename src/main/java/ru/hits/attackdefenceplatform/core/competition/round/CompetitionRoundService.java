@@ -23,7 +23,6 @@ public class CompetitionRoundService {
     private final CompetitionService competitionService;
     private final CompetitionContext competitionContext;
     private final DomainEventPublisher eventPublisher;
-    private final SlaRoundSnapshotService slaRoundSnapshotService;
 
     @Transactional
     public void tryAdvanceRound() {
@@ -38,9 +37,6 @@ public class CompetitionRoundService {
             log.debug("Текущий раунд еще не завершен");
             return;
         }
-
-        long finishedRound = competition.getCurrentRound();
-        slaRoundSnapshotService.captureFinishedRound(finishedRound);
 
         log.info("Текущий раунд завершен. Запускаем следующий...");
         var updatedCompetition = competitionService.startNextRound();
