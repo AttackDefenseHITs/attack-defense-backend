@@ -9,6 +9,7 @@ import ru.hits.attackdefenceplatform.common.exception.CompetitionException;
 import ru.hits.attackdefenceplatform.core.CompetitionContext;
 import ru.hits.attackdefenceplatform.core.competition.CompetitionService;
 import ru.hits.attackdefenceplatform.core.competition.repository.Competition;
+import ru.hits.attackdefenceplatform.core.points.sla.TeamRoundCheckSnapshotService;
 import ru.hits.attackdefenceplatform.public_interface.competition.CompetitionDto;
 import ru.hits.attackdefenceplatform.publisher.RoundStartedEvent;
 
@@ -23,6 +24,7 @@ public class CompetitionRoundService {
     private final CompetitionService competitionService;
     private final CompetitionContext competitionContext;
     private final DomainEventPublisher eventPublisher;
+    private final TeamRoundCheckSnapshotService snapshotService;
 
     @Transactional
     public void tryAdvanceRound() {
@@ -37,6 +39,9 @@ public class CompetitionRoundService {
             log.debug("Текущий раунд еще не завершен");
             return;
         }
+
+        long finishedRound = competition.getCurrentRound();
+        snapshotService.captureFinishedRound(finishedRound);
 
         log.info("Текущий раунд завершен. Запускаем следующий...");
         var updatedCompetition = competitionService.startNextRound();

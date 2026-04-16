@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.hits.attackdefenceplatform.core.CompetitionContext;
 import ru.hits.attackdefenceplatform.core.points.sla.RoundStatusScoreService;
-import ru.hits.attackdefenceplatform.core.points.sla.SlaService;
 import ru.hits.attackdefenceplatform.util.NumberUtils;
 
 import java.util.UUID;
