@@ -3,6 +3,7 @@ package ru.hits.attackdefenceplatform.core.points;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.hits.attackdefenceplatform.core.CompetitionContext;
+import ru.hits.attackdefenceplatform.core.points.sla.RoundStatusScoreService;
 import ru.hits.attackdefenceplatform.core.points.sla.SlaService;
 import ru.hits.attackdefenceplatform.util.NumberUtils;
 
@@ -13,7 +14,7 @@ import java.util.UUID;
 public class ReverseDefensePointsCounter implements PointsCounterStrategy {
     private static final double REVERSE_DEFENSE_POINTS = 50000.0;
 
-    private final SlaService slaService;
+    private final RoundStatusScoreService roundStatusScoreService;
     private final CompetitionContext competitionContext;
 
     @Override
@@ -25,8 +26,8 @@ public class ReverseDefensePointsCounter implements PointsCounterStrategy {
         double totalPenalty = 0.0;
 
         for (int round = 0; round <= currentRound; round++) {
-            double roundSla = slaService.getTeamSlaForRound(teamId, round);
-            totalPenalty += roundBasePoints * (1.0 - roundSla);
+            double roundScore = roundStatusScoreService.getTeamRoundScore(teamId, round);
+            totalPenalty += roundBasePoints * (1.0 - roundScore);
         }
 
         double result = REVERSE_DEFENSE_POINTS - totalPenalty;
