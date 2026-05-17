@@ -21,7 +21,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t attackdefense/webapi:latest .
+          docker build -t attackdefense/hits-attack-defense-platform:latest .
 
       - name: Log in to Docker Hub
         run: |
@@ -29,8 +29,8 @@ jobs:
 
       - name: Push Docker image to registry
         run: |
-          docker tag attackdefense/webapi:latest docker.io/${{ secrets.DOCKER_USERNAME }}/webapi:latest
-          docker push docker.io/${{ secrets.DOCKER_USERNAME }}/webapi:latest
+          docker tag attackdefense/hits-attack-defense-platform:latest docker.io/${{ secrets.DOCKER_USERNAME }}/hits-attack-defense-platform:latest
+          docker push docker.io/${{ secrets.DOCKER_USERNAME }}/hits-attack-defense-platform:latest
 
       - name: Add VPS to known_hosts
         run: |
@@ -42,24 +42,27 @@ jobs:
           VPS_USER: ${{ secrets.VPS_USER }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
         run: |
           ssh -t $VPS_USER@$VPS_HOST << EOF
+            set -e
 
             BRANCH_NAME="${{ github.ref_name }}"
 
-            cd ~/attack-defense-backend/
+            cd ~/attack-defence-platform/
             git fetch --all --prune
             git checkout -B "\$BRANCH_NAME" "origin/\$BRANCH_NAME"
             git reset --hard "origin/\$BRANCH_NAME"
 
             printf "POSTGRES_USER=%s\n" "$POSTGRES_USER" > .env
             printf "POSTGRES_PASSWORD=%s\n" "$POSTGRES_PASSWORD" >> .env
+            printf "REDIS_PASSWORD=%s\n" "$REDIS_PASSWORD" >> .env
             printf "DOCKER_USERNAME=%s\n" "$DOCKER_USERNAME" >> .env
             printf "REPO_TOKEN=%s\n" "$REPO_TOKEN" >> .env
 
-            docker pull "docker.io/$DOCKER_USERNAME/webapi:latest"
+            docker pull "docker.io/$DOCKER_USERNAME/hits-attack-defense-platform:latest"
             docker compose down
             docker compose up -d --force-recreate
           EOF
