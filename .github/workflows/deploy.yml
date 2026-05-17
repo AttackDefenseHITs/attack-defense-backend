@@ -60,6 +60,6 @@ jobs:
             printf "REPO_TOKEN=%s\n" "$REPO_TOKEN" >> .env
 
             docker pull "docker.io/$DOCKER_USERNAME/webapi:latest"
-            docker-compose down
-            docker-compose up -d --force-recreate
+            docker compose down
+            docker compose up -d --force-recreate
           EOF
