@@ -15,43 +15,64 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-attackdefencedb}
     networks:
       - app-net
+
   redis:
     image: redis:7
     container_name: redis
     hostname: redis
     restart: unless-stopped
-    ports:
-      - "6379:6379"
+    command:
+      [
+        "redis-server",
+        "--appendonly", "yes",
+        "--requirepass", "${REDIS_PASSWORD}",
+        "--bind", "0.0.0.0",
+        "--protected-mode", "yes"
+      ]
     volumes:
       - redisdata:/data
+    env_file:
+      - .env
     networks:
       - app-net
+
   redis-commander:
     container_name: redis-commander
     image: rediscommander/redis-commander:latest
     restart: always
     ports:
-      - "8081:8081"
+      - "127.0.0.1:8081:8081"
     environment:
-      - REDIS_HOSTS=local:redis:6379
+      - REDIS_HOSTS=local:redis:6379:0:${REDIS_PASSWORD}
+    depends_on:
+      - redis
+    env_file:
+      - .env
     networks:
       - app-net
-  webapi:
-    image: docker.io/${DOCKER_USERNAME}/webapi:latest
-    container_name: webapi
-    hostname: webapi
+
+  attack-defence-platform:
+    image: docker.io/${DOCKER_USERNAME}/attack-defence-platform:latest
+    container_name: attack-defence-platform
+    hostname: attack-defence-platform
     expose:
       - "8080"
     depends_on:
       - postgres
+      - redis
     env_file:
       - .env
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/attackdefencedb
       - POSTGRES_USER=${POSTGRES_USER:-attackdefencedb}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-attackdefencedb}
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - SPRING_DATA_REDIS_PASSWORD=${REDIS_PASSWORD}
+      - SPRING_DATA_REDIS_DATABASE=0
     networks:
       - app-net
+
   nginx:
     image: nginx:latest
     container_name: reverse_nginx
@@ -73,6 +94,7 @@ services:
 volumes:
   pgdata:
   redisdata:
+
 networks:
   app-net:
     name: app-net

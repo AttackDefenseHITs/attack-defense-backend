@@ -10,8 +10,4 @@ public class TeamServiceSlaSnapshotKeys {
     public static String teamRound(UUID teamId, long roundNumber) {
         return "TEAM_SERVICE_SLA_SNAPSHOT:%s:%d".formatted(teamId, roundNumber);
     }
-
-    public static String teamRoundPattern(UUID teamId, long roundNumber) {
-        return "TEAM_SERVICE_SLA_SNAPSHOT:%s:%d".formatted(teamId, roundNumber);
-    }
 }
