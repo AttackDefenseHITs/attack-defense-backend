@@ -50,8 +50,16 @@ jobs:
             set -e
 
             BRANCH_NAME="${{ github.ref_name }}"
+            REPO_URL="https://x-access-token:$REPO_TOKEN@github.com/${{ github.repository }}.git"
+            PUBLIC_REPO_URL="https://github.com/${{ github.repository }}.git"
+            trap 'git -C ~/attack-defence-platform remote set-url origin "\$PUBLIC_REPO_URL" 2>/dev/null || true' EXIT
+
+            if [ ! -d ~/attack-defence-platform/.git ]; then
+              git clone --branch "\$BRANCH_NAME" "\$REPO_URL" ~/attack-defence-platform
+            fi
 
             cd ~/attack-defence-platform/
+            git remote set-url origin "\$REPO_URL"
             git fetch --all --prune
             git checkout -B "\$BRANCH_NAME" "origin/\$BRANCH_NAME"
             git reset --hard "origin/\$BRANCH_NAME"
