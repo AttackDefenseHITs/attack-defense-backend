@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Table, Tag, Typography, Tooltip } from 'antd';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Input, Space, Table, Tag, Typography, Tooltip } from 'antd';
 import { CheckCircleOutlined, CloseCircleOutlined, FlagOutlined } from '@ant-design/icons';
 import { axiosGetFlagSubmissions } from '../../../api/requests/getFlagSubmissionsRequest';
 import { useTranslation } from 'react-i18next';
@@ -7,6 +7,7 @@ import ThemeContext from '../../../context/ThemeContext';
 import { useContext } from 'react';
 import { motion } from 'framer-motion';
 import WhiteCardWithLabel from '../../common/WhiteCardWithLabel';
+import { debounce } from 'lodash';
 
 const { Text } = Typography;
 
@@ -16,15 +17,17 @@ const FlagSubmissionsTable = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(0);
+  const [searchText, setSearchText] = useState('');
+  const [statusFilter, setStatusFilter] = useState(null);
 
   const { t } = useTranslation();
   const { theme, themeConfig } = useContext(ThemeContext);
   const themeStyles = themeConfig[theme];
 
-  const fetchData = async (currentPage = 1, size = 10) => {
+  const fetchData = async (currentPage = 1, size = 10, search = '', isCorrect = null) => {
     setLoading(true);
     try {
-      const response = await axiosGetFlagSubmissions(currentPage - 1, size);
+      const response = await axiosGetFlagSubmissions(currentPage - 1, size, search, isCorrect);
       const { content, totalElements } = response.data;
 
       setData(content);
@@ -37,12 +40,25 @@ const FlagSubmissionsTable = () => {
   };
 
   useEffect(() => {
-    fetchData(page, pageSize);
-  }, [page, pageSize]);
+    fetchData(page, pageSize, searchText, statusFilter);
+  }, [page, pageSize, searchText, statusFilter]);
 
-  const handleTableChange = (pagination) => {
-    setPage(pagination.current);
+  const handleSearch = useMemo(
+    () => debounce((value) => {
+      setPage(1);
+      setSearchText(value);
+    }, 500),
+    []
+  );
+
+  useEffect(() => () => handleSearch.cancel(), [handleSearch]);
+
+  const handleTableChange = (pagination, filters) => {
+    const nextStatusFilter = filters.isCorrect?.length ? filters.isCorrect[0] : null;
+
+    setPage(nextStatusFilter === statusFilter ? pagination.current : 1);
     setPageSize(pagination.pageSize);
+    setStatusFilter(nextStatusFilter);
   };
 
   const columns = [
@@ -86,6 +102,11 @@ const FlagSubmissionsTable = () => {
       title: t('status'),
       dataIndex: 'isCorrect',
       key: 'isCorrect',
+      filters: [
+        { text: t('correct'), value: true },
+        { text: t('incorrect'), value: false },
+      ],
+      filteredValue: statusFilter === null ? null : [statusFilter],
       render: (isCorrect, record) => (
       <Tooltip title={record.result}>
         <Tag
@@ -119,30 +140,41 @@ const FlagSubmissionsTable = () => {
         backgroundColor={themeStyles.window}
         icon={<FlagOutlined />}
       >
-        <Table
-          className={`modern-table ${theme === "dark" ? "dark-theme" : ""}`}
-          columns={columns}
-          dataSource={data}
-          rowKey={(record) => `${record.submittedFlag}-${record.submissionTime}`}
-          loading={loading}
-          pagination={{
-            current: page,
-            total: total,
-            pageSize: pageSize,
-            showSizeChanger: true,
-            pageSizeOptions: ['10', '20', '50'],
-            onChange: (newPage, newSize) => {
-              setPage(newPage);
-              setPageSize(newSize);
-            },
-          }}
-          onChange={handleTableChange}
-          style={{
-            backgroundColor: themeStyles.window,
-            borderRadius: '8px',
-            overflow: 'hidden',
-          }}
-        />
+        <Space direction="vertical" size="large" style={{ width: '100%' }}>
+          <Input.Search
+            placeholder={t('search_submissions')}
+            allowClear
+            onChange={(e) => handleSearch(e.target.value)}
+            style={{
+              marginBottom: 16,
+              backgroundColor: themeStyles.inputBackground,
+              color: themeStyles.inputText,
+              borderColor: themeStyles.border,
+              borderRadius: '6px',
+            }}
+          />
+
+          <Table
+            className={`modern-table ${theme === "dark" ? "dark-theme" : ""}`}
+            columns={columns}
+            dataSource={data}
+            rowKey={(record) => `${record.submittedFlag}-${record.submissionTime}`}
+            loading={loading}
+            pagination={{
+              current: page,
+              total: total,
+              pageSize: pageSize,
+              showSizeChanger: true,
+              pageSizeOptions: ['10', '20', '50'],
+            }}
+            onChange={handleTableChange}
+            style={{
+              backgroundColor: themeStyles.window,
+              borderRadius: '8px',
+              overflow: 'hidden',
+            }}
+          />
+        </Space>
       </WhiteCardWithLabel>
     </motion.div>
   );

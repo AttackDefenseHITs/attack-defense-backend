@@ -3,12 +3,16 @@ import { api } from '../axiosInstance';
 import { handleRequest } from './handleRequest';
 
 // Получение всех флагов
-export const axiosGetAllFlags = async (page = 0, size = 10, search = '') => {
+export const axiosGetAllFlags = async (page = 0, size = 10, search = '', isActive = null) => {
   const params = {
     page,
     size,
     search
   };
+
+  if (isActive !== null && isActive !== undefined) {
+    params.isActive = isActive;
+  }
 
   return handleRequest(() => api.get('/admin/flags', { params }), {
     onError: () => message.error('Ошибка при получении списка флагов'),

@@ -18,6 +18,7 @@ import ru.hits.attackdefenceplatform.public_interface.flag.CreateFlagRequest;
 import ru.hits.attackdefenceplatform.public_interface.flag.FlagDto;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -51,26 +52,22 @@ public class FlagManagementServiceImpl implements FlagManagementService {
     }
 
     /**
-     * Возвращает список флагов с пагинацией и фильтрацией по имени команды или сервиса.
+     * Возвращает список флагов с пагинацией и фильтрацией по имени команды, сервиса, значению и статусу.
      *
      * @param page Номер страницы
      * @param size Количество элементов на странице
-     * @param search Строка поиска по имени команды или сервиса
+     * @param search Строка поиска по имени команды, сервиса или значению флага
+     * @param isActive Статус активности флага
      * @return объект Page с флагами
      */
     @Override
     @Transactional(readOnly = true)
-    public Page<FlagDto> getAllFlags(int page, int size, String search) {
+    public Page<FlagDto> getAllFlags(int page, int size, String search, Boolean isActive) {
         Pageable pageable = PageRequest.of(page, size);
 
-        if (search != null && !search.isEmpty()) {
-            Specification<FlagEntity> spec = createFlagSearchSpecification(search);
-            Page<FlagEntity> flagPage = flagRepository.findAll(spec, pageable);
-            return flagPage.map(FlagMapper::mapToFlagDto);
-        } else {
-            Page<FlagEntity> flagPage = flagRepository.findAll(pageable);
-            return flagPage.map(FlagMapper::mapToFlagDto);
-        }
+        Specification<FlagEntity> spec = createFlagSpecification(search, isActive);
+        Page<FlagEntity> flagPage = flagRepository.findAll(spec, pageable);
+        return flagPage.map(FlagMapper::mapToFlagDto);
     }
 
     /**
@@ -164,16 +161,31 @@ public class FlagManagementServiceImpl implements FlagManagementService {
     }
 
     /**
-     * Создает спецификацию для поиска флагов по имени команды или сервиса.
+     * Создает спецификацию для поиска и фильтрации флагов.
      *
      * @param search Строка поиска
+     * @param isActive Статус активности флага
      * @return спецификация для поиска
      */
-    private Specification<FlagEntity> createFlagSearchSpecification(String search) {
-        return (root, query, builder) -> builder.or(
-                builder.like(root.get("flagOwner").get("name"), "%" + search + "%"),
-                builder.like(root.get("vulnerableService").get("name"), "%" + search + "%")
-        );
+    private Specification<FlagEntity> createFlagSpecification(String search, Boolean isActive) {
+        return (root, query, builder) -> {
+            var predicate = builder.conjunction();
+
+            if (search != null && !search.isBlank()) {
+                var pattern = "%" + search.trim().toLowerCase(Locale.ROOT) + "%";
+                predicate = builder.and(predicate, builder.or(
+                        builder.like(builder.lower(root.get("flagOwner").get("name")), pattern),
+                        builder.like(builder.lower(root.get("vulnerableService").get("name")), pattern),
+                        builder.like(builder.lower(root.get("value")), pattern)
+                ));
+            }
+
+            if (isActive != null) {
+                predicate = builder.and(predicate, builder.equal(root.get("isActive"), isActive));
+            }
+
+            return predicate;
+        };
     }
 }
 

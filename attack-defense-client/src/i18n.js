@@ -141,6 +141,7 @@ const resources = {
       team_leader: "Team Leader",
       team_members: "Team Members",
       add_member: "Add Member",
+      no_teams: "No teams",
       remove_member: "Remove Member",
       update_team: "Update Team",
       team_updated: "Team updated successfully",
@@ -232,7 +233,7 @@ const resources = {
 
       flags: "Flags",
       flags_management: "Flags Management",
-      search_flag: "Search by team or service name",
+      search_flag: "Search by team, service or flag value",
       status: "Status",
       active: "Active",
       inactive: "Inactive",
@@ -286,6 +287,7 @@ const resources = {
       max_members_placeholder: "Max Members",
 
       submissions: "Flag Submissions",
+      search_submissions: "Search by flag, user, team, service or result",
       submitted_flag: "Submitted Flag",
       submission_time: "Submission Time",
       correct: "Correct",
@@ -487,6 +489,7 @@ const resources = {
       team_leader: "Лидер команды",
       team_members: "Участники команды",
       add_member: "Добавить участника",
+      no_teams: "Нет команд",
       remove_member: "Удалить участника",
       update_team: "Обновить команду",
       team_updated: "Команда обновлена успешно",
@@ -577,7 +580,7 @@ const resources = {
 
       flags: "Флаги",
       flags_management: "Управление флагами",
-      search_flag: "Поиск по имени команды или сервиса",
+      search_flag: "Поиск по команде, сервису или значению флага",
       status: "Статус",
       active: "Активный",
       inactive: "Неактивный",
@@ -631,6 +634,7 @@ const resources = {
       max_members_placeholder: "Макс. количество участников",
 
       submissions: "Сдачи флагов",
+      search_submissions: "Поиск по флагу, пользователю, команде, сервису или результату",
       submitted_flag: "Сданный флаг",
       submission_time: "Время сдачи",
       correct: "Верно",

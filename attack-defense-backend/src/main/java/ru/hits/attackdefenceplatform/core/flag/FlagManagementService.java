@@ -10,7 +10,7 @@ import java.util.UUID;
 public interface FlagManagementService {
     void createFlags(CreateFlagRequest request);
 
-    Page<FlagDto> getAllFlags(int page, int size, String search);
+    Page<FlagDto> getAllFlags(int page, int size, String search, Boolean isActive);
 
     FlagDto getFlagById(UUID id);
 

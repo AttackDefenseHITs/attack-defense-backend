@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
 import { Table, Button, Switch, Input, Space, Typography, Tooltip, Popconfirm } from 'antd';
 import { DeleteOutlined, FlagOutlined } from '@ant-design/icons';
 import { motion } from 'framer-motion';
@@ -14,6 +14,7 @@ const FlagsManagement = () => {
   const [flags, setFlags] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState('');
+  const [statusFilter, setStatusFilter] = useState(null);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState(0);
@@ -23,10 +24,10 @@ const FlagsManagement = () => {
   
   const { t } = useTranslation();
   
-  const fetchFlags = async (currentPage = 1, size = 10, search = '') => {
+  const fetchFlags = async (currentPage = 1, size = 10, search = '', isActive = null) => {
     setLoading(true);
     try {
-      const response = await axiosGetAllFlags(currentPage - 1, size, search);
+      const response = await axiosGetAllFlags(currentPage - 1, size, search, isActive);
       setFlags(response.data.content);
       setTotal(response.data.totalElements);
     } catch (error) {
@@ -36,14 +37,27 @@ const FlagsManagement = () => {
     }
   };
 
-  const handleSearch = debounce((value) => {
-    setSearchText(value.toLowerCase());
-    fetchFlags(1, pageSize, value);
-  }, 500);
+  const handleSearch = useMemo(
+    () => debounce((value) => {
+      setPage(1);
+      setSearchText(value);
+    }, 500),
+    []
+  );
   
   useEffect(() => {
-    fetchFlags(page, pageSize, searchText);
-  }, [page, pageSize]);
+    fetchFlags(page, pageSize, searchText, statusFilter);
+  }, [page, pageSize, searchText, statusFilter]);
+
+  useEffect(() => () => handleSearch.cancel(), [handleSearch]);
+
+  const handleTableChange = (pagination, filters) => {
+    const nextStatusFilter = filters.isActive?.length ? filters.isActive[0] : null;
+
+    setPage(nextStatusFilter === statusFilter ? pagination.current : 1);
+    setPageSize(pagination.pageSize);
+    setStatusFilter(nextStatusFilter);
+  };
 
   const handleStatusToggle = async (flagId) => {
     try {
@@ -126,7 +140,7 @@ const FlagsManagement = () => {
         { text: t('active'), value: true },
         { text: t('inactive'), value: false },
       ],
-      onFilter: (value, record) => record.isActive === value,
+      filteredValue: statusFilter === null ? null : [statusFilter],
     },
     {
       title: t('actions'),
@@ -194,11 +208,8 @@ const FlagsManagement = () => {
               pageSize: pageSize,
               showSizeChanger: true,
               pageSizeOptions: ['10', '20', '50'],
-              onChange: (page, size) => {
-                setPage(page);
-                setPageSize(size);
-              },
             }}
+            onChange={handleTableChange}
             style={{
               backgroundColor: themeStyles.tableBackground,
               borderRadius: '8px',

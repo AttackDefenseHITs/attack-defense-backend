@@ -31,9 +31,10 @@ public class FlagManagementController {
     public ResponseEntity<Page<FlagDto>> getAllFlags(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) String search) {
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Boolean isActive) {
 
-        var flags = flagManagementService.getAllFlags(page, size, search);
+        var flags = flagManagementService.getAllFlags(page, size, search, isActive);
 
         return ResponseEntity.ok(flags);
     }

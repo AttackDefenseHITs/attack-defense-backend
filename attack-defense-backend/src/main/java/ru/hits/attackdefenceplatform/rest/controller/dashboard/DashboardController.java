@@ -35,8 +35,10 @@ public class DashboardController {
     @GetMapping("/submissions")
     public ResponseEntity<Page<FlagSubmissionDto>> getFilteredSubmissions(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Boolean isCorrect
     ) {
-        return ResponseEntity.ok(flagSubmissionService.getFlagSubmissions(page, size));
+        return ResponseEntity.ok(flagSubmissionService.getFlagSubmissions(page, size, search, isCorrect));
     }
 }
