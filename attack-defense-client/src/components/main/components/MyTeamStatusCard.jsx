@@ -1,7 +1,9 @@
 import React, { useMemo } from "react";
 import { Card, Divider, Progress, Skeleton, Tooltip } from "antd";
+import { useTranslation } from "react-i18next";
 
 export default function MyTeamStatusCard({ themeStyles, loading, myTeam, onTeamClick }) {
+    const { t } = useTranslation();
     const cardStyle = {
         backgroundColor: themeStyles.cardBackground,
         border: `1px solid ${themeStyles.cardBorder}`,
@@ -47,7 +49,7 @@ export default function MyTeamStatusCard({ themeStyles, loading, myTeam, onTeamC
         </div>
     );
 
-    const Header = ({ title, subtitle, rightLabel = "Сервисы", rightValue = "—", bg }) => {
+    const Header = ({ title, subtitle, rightLabel = t("services_count_metric"), rightValue = "—", bg }) => {
         const clickable = !!(onTeamClick && isTeamSelected && !loading);
 
         return (
@@ -83,7 +85,7 @@ export default function MyTeamStatusCard({ themeStyles, loading, myTeam, onTeamC
                             overflow: "hidden",
                             textOverflow: "ellipsis",
                         }}
-                        title={clickable ? "Перейти на страницу команды" : undefined}
+                        title={clickable ? t("go_to_team_page") : undefined}
                     >
                         {title}
                     </div>
@@ -108,15 +110,15 @@ export default function MyTeamStatusCard({ themeStyles, loading, myTeam, onTeamC
                 marginBottom: 14,
             }}
         >
-            {kpiCard("Подсказки", hints, "Сколько подсказок куплено")}
-            {kpiCard("ToD / Stack", stack, "Статус ToD/stack")}
-            {kpiCard("Avg uptime", uptime, "Средний uptime по сервисам")}
+            {kpiCard(t("hints"), hints, t("hints_bought_hint"))}
+            {kpiCard(t("tod_stack"), stack, t("tod_stack_hint"))}
+            {kpiCard(t("avg_uptime"), uptime, t("avg_uptime_hint"))}
         </div>
     );
 
     const ServicesList = () => {
         if (!totalCount) {
-            return <div style={{ color: themeStyles.commonText }}>Нет данных по сервисам</div>;
+            return <div style={{ color: themeStyles.commonText }}>{t("no_service_data")}</div>;
         }
 
         return (
@@ -164,12 +166,12 @@ export default function MyTeamStatusCard({ themeStyles, loading, myTeam, onTeamC
                                         {svc.name}
                                     </div>
                                     <div style={{ color: themeStyles.commonText, fontSize: 12, marginTop: 2 }}>
-                                        {svc.online ? "up" : "down"}
+                                        {svc.online ? t("status_up") : t("status_down")}
                                     </div>
                                 </div>
                             </div>
 
-                            <Tooltip title={`Uptime: ${pct}%`}>
+                            <Tooltip title={`${t("uptime")}: ${pct}%`}>
                                 <div style={{ width: 160 }}>
                                     <Progress percent={pct} size="small" showInfo={false} />
                                 </div>
@@ -183,16 +185,16 @@ export default function MyTeamStatusCard({ themeStyles, loading, myTeam, onTeamC
 
     const isPlaceholder = !loading && !isTeamSelected;
 
-    const headerTitle = myTeam?.name ? myTeam.name : "Текущая команда";
+    const headerTitle = myTeam?.name ? myTeam.name : t("current_team");
     const headerSubtitle = isPlaceholder
-        ? "Команда не выбрана — выбери команду, чтобы видеть статусы и сервисы"
-        : `Все сервисы ${myTeam?.online ? "работают" : "не все доступны"}`;
+        ? t("team_not_selected_status")
+        : t(myTeam?.online ? "all_services_up" : "not_all_services_available");
 
     const rightValue = isPlaceholder ? "—" : totalCount ? `${onlineCount}/${totalCount}` : "—";
     const headerBackground = isPlaceholder ? themeStyles.cardHeaderBackground || "rgba(0,0,0,0.02)" : headerBg;
 
     const kpiHints = isPlaceholder ? "—" : myTeam?.hintsBought ?? 0;
-    const kpiStack = isPlaceholder ? "—" : myTeam?.stack ?? "нет";
+    const kpiStack = isPlaceholder ? "—" : myTeam?.stack ?? t("none");
     const kpiUptime = isPlaceholder ? "—" : `${avgUptime}%`;
 
     return (
@@ -209,13 +211,13 @@ export default function MyTeamStatusCard({ themeStyles, loading, myTeam, onTeamC
                         <Divider style={{ margin: "12px 0", borderColor: themeStyles.cardBorder }} />
 
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                            <div style={{ color: themeStyles.secondaryText, fontSize: 12 }}>Сервисы</div>
+                            <div style={{ color: themeStyles.secondaryText, fontSize: 12 }}>{t("services_count_metric")}</div>
                             {!isPlaceholder && !!totalCount && (
-                                <div style={{ color: themeStyles.secondaryText, fontSize: 12 }}>Обновляется в реальном времени</div>
+                                <div style={{ color: themeStyles.secondaryText, fontSize: 12 }}>{t("updates_realtime")}</div>
                             )}
                         </div>
 
-                        {isPlaceholder ? <div style={{ color: themeStyles.secondaryText }}>Нет данных по сервисам</div> : <ServicesList />}
+                        {isPlaceholder ? <div style={{ color: themeStyles.secondaryText }}>{t("no_service_data")}</div> : <ServicesList />}
                     </>
                 )}
             </div>

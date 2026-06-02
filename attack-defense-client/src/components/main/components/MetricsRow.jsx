@@ -1,13 +1,15 @@
 import React, { useMemo } from "react";
 import { Card, Col, Row, Skeleton, Statistic } from "antd";
 import { TeamOutlined, RocketOutlined, FlagOutlined, FieldTimeOutlined } from "@ant-design/icons";
+import { useTranslation } from "react-i18next";
 
 export default function MetricsRow({ themeStyles, loading, metrics, isFlagsEnabled }) {
+    const { t } = useTranslation();
     const palette = useMemo(() => {
         const items = [
             {
                 key: "teams",
-                title: "Команд",
+                title: t("teams_count_metric"),
                 value: metrics.teamsCount,
                 icon: <TeamOutlined />,
                 bg: "linear-gradient(135deg, rgba(99, 179, 237, 0.22), rgba(147, 197, 253, 0.10))",
@@ -16,7 +18,7 @@ export default function MetricsRow({ themeStyles, loading, metrics, isFlagsEnabl
             },
             {
                 key: "services",
-                title: "Сервисов",
+                title: t("services_count_metric"),
                 value: metrics.servicesCount,
                 icon: <RocketOutlined />,
                 bg: "linear-gradient(135deg, rgba(52, 211, 153, 0.22), rgba(167, 243, 208, 0.10))",
@@ -25,7 +27,7 @@ export default function MetricsRow({ themeStyles, loading, metrics, isFlagsEnabl
             },
             {
                 key: "flags",
-                title: "Флагов сдано",
+                title: t("flags_submitted_metric"),
                 value: metrics.flagsSubmitted,
                 icon: <FlagOutlined />,
                 bg: "linear-gradient(135deg, rgba(167, 139, 250, 0.22), rgba(221, 214, 254, 0.10))",
@@ -34,7 +36,7 @@ export default function MetricsRow({ themeStyles, loading, metrics, isFlagsEnabl
             },
             {
                 key: "round",
-                title: "Раунд",
+                title: t("round"),
                 value: `${metrics.currentRound} / ${metrics.totalRounds}`,
                 icon: <FieldTimeOutlined />,
                 bg: "linear-gradient(135deg, rgba(251, 191, 36, 0.22), rgba(254, 243, 199, 0.10))",
@@ -44,7 +46,7 @@ export default function MetricsRow({ themeStyles, loading, metrics, isFlagsEnabl
         ];
 
         return isFlagsEnabled ? items : items.filter((i) => i.key !== "flags");
-    }, [metrics, isFlagsEnabled]);
+    }, [metrics, isFlagsEnabled, t]);
 
     const lgSpan = 24 / palette.length;
 

@@ -17,7 +17,7 @@ export default function RulesBanner({ rules, themeStyles, theme }) {
 
     if (!text || closed) return null;
 
-    // чем меньше число — тем прозрачнее
+    // Lower alpha makes the banner more transparent.
     const glassBg =
         theme === "dark"
             ? "rgba(0, 0, 0, 0.35)"
@@ -50,7 +50,7 @@ export default function RulesBanner({ rules, themeStyles, theme }) {
                             marginBottom: 6,
                         }}
                     >
-                        {t("announcement") || "Сообщение"}
+                        {t("announcement")}
                     </div>
                 }
                 description={
@@ -66,7 +66,7 @@ export default function RulesBanner({ rules, themeStyles, theme }) {
                     </div>
                 }
                 style={{
-                    background: "transparent", // важно: сам Alert прозрачный
+                    background: "transparent",
                     border: "none",
                     padding: "12px 16px",
                 }}

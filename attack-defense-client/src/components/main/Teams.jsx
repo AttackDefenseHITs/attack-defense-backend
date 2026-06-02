@@ -63,7 +63,7 @@ export default function Teams() {
   return (
       <>
         <Helmet>
-          <title>Главная - AD</title>
+          <title>{t("home_title")}</title>
         </Helmet>
 
         <EventBanner
@@ -91,7 +91,7 @@ export default function Teams() {
           />
 
           <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
-            {/* LEFT: график */}
+            {/* Chart */}
             <Col xs={24} lg={16}>
               <Card style={cardStyle} bodyStyle={{ padding: 24 }}>
                 <TeamsDashboard
@@ -120,7 +120,7 @@ export default function Teams() {
             </Col>
           </Row>
 
-          {/* MODAL: увеличенный график */}
+          {/* Expanded chart modal */}
           <Modal
               open={chartModalOpen}
               onCancel={() => setChartModalOpen(false)}

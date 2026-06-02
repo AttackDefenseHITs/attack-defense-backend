@@ -1,12 +1,14 @@
 import React from "react";
 import { Button, Card, List, Skeleton } from "antd";
+import { useTranslation } from "react-i18next";
 
 export default function EventsFeedCard({
                                            themeStyles,
                                            loading,
-                                           events = [],
-                                           onViewAll,
-                                       }) {
+                                       events = [],
+                                       onViewAll,
+                                   }) {
+    const { t } = useTranslation();
     const cardStyle = {
         backgroundColor: themeStyles.cardBackground,
         border: `1px solid ${themeStyles.cardBorder}`,
@@ -22,13 +24,13 @@ export default function EventsFeedCard({
 
     return (
         <Card
-            title={<span style={{ color: themeStyles.commonText }}>Лента событий</span>}
+            title={<span style={{ color: themeStyles.commonText }}>{t("events_feed")}</span>}
             headStyle={{
                 borderBottom: `1px solid ${themeStyles.cardBorder}`,
             }}
             extra={
                 <Button type="link" onClick={onViewAll} style={{ color: themeStyles.text }}>
-                    Посмотреть все
+                    {t("view_all")}
                 </Button>
             }
             style={cardStyle}
@@ -47,7 +49,7 @@ export default function EventsFeedCard({
                     locale={{
                         emptyText: (
                             <span style={{ color: themeStyles.secondaryText }}>
-                                Пока нет событий
+                                {t("no_events")}
                             </span>
                         ),
                     }}

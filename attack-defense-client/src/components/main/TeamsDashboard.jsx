@@ -40,14 +40,14 @@ const TeamsDashboard = ({ chartData, onExpand, hideExpand = false }) => {
             position: "relative",
           }}
       >
-        {/* Кнопка expand */}
+        {/* Expand button */}
         {!hideExpand && typeof onExpand === "function" && (
             <button
                 onClick={onExpand}
                 style={{
                   position: "absolute",
                   top: "10px",
-                  right: "52px", // чтобы рядом с lock
+                  right: "52px",
                   background: themeStyles.background,
                   color: themeStyles.text,
                   border: "1px solid",
@@ -57,7 +57,7 @@ const TeamsDashboard = ({ chartData, onExpand, hideExpand = false }) => {
                   cursor: "pointer",
                   zIndex: 10,
                 }}
-                title={t("expand_chart") ?? "Увеличить график"}
+                title={t("expand_chart")}
             >
               ⤢
             </button>
@@ -105,7 +105,13 @@ const TeamsDashboard = ({ chartData, onExpand, hideExpand = false }) => {
                       const currentValue = tooltipItem.raw?.y ?? NaN;
                       const previousValue = dataset.data[tooltipItem.dataIndex - 1]?.y ?? 0;
                       const difference = currentValue - previousValue;
-                      return `${dataset.label}: ${currentValue > previousValue ? "+" : ""}${difference} ${t("score")} (Текущие: ${currentValue})`;
+                      return t("score_delta_tooltip", {
+                        label: dataset.label,
+                        sign: currentValue > previousValue ? "+" : "",
+                        difference,
+                        score: t("score"),
+                        currentValue,
+                      });
                     },
                   },
                 },
