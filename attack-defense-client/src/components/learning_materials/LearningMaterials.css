@@ -1,0 +1,296 @@
+.learning-materials-page {
+  min-height: 100%;
+}
+
+.full-height-learning-card .ant-card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.learning-materials-quill-wrapper {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.learning-materials-quill-wrapper .quill {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.learning-materials-quill-wrapper .ql-toolbar.ql-snow {
+  background: var(--lm-window) !important;
+  border-color: var(--lm-border) !important;
+  flex-shrink: 0;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.learning-materials-quill-wrapper .ql-container.ql-snow {
+  border-color: var(--lm-border) !important;
+  background: var(--lm-window) !important;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.learning-materials-quill-wrapper .ql-editor {
+  background: var(--lm-window) !important;
+  color: var(--lm-common) !important;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  line-height: 1.7;
+  padding: 16px;
+}
+
+.learning-materials-quill-wrapper .ql-editor p {
+  margin: 0 0 10px 0;
+}
+
+.learning-materials-quill-wrapper .ql-editor ol,
+.learning-materials-quill-wrapper .ql-editor ul {
+  padding-left: 22px;
+  margin: 0 0 10px 0;
+}
+
+.learning-materials-quill-wrapper .ql-editor li {
+  margin: 4px 0;
+}
+
+.learning-materials-quill-wrapper .ql-editor h1,
+.learning-materials-quill-wrapper .ql-editor h2,
+.learning-materials-quill-wrapper .ql-editor h3,
+.learning-materials-quill-wrapper .ql-editor h4,
+.learning-materials-quill-wrapper .ql-editor h5,
+.learning-materials-quill-wrapper .ql-editor h6 {
+  color: var(--lm-common) !important;
+  margin: 0 0 12px 0;
+  font-weight: 600;
+}
+
+.learning-materials-quill-wrapper .ql-editor h1 {
+  font-size: 28px;
+}
+
+.learning-materials-quill-wrapper .ql-editor h2 {
+  font-size: 24px;
+}
+
+.learning-materials-quill-wrapper .ql-editor h3 {
+  font-size: 20px;
+}
+
+.learning-materials-quill-wrapper .ql-editor h4 {
+  font-size: 18px;
+}
+
+.learning-materials-quill-wrapper .ql-editor h5 {
+  font-size: 16px;
+}
+
+.learning-materials-quill-wrapper .ql-editor h6 {
+  font-size: 15px;
+}
+
+.learning-materials-quill-wrapper .ql-editor a {
+  word-break: break-word;
+}
+
+.learning-materials-quill-wrapper .ql-editor img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+.learning-materials-quill-wrapper .ql-editor blockquote {
+  margin: 0 0 12px 0;
+  padding-left: 14px;
+  border-left: 3px solid var(--lm-border);
+  opacity: 0.9;
+}
+
+.learning-materials-quill-wrapper .ql-editor code {
+  background: var(--lm-inline-code-bg, rgba(0, 0, 0, 0.06));
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 0.95em;
+}
+
+.learning-materials-quill-wrapper .ql-editor pre,
+.learning-materials-quill-wrapper .ql-editor pre.ql-syntax {
+  background: var(--lm-pre-bg) !important;
+  color: var(--lm-pre-text, inherit) !important;
+  border: 1px solid var(--lm-border, transparent);
+  border-radius: 10px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  line-height: 1.5;
+  margin: 12px 0;
+  box-shadow: none !important;
+  background-image: none !important;
+}
+
+.learning-materials-quill-wrapper .ql-editor pre code,
+.learning-materials-quill-wrapper .ql-editor pre.ql-syntax code {
+  background: transparent !important;
+  padding: 0;
+  border-radius: 0;
+  display: block;
+  color: inherit;
+  white-space: inherit;
+}
+
+.learning-materials-richtext {
+  color: var(--lm-common, inherit);
+  line-height: 1.7;
+  min-height: 0;
+}
+
+.learning-materials-richtext h1,
+.learning-materials-richtext h2,
+.learning-materials-richtext h3,
+.learning-materials-richtext h4,
+.learning-materials-richtext h5,
+.learning-materials-richtext h6 {
+  color: var(--lm-common, inherit);
+  margin: 0 0 12px 0;
+  font-weight: 600;
+}
+
+.learning-materials-richtext h1 {
+  font-size: 28px;
+}
+
+.learning-materials-richtext h2 {
+  font-size: 24px;
+}
+
+.learning-materials-richtext h3 {
+  font-size: 20px;
+}
+
+.learning-materials-richtext h4 {
+  font-size: 18px;
+}
+
+.learning-materials-richtext h5 {
+  font-size: 16px;
+}
+
+.learning-materials-richtext h6 {
+  font-size: 15px;
+}
+
+.learning-materials-richtext p {
+  margin: 0 0 10px 0;
+}
+
+.learning-materials-richtext ol,
+.learning-materials-richtext ul {
+  padding-left: 22px;
+  margin: 0 0 10px 0;
+}
+
+.learning-materials-richtext li {
+  margin: 4px 0;
+}
+
+.learning-materials-richtext a {
+  word-break: break-word;
+}
+
+.learning-materials-richtext img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+.learning-materials-richtext blockquote {
+  margin: 0 0 12px 0;
+  padding-left: 14px;
+  border-left: 3px solid var(--lm-border);
+  opacity: 0.9;
+}
+
+.learning-materials-richtext pre,
+.learning-materials-richtext pre.ql-syntax {
+  background: var(--lm-pre-bg) !important;
+  color: var(--lm-pre-text, inherit) !important;
+  border: 1px solid var(--lm-border, transparent);
+  border-radius: 10px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  line-height: 1.5;
+  margin: 12px 0;
+  box-shadow: none !important;
+  background-image: none !important;
+}
+
+.learning-materials-richtext pre code {
+  background: transparent !important;
+  padding: 0;
+  border-radius: 0;
+  display: block;
+  color: inherit;
+  white-space: inherit;
+}
+
+.learning-materials-richtext code {
+  background: var(--lm-inline-code-bg, rgba(0, 0, 0, 0.06));
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 0.95em;
+}
+
+.learning-materials-richtext hr {
+  border: 0;
+  border-top: 1px solid var(--lm-border);
+  margin: 16px 0;
+}
+
+.learning-materials-richtext table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+}
+
+.learning-materials-richtext th,
+.learning-materials-richtext td {
+  border: 1px solid var(--lm-border);
+  padding: 10px 12px;
+  text-align: left;
+}
+
+.learning-materials-richtext th {
+  background: var(--lm-inline-code-bg, rgba(0, 0, 0, 0.04));
+}
+
+.learning-materials-richtext::-webkit-scrollbar,
+.learning-materials-quill-wrapper .ql-editor::-webkit-scrollbar,
+.learning-materials-quill-wrapper .ql-container::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.learning-materials-richtext::-webkit-scrollbar-thumb,
+.learning-materials-quill-wrapper .ql-editor::-webkit-scrollbar-thumb,
+.learning-materials-quill-wrapper .ql-container::-webkit-scrollbar-thumb {
+  background: rgba(127, 127, 127, 0.35);
+  border-radius: 999px;
+}
+
+.learning-materials-richtext::-webkit-scrollbar-track,
+.learning-materials-quill-wrapper .ql-editor::-webkit-scrollbar-track,
+.learning-materials-quill-wrapper .ql-container::-webkit-scrollbar-track {
+  background: transparent;
+}

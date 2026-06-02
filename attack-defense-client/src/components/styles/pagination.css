@@ -1,0 +1,17 @@
+.custom-pagination .ant-pagination-item a {
+    transition: all 0.3s;
+}
+
+.custom-pagination-dark .ant-pagination-item {
+    background-color: #333;
+    border: 1px solid #606060;
+}
+
+.custom-pagination-dark .ant-pagination-item a {
+    color: #fff;
+}
+
+.custom-pagination-dark .ant-pagination-item-active {
+    background-color: #50b8ff !important;
+    border-color: #50b8ff !important;
+}

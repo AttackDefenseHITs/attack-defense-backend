@@ -1,0 +1,72 @@
+name: Deploy Client
+
+on:
+  push:
+    branches:
+      - main
+      - release/**
+    paths:
+      - attack-defense-client/**
+      - .github/workflows/deploy-client.yml
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set vars
+        id: vars
+        shell: bash
+        run: |
+          BRANCH="${GITHUB_REF_NAME}"
+          TAG="${BRANCH//\//-}"
+
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.VPS_KEY }}
+
+      - name: Log in to Docker Hub
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build Docker image
+        run: |
+          docker build -t docker.io/${{ secrets.DOCKER_USERNAME }}/react-app:${{ steps.vars.outputs.tag }} ./attack-defense-client
+
+      - name: Push Docker image to registry
+        run: |
+          docker push docker.io/${{ secrets.DOCKER_USERNAME }}/react-app:${{ steps.vars.outputs.tag }}
+
+      - name: Add VPS to known_hosts
+        run: |
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          IMAGE: docker.io/${{ secrets.DOCKER_USERNAME }}/react-app:${{ steps.vars.outputs.tag }}
+        run: |
+          ssh -T $VPS_USER@$VPS_HOST "IMAGE='$IMAGE' bash -s" <<'EOF'
+            set -e
+
+            echo "Deploying $IMAGE as react-app"
+
+            docker pull "$IMAGE"
+
+            docker stop react-app || true
+            docker rm react-app || true
+
+            docker run -d \
+              --network app-net \
+              --name react-app \
+              -p 3000:80 \
+              "$IMAGE"
+          EOF

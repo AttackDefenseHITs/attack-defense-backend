@@ -1,0 +1,17 @@
+/* Сжимаем строки дерева */
+.custom-file-tree .ant-tree-treenode {
+    padding: 2px 0 !important; /* уменьшить высоту */
+}
+
+.custom-file-tree .ant-tree-node-content-wrapper {
+    padding: 2px 4px !important;
+    height: 26px !important;
+}
+
+.custom-file-tree .ant-tree-icon__customize {
+    margin-right: 6px !important;
+}
+
+.custom-file-tree .ant-tree-switcher {
+    line-height: 26px !important;
+}

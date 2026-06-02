@@ -1,0 +1,23 @@
+.segmentedOverride {
+    /* container to scope antd overrides */
+}
+
+.segmentedOverride :global(.ant-segmented-item-selected) {
+    background: var(--active-bg) !important;
+    color: var(--active-text) !important;
+    border-radius: 6px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.segmentedOverride :global(.ant-segmented-item-selected .anticon) {
+    color: var(--active-text) !important;
+}
+
+.segmentedOverride :global(.ant-segmented-item:not(.ant-segmented-item-selected):hover) {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+.segmentedOverride :global(.ant-segmented-thumb) {
+    background: var(--active-bg) !important;
+    border-radius: 6px !important;
+}

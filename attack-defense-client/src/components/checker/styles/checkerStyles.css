@@ -1,0 +1,219 @@
+.table-transition {
+    transition: opacity 0.3s ease-in-out;
+    opacity: 1;
+  }
+  
+  .table-transition-exit {
+    opacity: 0;
+  }
+  
+.modern-table {
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.modern-table .ant-table {
+  background: transparent;
+}
+
+.modern-table .ant-table-thead > tr > th {
+  background: #f5f5f5;
+  border-bottom: 1px solid #e8e8e8;
+  padding: 12px 16px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+}
+
+.modern-table .ant-table-tbody > tr > td {
+  border-bottom: 1px solid #e8e8e8;
+  padding: 12px 16px;
+  transition: background 0.3s ease;
+}
+
+.modern-table .ant-table-tbody > tr:hover > td {
+  background: rgba(0, 0, 0, 0.02) !important;
+}
+
+/* Темная тема для таблицы */
+.modern-table.dark-theme .ant-table {
+  background: transparent;
+  color: #e0e0e0;
+}
+
+.modern-table.dark-theme .ant-table-thead > tr > th {
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e0e0e0;
+}
+
+.modern-table.dark-theme .ant-table-tbody > tr > td {
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: #e0e0e0;
+}
+
+.modern-table.dark-theme .ant-table-tbody > tr:hover > td {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.modern-table.dark-theme .ant-table-pagination .ant-pagination-item-active {
+  background: rgba(24, 144, 255, 0.8);
+  border-color: rgba(24, 144, 255, 0.8);
+}
+
+.modern-table.dark-theme .ant-table-pagination .ant-pagination-item-active a {
+  color: #fff;
+}
+
+.modern-table.dark-theme .ant-table-pagination .ant-pagination-item a {
+  color: #e0e0e0;
+}
+
+.modern-table.dark-theme .ant-table-pagination .ant-pagination-prev .ant-pagination-item-link,
+.modern-table.dark-theme .ant-table-pagination .ant-pagination-next .ant-pagination-item-link {
+  color: #e0e0e0;
+}
+
+.modern-table.dark-theme .ant-empty-description {
+  color: #e0e0e0;
+}
+
+.modern-table.dark-theme .ant-table-placeholder:hover > td {
+  background: rgba(0, 0, 0, 0.2) !important;
+}
+
+.modern-table.dark-theme .ant-table-column-sorter-up.active,
+.modern-table.dark-theme .ant-table-column-sorter-down.active {
+  color: #1890ff;
+}
+
+.modern-table.dark-theme .ant-table-placeholder {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.modern-table.dark-theme .ant-table-placeholder .ant-empty-img-simple-ellipse {
+  fill: rgba(255, 255, 255, 0.08);
+}
+
+.modern-table.dark-theme .ant-table-placeholder .ant-empty-img-simple-g {
+  stroke: rgba(255, 255, 255, 0.25);
+}
+
+.modern-table.dark-theme .ant-table-placeholder .ant-empty-img-simple-path {
+  fill: rgba(255, 255, 255, 0.05);
+  stroke: rgba(255, 255, 255, 0.25);
+}
+
+.modern-table.dark-theme .ant-table-cell {
+  transition: background 0.3s ease;
+}
+
+.modern-table.dark-theme .ant-table-thead > tr > th {
+  background: rgba(0, 0, 0, 0.3);
+  color: rgba(255, 255, 255, 0.85);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  transition: background 0.3s ease;
+}
+
+.modern-table.dark-theme .ant-table-thead > tr > th:hover {
+  background: rgba(0, 0, 0, 0.4) !important;
+}
+
+.modern-table.dark-theme .ant-pagination-prev button, 
+.modern-table.dark-theme .ant-pagination-next button {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.modern-table.dark-theme .ant-pagination-disabled button {
+  color: rgba(255, 255, 255, 0.25) !important;
+}
+
+.modern-table.dark-theme .ant-pagination-item {
+  background: rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.modern-table.dark-theme .ant-pagination-item:hover {
+  background: rgba(24, 144, 255, 0.1);
+  border-color: #1890ff;
+}
+
+.modern-table.dark-theme .ant-pagination-item:hover a {
+  color: #1890ff;
+}
+
+.modern-table.dark-theme .ant-spin-dot-item {
+  background-color: #1890ff;
+}
+
+.modern-table.dark-theme .ant-spin-text {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.modern-table.dark-theme .ant-table-tbody > tr.ant-table-row-selected > td {
+  background: rgba(24, 144, 255, 0.1);
+}
+
+.modern-table.dark-theme .ant-table-tbody > tr > td .ant-tag {
+  border-radius: 8px;
+  padding: 4px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0 auto;
+  display: inline-block;
+}
+
+.modern-table.dark-theme .ant-table-tbody > tr > td div[style*="backgroundColor"] {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.modern-table.dark-theme .ant-table-tbody > tr > td div[style*="backgroundColor"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.modern-table.dark-theme .ant-btn {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.modern-table.dark-theme .ant-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.modern-table.dark-theme .ant-btn-primary {
+  background: #1890ff;
+  border-color: #1890ff;
+}
+
+.modern-table.dark-theme .ant-btn-primary:hover {
+  background: #40a9ff;
+  border-color: #40a9ff;
+}
+
+.hover-effect:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  transform: scale(1.1);
+}
+
+/* Стили для анимации */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(24, 144, 255, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(24, 144, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(24, 144, 255, 0);
+  }
+}
+
+.modern-table.dark-theme .ant-table-tbody > tr > td div[style*="backgroundColor"] .ant-tag[style*="color: #52c41a"] {
+  animation: pulse 2s infinite;
+}
+  

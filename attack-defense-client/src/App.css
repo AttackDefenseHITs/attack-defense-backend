@@ -1,0 +1,309 @@
+/* Base App Styles */
+.App {
+  text-align: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+/* Fix for background scrolling issues */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Simpler layout fixes */
+.ant-layout {
+  min-height: 100vh !important;
+  background-color: inherit !important;
+}
+
+.ant-layout-content {
+  flex: 1;
+  padding-top: 64px; /* Offset for fixed header */
+}
+
+/* Ensure all page components take full height */
+.ant-layout-content > div {
+  min-height: 100%;
+}
+
+/* Fix for specific pages with scrolling issues */
+.login-page,
+.registration-page,
+.team-details-page,
+.admin-panel-page,
+.checker-page {
+  min-height: calc(100vh - 64px);
+  height: 100%;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #bfbfbf;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #8c8c8c;
+}
+
+/* Dark theme scrollbar */
+[data-theme='dark'] ::-webkit-scrollbar-track {
+  background: #262626;
+}
+
+[data-theme='dark'] ::-webkit-scrollbar-thumb {
+  background-color: #434343;
+}
+
+[data-theme='dark'] ::-webkit-scrollbar-thumb:hover {
+  background-color: #595959;
+}
+
+/* Card Styles */
+.custom-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s, box-shadow 0.3s;
+  overflow: hidden;
+}
+
+.custom-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme='dark'] .custom-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme='dark'] .custom-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Button Styles */
+.custom-button {
+  border-radius: 6px;
+  transition: all 0.3s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.custom-button:hover {
+  transform: translateY(-2px);
+}
+
+.custom-button:active {
+  transform: translateY(0);
+}
+
+/* Table Styles */
+.custom-table {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.custom-table .ant-table-thead > tr > th {
+  font-weight: 600;
+}
+
+.custom-table .ant-table-tbody > tr:hover > td {
+  transition: background-color 0.3s;
+}
+
+[data-theme='dark'] .custom-table {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Banner Styles */
+.event-banner {
+  border-radius: 0 0 16px 16px;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+/* Dashboard Card Styles */
+.dashboard-card {
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+/* Animation Keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Animation Classes */
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.slide-up {
+  animation: slideUp 0.5s ease-out;
+}
+
+/* Responsive Layout */
+.content-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+@media (max-width: 768px) {
+  .content-container {
+    padding: 16px;
+  }
+}
+
+/* Status Indicators */
+.status-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.status-success {
+  background-color: #52c41a;
+}
+
+.status-warning {
+  background-color: #faad14;
+}
+
+.status-error {
+  background-color: #ff4d4f;
+}
+
+/* Typography Enhancements */
+.section-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  position: relative;
+  display: inline-block;
+}
+
+.section-title:after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 40px;
+  height: 3px;
+  background-color: #1677ff;
+}
+
+[data-theme='dark'] .section-title:after {
+  background-color: #4096ff;
+}
+
+/* Form Styles */
+.custom-form .ant-form-item-label > label {
+  font-weight: 500;
+}
+
+.custom-form .ant-input,
+.custom-form .ant-select-selector {
+  border-radius: 6px;
+}
+
+/* Tooltip Styles */
+.custom-tooltip {
+  max-width: 300px;
+}
+
+/* Badge Styles */
+.custom-badge {
+  border-radius: 10px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Transition for all interactive elements */
+a, button, input, select, .ant-table-row {
+  transition: all 0.3s;
+}

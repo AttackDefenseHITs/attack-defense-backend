@@ -1,0 +1,43 @@
+.wrapper {
+    padding: 12px 14px;
+    border-radius: 12px;
+    width: 100%;
+}
+
+.cell {
+    display: grid;
+    grid-template-rows: 16px 24px;
+    row-gap: 8px;
+    min-width: 0;
+}
+
+.label {
+    height: 16px;
+    line-height: 16px;
+    font-size: 12px;
+    opacity: 0.75;
+}
+
+.valueRow {
+    height: 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.icon {
+    font-size: 16px;
+}
+
+.score {
+    font-size: 16px;
+    line-height: 24px;
+}
+
+.separator {
+    width: 1px;
+    height: 44px;
+    background: rgba(0, 0, 0, 0.12);
+    border-radius: 1px;
+}

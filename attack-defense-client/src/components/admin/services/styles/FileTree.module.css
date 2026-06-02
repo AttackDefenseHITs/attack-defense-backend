@@ -1,0 +1,50 @@
+.ft-container {
+    background: #f7f9fc;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #e1e4e8;
+    max-height: 450px;
+    overflow-y: auto;
+}
+
+.ft-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ft-refresh {
+    font-size: 14px;
+    cursor: pointer;
+    color: #888;
+}
+
+.ft-refresh:hover {
+    color: #000;
+}
+
+.ft-tree {
+    margin-top: 6px;
+}
+
+/* compact spacing */
+.ft-tree .ant-tree-treenode {
+    padding: 2px 0 !important;
+}
+
+.ft-tree .ant-tree-node-content-wrapper {
+    padding: 2px 4px !important;
+    height: 26px !important;
+    border-radius: 4px;
+}
+
+/* Hover effect */
+.ft-tree .ant-tree-node-content-wrapper:hover {
+    background: #eaeef2 !important;
+}
+
+/* Active file highlighting */
+.ft-active {
+    font-weight: 600;
+    color: #0057d9;
+}

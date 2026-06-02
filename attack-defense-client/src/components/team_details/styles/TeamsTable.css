@@ -1,0 +1,144 @@
+.custom-table .ant-table {
+  background-color: #e6f7ff;
+}
+
+.custom-table .ant-table-thead > tr > th {
+  background: linear-gradient(90deg, #bae7ff, #d6efff);
+  color: #0050b3;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 16px;
+  border-right: 1px solid #91d5ff;
+}
+
+.custom-table .ant-table-tbody > tr:nth-child(odd) > td {
+  background-color: #e6f7ff;
+}
+
+.custom-table .ant-table-tbody > tr:nth-child(even) > td {
+  background-color: #d6efff; 
+}
+
+.custom-table .ant-table-tbody > tr:hover > td {
+  background-color: #91d5ff;
+}
+
+.custom-table .ant-table-bordered .ant-table-cell {
+  border-color: #91d5ff;
+}
+
+.custom-table .ant-table-tbody > tr:last-child > td {
+  border-bottom: 1px solid #91d5ff;
+}
+
+.custom-table .ant-table-thead > tr > th:last-child,
+.custom-table .ant-table-tbody > tr > td:last-child {
+  border-right: none;
+}
+
+.custom-table .ant-table-tbody > tr.highlight-row > td {
+  background-color: #bdecb8 !important; 
+}
+
+.custom-table .ant-table-tbody > tr.highlight-row:hover > td {
+  background-color: #d6f5df !important;
+}
+
+/* Тёмная тема */
+.custom-table.dark-theme .ant-table {
+  background-color: #141414;
+  color: #ffffff;
+}
+
+.custom-table.dark-theme .ant-table-thead > tr > th {
+  background: linear-gradient(90deg, #303030, #424242);
+  color: #ffffff;
+  border-right: 1px solid #505050;
+}
+
+.custom-table.dark-theme .ant-table-tbody > tr:nth-child(odd) > td {
+  background-color: #1f1f1f;
+}
+
+.custom-table.dark-theme .ant-table-tbody > tr:nth-child(even) > td {
+  background-color: #262626;
+}
+
+.custom-table.dark-theme .ant-table-tbody > tr:hover > td {
+  background-color: #333333;
+}
+
+.custom-table.dark-theme .ant-table-bordered .ant-table-cell {
+  border-color: #505050;
+}
+
+.custom-table.dark-theme .ant-table-tbody > tr:last-child > td {
+  border-bottom: 1px solid #505050;
+}
+
+.custom-table.dark-theme .ant-table-tbody > tr.highlight-row > td {
+  background-color: #004d40 !important;
+}
+
+.custom-table.dark-theme .ant-table-tbody > tr.highlight-row:hover > td {
+  background-color: #00695c !important;
+}
+
+.custom-table.dark-theme .ant-pagination {
+  background-color: #333333;
+  border-top: 1px solid #404040;
+  padding: 8px;
+}
+
+.custom-table.dark-theme .ant-pagination-item {
+  background-color: #505050;
+  border: 1px solid #606060;
+}
+
+.custom-table.dark-theme .ant-pagination-item a {
+  color: #c8c8c8;
+}
+
+.custom-table.dark-theme .ant-pagination-item-active {
+  background-color: #ffdb70;
+  border-color: #ffdb70;
+}
+
+.custom-table.dark-theme .ant-pagination-item-active a {
+  color: #292929;
+  font-weight: bold;
+}
+
+.custom-table.dark-theme .ant-pagination-prev,
+.custom-table.dark-theme .ant-pagination-next {
+  color: #c8c8c8;
+}
+
+.custom-table.dark-theme .ant-pagination-prev:hover,
+.custom-table.dark-theme .ant-pagination-next:hover {
+  color: #ffdb70;
+}
+
+.custom-table.dark-theme .ant-pagination-disabled {
+  color: #666666;
+}
+
+.custom-table.dark-theme .ant-table-tbody > tr > td {
+  color: #ffffff;
+}
+
+.custom-table.dark-theme .members-cell {
+  color: #bdbdbd;
+}
+
+.custom-table.dark-theme .ant-table-tbody > tr .ant-typography {
+  color: #40a9ff;
+}
+
+.custom-table.dark-theme .ant-table-tbody > tr .ant-typography-copy {
+  color: #40a9ff;
+}
+
+.custom-table.dark-theme .ant-table-tbody > tr .ant-table-cell {
+  border-color: #505050;
+}
