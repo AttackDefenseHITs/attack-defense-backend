@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.hits.attackdefenceplatform.core.CompetitionContext;
+import ru.hits.attackdefenceplatform.core.competition.enums.CompetitionMode;
 import ru.hits.attackdefenceplatform.core.competition.mode.CompetitionModeRegistry;
 import ru.hits.attackdefenceplatform.core.dashboard.repository.FlagSubmissionRepository;
 import ru.hits.attackdefenceplatform.core.team.repository.TeamEntity;
@@ -26,6 +27,10 @@ public class PointsService {
 
     public FlagPointsForServiceDto getFlagPointsForServiceAndTeam(TeamEntity team, VulnerableServiceEntity service) {
         var competition = competitionContext.getCurrent();
+        if (competition.getCompetitionMode() == CompetitionMode.REVERSE_DEFENSE) {
+            return null;
+        }
+
         long plusPoints = flagSubmissionRepository.countByTeamAndFlag_VulnerableService(team, service)
                 * competition.getFlagSendCost();
 

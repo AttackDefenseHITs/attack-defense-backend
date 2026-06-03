@@ -241,22 +241,24 @@ export const getColumns = (
                                         </div>
                                     </div>
 
-                                    <div
-                                        style={{
-                                            backgroundColor: themeStyles.inputBackground,
-                                            borderRadius: "8px",
-                                            padding: "8px 12px",
-                                            border: `1px solid ${themeStyles.cardBorder}`,
-                                            flex: 1,
-                                        }}
-                                    >
-                                        <div style={{ fontSize: "13px", color: themeStyles.lightText, marginBottom: "4px" }}>
-                                            Flag Points
+                                    {service.flagPoints && (
+                                        <div
+                                            style={{
+                                                backgroundColor: themeStyles.inputBackground,
+                                                borderRadius: "8px",
+                                                padding: "8px 12px",
+                                                border: `1px solid ${themeStyles.cardBorder}`,
+                                                flex: 1,
+                                            }}
+                                        >
+                                            <div style={{ fontSize: "13px", color: themeStyles.lightText, marginBottom: "4px" }}>
+                                                Flag Points
+                                            </div>
+                                            <div style={{ fontSize: "15px", fontWeight: "500", color: themeStyles.commonText }}>
+                                                +{service.flagPoints.plusPoints} / -{service.flagPoints.minusPoints}
+                                            </div>
                                         </div>
-                                        <div style={{ fontSize: "15px", fontWeight: "500", color: themeStyles.commonText }}>
-                                            +{service.flagPoints.plusPoints} / -{service.flagPoints.minusPoints}
-                                        </div>
-                                    </div>
+                                    )}
                                 </div>
                             </Space>
 
