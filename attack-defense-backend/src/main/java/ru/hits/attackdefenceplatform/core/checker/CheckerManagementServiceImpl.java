@@ -54,8 +54,9 @@ public class CheckerManagementServiceImpl implements CheckerManagementService {
             String serviceName = entry.getKey().toLowerCase();
             List<RepoFileDto> files = entry.getValue();
 
-            VulnerableServiceEntity service = vulnerableServiceRepository.findByName(serviceName)
-                    .orElseThrow();
+            VulnerableServiceEntity service = vulnerableServiceRepository.findByNameIgnoreCase(serviceName)
+                    .orElseThrow(() -> new IllegalStateException(
+                            "Для чекера не найден сервис: " + serviceName));
 
             Path tempDir = Files.createTempDirectory("checker_sync_");
 

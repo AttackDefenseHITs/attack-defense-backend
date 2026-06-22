@@ -7,4 +7,6 @@ import java.util.UUID;
 
 public interface VulnerableServiceRepository extends JpaRepository<VulnerableServiceEntity, UUID> {
     Optional<VulnerableServiceEntity> findByName(String name);
+
+    Optional<VulnerableServiceEntity> findByNameIgnoreCase(String name);
 }
