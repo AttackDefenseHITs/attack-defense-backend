@@ -19,8 +19,8 @@ public class DynamicPointsCalculator {
 
     public double calculate(UUID teamId, UUID serviceId, int round) {
 
-        int t = metrics.getRoundsWithoutFlag(teamId, serviceId, round);
-        int n = metrics.getCaptureCount(serviceId, round);
+        int t = metrics.getRoundsUntilFirstFlag(teamId, serviceId, round);
+        int n = metrics.getCaptureCount(serviceId, round - 1);
 
         double b = competitionContext.getCurrent().getFlagSendCost();
         double alpha = properties.getAlpha();

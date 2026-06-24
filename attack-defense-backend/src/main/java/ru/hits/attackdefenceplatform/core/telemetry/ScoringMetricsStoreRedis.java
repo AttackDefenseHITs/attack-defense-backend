@@ -15,23 +15,23 @@ public class ScoringMetricsStoreRedis implements ScoringMetricsStore {
 
     @Override
     public void recordFlagCapture(UUID teamId, UUID serviceId, int round) {
-        String lastFlagKey = MetricKeys.lastFlagRound(serviceId, teamId);
-        redis.opsForValue().set(lastFlagKey, String.valueOf(round));
+        String firstFlagKey = MetricKeys.firstFlagRound(serviceId, teamId);
+        redis.opsForValue().setIfAbsent(firstFlagKey, String.valueOf(round));
 
         String capturedKey = MetricKeys.capturedTeams(serviceId, round);
         redis.opsForSet().add(capturedKey, teamId.toString());
     }
 
     @Override
-    public int getRoundsWithoutFlag(UUID teamId, UUID serviceId, int currentRound) {
-        String key = MetricKeys.lastFlagRound(serviceId, teamId);
+    public int getRoundsUntilFirstFlag(UUID teamId, UUID serviceId, int currentRound) {
+        String key = MetricKeys.firstFlagRound(serviceId, teamId);
 
-        String lastRound = redis.opsForValue().get(key);
-        if (lastRound == null) {
+        String firstRound = redis.opsForValue().get(key);
+        if (firstRound == null) {
             return currentRound;
         }
 
-        return currentRound - Integer.parseInt(lastRound);
+        return Integer.parseInt(firstRound);
     }
 
     @Override
@@ -43,7 +43,10 @@ public class ScoringMetricsStoreRedis implements ScoringMetricsStore {
 
     @Override
     public void clearAll() {
-        Set<String> keys = redis.keys("LAST_FLAG_ROUND:*");
+        Set<String> keys = redis.keys("FIRST_FLAG_ROUND:*");
+        if (!keys.isEmpty()) redis.delete(keys);
+
+        keys = redis.keys("LAST_FLAG_ROUND:*");
         if (!keys.isEmpty()) redis.delete(keys);
 
         keys = redis.keys("CAPTURED_TEAMS:*");

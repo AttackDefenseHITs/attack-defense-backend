@@ -38,7 +38,7 @@ competition:
     flagLostCost: 150
   scoring:
     alpha: 0.05
-    gamma: 1.0
+    gamma: 0.3
 directory:
   checkers: /var/lib/checkers/
   exploits: /var/lib/exploits/
