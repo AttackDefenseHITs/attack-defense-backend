@@ -22,6 +22,7 @@ import ru.hits.attackdefenceplatform.public_interface.team.TeamListDto;
 import ru.hits.attackdefenceplatform.public_interface.team.TeamShortDataDto;
 import ru.hits.attackdefenceplatform.public_interface.user.UserTeamMemberDto;
 import ru.hits.attackdefenceplatform.public_interface.vitrual_machine.VirtualMachineDto;
+import ru.hits.attackdefenceplatform.util.NumberUtils;
 
 import java.util.Comparator;
 import java.util.List;
@@ -121,7 +122,7 @@ public class TeamServiceImpl implements TeamService {
         var canLeave = canLeaveFromTeam(user, team);
 
         Integer place = calculateTeamPlace(team, rankedTeams);
-        Double points = calculateTeamPoints(team);
+        Double points = NumberUtils.roundToThreeDecimals(calculateTeamPoints(team));
         var virtualMachine = getFullTeamVirtualMachineInfo(teamId, isMyTeam);
 
         return new TeamInfoDto(
@@ -241,7 +242,7 @@ public class TeamServiceImpl implements TeamService {
         return teamMemberRepository.findAll().stream()
                 .filter(member -> !Boolean.TRUE.equals(member.getTeam().getIsSystem()))
                 .filter(member -> !Boolean.TRUE.equals(member.getUser().getIsSystem()))
-                .map(member -> mapUserEntityToMemberDto(member.getUser(), member.getPoints()))
+                .map(member -> mapUserEntityToMemberDto(member.getUser(), NumberUtils.roundToThreeDecimals(member.getPoints())))
                 .sorted(Comparator.comparingDouble(UserTeamMemberDto::points).reversed())
                 .toList();
     }

@@ -31,7 +31,11 @@ public class DynamicAttackDefensePointsCounter implements PointsCounterStrategy 
                 .countByFlag_FlagOwner_Id(teamId);
 
         double lostPenalty = lostFlags * competition.getFlagLostCost();
-        double result = attackPoints * slaScore - lostPenalty;
+        double result = attackPoints - lostPenalty;
+
+        if (result > 0) {
+            result = result * slaScore;
+        }
 
         return NumberUtils.roundToThreeDecimals(result);
     }

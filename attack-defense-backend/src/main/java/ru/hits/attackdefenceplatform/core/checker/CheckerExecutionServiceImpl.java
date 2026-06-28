@@ -69,13 +69,7 @@ public class CheckerExecutionServiceImpl implements CheckerExecutionService {
             executorService.submit(() -> {
                 try {
                     for (var vm : allVirtualMachines) {
-                        var executionData = new ExecutionData(service, checker, vm, String.join(" ", commands));
-                        executeChecker(
-                                executionData.getVirtualMachine(),
-                                executionData.getCheckerEntity(),
-                                executionData.getService(),
-                                executionData.getCommand()
-                        );
+                        executeChecker(vm, checker, service, String.join(" ", commands));
                     }
                 } catch (Exception e) {
                     log.error("Не удалось выполнить чекер для сервиса с ID {}: {}", checker.getVulnerableService().getId(), e.getMessage(), e);
