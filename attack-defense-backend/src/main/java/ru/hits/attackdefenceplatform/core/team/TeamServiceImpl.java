@@ -112,7 +112,7 @@ public class TeamServiceImpl implements TeamService {
 
         var memberList = teamMemberRepository.findByTeam(team).stream()
                 .filter(member -> !Boolean.TRUE.equals(member.getUser().getIsSystem()))
-                .map(member -> mapUserEntityToMemberDto(member.getUser(), member.getPoints()))
+                .map(member -> mapUserEntityToMemberDto(member.getUser(), NumberUtils.roundToThreeDecimals(member.getPoints())))
                 .toList();
 
         List<TeamRatingRow> rankedTeams = getRankedTeamsCorrectly();
